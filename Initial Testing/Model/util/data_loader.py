@@ -26,7 +26,6 @@ def load_data(filePath, C, validation_split=0.333):
             trainSet.append(data)
         else:
             valSet.append(data)
-    print(len(trainSet))
     trainIter = processor.get_anchor_gt(trainSet,classCount,C)
     valIter = processor.get_anchor_gt(valSet,classCount,C)
     inputImageShape = (3,None,None)
