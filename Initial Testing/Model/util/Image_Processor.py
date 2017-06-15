@@ -108,8 +108,6 @@ def calc_rpn(C, img_data, width, height, resized_width, resized_height):
 	y_rpn_overlap = np.zeros((output_height, output_width, num_anchors))
 	y_is_box_valid = np.zeros((output_height, output_width, num_anchors))
 	y_rpn_regr = np.zeros((output_height, output_width, num_anchors * 4))
-	print(y_rpn_regr.shape)
-
 	num_bboxes = len(img_data['bboxes'])
 
 	num_anchors_for_bbox = np.zeros(num_bboxes).astype(int)
@@ -286,7 +284,7 @@ def threadsafe_generator(f):
 		return threadsafe_iter(f(*a, **kw))
 	return g
 
-def get_anchor_gt(all_img_data, class_count, C, backend, mode='train'):
+def get_anchor_gt(all_img_data, class_count, C, mode='train'):
 
 	sample_selector = SampleSelector(class_count)
 
@@ -336,10 +334,7 @@ def get_anchor_gt(all_img_data, class_count, C, backend, mode='train'):
 
 				y_rpn_regr[:, int(y_rpn_regr.shape[1]/2):, :, :] *= C.std_scaling
 
-				if backend == 'tf':
-					x_img = np.transpose(x_img, (0, 2, 3, 1))
-					y_rpn_cls = np.transpose(y_rpn_cls, (0, 2, 3, 1))
-					y_rpn_regr = np.transpose(y_rpn_regr, (0, 2, 3, 1))
+
 				print(("X:",x_img.shape))
 				print(("Y1:",y_rpn_cls.shape))
 				print(("Y2:",y_rpn_regr.shape))

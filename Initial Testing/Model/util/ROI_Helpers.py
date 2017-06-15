@@ -2,14 +2,14 @@ import numpy as np
 import pdb
 import math
 import copy
-
+from util import Image_Processor as processor
 
 def calc_iou(R, img_data, C, class_mapping):
 
 	bboxes = img_data['bboxes']
 	(width, height) = (img_data['width'], img_data['height'])
 	# get image dimensions for resizing
-	(resized_width, resized_height) = data_generators.get_new_img_size(width, height, C.im_size)
+	(resized_width, resized_height) = processor.get_new_img_size(width, height, C.im_size)
 
 	gta = np.zeros((len(bboxes), 4))
 
@@ -35,7 +35,7 @@ def calc_iou(R, img_data, C, class_mapping):
 		best_iou = 0.0
 		best_bbox = -1
 		for bbox_num in range(len(bboxes)):
-			curr_iou = data_generators.iou([gta[bbox_num, 0], gta[bbox_num, 2], gta[bbox_num, 1], gta[bbox_num, 3]], [x1, y1, x2, y2])
+			curr_iou = processor.iou([gta[bbox_num, 0], gta[bbox_num, 2], gta[bbox_num, 1], gta[bbox_num, 3]], [x1, y1, x2, y2])
 			if curr_iou > best_iou:
 				best_iou = curr_iou
 				best_bbox = bbox_num

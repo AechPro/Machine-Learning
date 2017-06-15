@@ -12,20 +12,72 @@ def build_models(inputImageShape,numROIs,numAnchors,numClasses):
     weights_path = get_file('resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5',WEIGHTS_PATH_NO_TOP,cache_subdir='models',md5_hash='a268eb855778b3df3c7506639542a6af')
     ROIInput = Input(shape=(numROIs,4))
     imgInput = Input(shape=(3,None,None))
-    resnet = Resnet_Model.ResNet50(include_top = False, input_tensor = imgInput)
-    rpnLayers = get_RPN_layers(resnet,numAnchors)
-    classifier = get_classifier(resnet,ROIInput,numROIs,nb_classes=numClasses,trainable=True)
+    base = nn_base(input_tensor = imgInput,trainable=True)
+    rpnLayers = rpn(base,numAnchors)
+    classifier = get_classifier(base,ROIInput,numROIs,nb_classes=numClasses,trainable=True)
 
     rpnModel = Model(inputs=imgInput,outputs=rpnLayers[:2])
     classifierModel = Model(inputs=[imgInput,ROIInput],outputs=classifier)
     fullModel = Model(inputs=[imgInput,ROIInput],outputs=rpnLayers[:2]+classifier)
-    #rpnModel.load_weights(weights_path,by_name=True)
-    #classifierModel.load_weights(weights_path,by_name=True)
-    #layer_utils.convert_all_kernels_in_model(rpnModel)
-    #layer_utils.convert_all_kernels_in_model(classifierModel)
     return [rpnModel, classifierModel, fullModel]
 
-def get_RPN_layers(base_layers,num_anchors):
+def nn_base(input_tensor=None, trainable=False):
+
+    # Determine proper input shape
+    if K.image_dim_ordering() == 'th':
+        input_shape = (3, None, None)
+    else:
+        input_shape = (None, None, 3)
+
+    if input_tensor is None:
+        img_input = Input(shape=input_shape)
+    else:
+        if not K.is_keras_tensor(input_tensor):
+            img_input = Input(tensor=input_tensor, shape=input_shape)
+        else:
+            img_input = input_tensor
+
+    if K.image_dim_ordering() == 'tf':
+        bn_axis = 3
+    else:
+        bn_axis = 1
+
+    x = ZeroPadding2D((3, 3))(img_input)
+
+    x = Conv2D(64, (7, 7), strides=(2, 2), name='conv1', trainable = trainable)(x)
+    x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2))(x)
+
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), trainable = trainable)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', trainable = trainable)
+
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', trainable = trainable)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', trainable = trainable)
+
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', trainable = trainable)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b', trainable = trainable)
+
+    return x
+
+
+def classifier_layers(x, input_shape, trainable=False):
+
+    # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
+    # (hence a smaller stride in the region that follows the ROI pool)
+    if K.backend() == 'tensorflow':
+        x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(2, 2), trainable=trainable)
+    elif K.backend() == 'theano':
+        x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(1, 1), trainable=trainable)
+
+    x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='b', trainable=trainable)
+    x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='c', trainable=trainable)
+    x = TimeDistributed(AveragePooling2D((7, 7)), name='avg_pool')(x)
+
+    return x
+
+
+def rpn(base_layers,num_anchors):
 
     x = Conv2D(512, (3, 3), padding='same', activation='relu', kernel_initializer='normal', name='rpn_conv1')(base_layers)
 
@@ -34,13 +86,19 @@ def get_RPN_layers(base_layers,num_anchors):
 
     return [x_class, x_regr, base_layers]
 
+def get_classifier(base_layers, input_rois, num_rois, nb_classes = 21, trainable=False):
 
-def get_classifier(base_layers, input_rois, num_rois, nb_classes = 10, trainable=False):
-    pooling_regions = 7
-    input_shape = (num_rois,1024,7,7)
-    print("Creating classifier model with",nb_classes,"classes.")
+    # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
+
+    if K.backend() == 'tensorflow':
+        pooling_regions = 14
+        input_shape = (num_rois,14,14,1024)
+    elif K.backend() == 'theano':
+        pooling_regions = 7
+        input_shape = (num_rois,1024,7,7)
+
     out_roi_pool = RoiPoolingConv(pooling_regions, num_rois)([base_layers, input_rois])
-    out = get_classifier_layers(out_roi_pool, input_shape=input_shape, trainable=True)
+    out = classifier_layers(out_roi_pool, input_shape=input_shape, trainable=True)
 
     out = TimeDistributed(Flatten())(out)
 
@@ -48,13 +106,6 @@ def get_classifier(base_layers, input_rois, num_rois, nb_classes = 10, trainable
     # note: no regression target for bg class
     out_regr = TimeDistributed(Dense(4 * (nb_classes-1), activation='linear', kernel_initializer='zero'), name='dense_regress_{}'.format(nb_classes))(out)
     return [out_class, out_regr]
-def get_classifier_layers(x, input_shape, trainable=False):
-    x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(1, 1), trainable=trainable)
-    x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='b', trainable=trainable)
-    x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='c', trainable=trainable)
-    x = TimeDistributed(AveragePooling2D((7, 7)), name='avg_poolb')(x)
-
-    return x
 
 
 def identity_block_td(input_tensor, kernel_size, filters, stage, block, trainable=True):
@@ -105,6 +156,60 @@ def conv_block_td(input_tensor, kernel_size, filters, stage, block, input_shape,
 
     shortcut = TimeDistributed(Conv2D(nb_filter3, (1, 1), strides=strides, trainable=trainable, kernel_initializer='normal'), name=conv_name_base + '1td')(input_tensor)
     shortcut = TimeDistributed(BatchNormalization(axis=bn_axis), name=bn_name_base + '1td')(shortcut)
+
+    x = Add()([x, shortcut])
+    x = Activation('relu')(x)
+    return x
+def identity_block(input_tensor, kernel_size, filters, stage, block, trainable=True):
+
+    nb_filter1, nb_filter2, nb_filter3 = filters
+    
+    if K.image_dim_ordering() == 'tf':
+        bn_axis = 3
+    else:
+        bn_axis = 1
+
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(nb_filter1, (1, 1), name=conv_name_base + '2a', trainable=trainable)(input_tensor)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2a')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=conv_name_base + '2b', trainable=trainable)(x)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2b')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c', trainable=trainable)(x)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2c')(x)
+
+    x = Add()([x, input_tensor])
+    x = Activation('relu')(x)
+    return x
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), trainable=True):
+
+    nb_filter1, nb_filter2, nb_filter3 = filters
+    if K.image_dim_ordering() == 'tf':
+        bn_axis = 3
+    else:
+        bn_axis = 1
+
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(nb_filter1, (1, 1), strides=strides, name=conv_name_base + '2a', trainable=trainable)(input_tensor)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2a')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=conv_name_base + '2b', trainable=trainable)(x)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2b')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c', trainable=trainable)(x)
+    x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2c')(x)
+
+    shortcut = Conv2D(nb_filter3, (1, 1), strides=strides, name=conv_name_base + '1', trainable=trainable)(input_tensor)
+    shortcut = BatchNormalization(axis=bn_axis, name=bn_name_base + '1')(shortcut)
 
     x = Add()([x, shortcut])
     x = Activation('relu')(x)
