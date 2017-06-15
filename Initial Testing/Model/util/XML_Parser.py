@@ -18,7 +18,7 @@ def load_file(fileName, classMap={}, classCount={}):
     parsedImage['bboxes'] = []
     parsedImage['width'] = int(root.find('size').find('width').text)
     parsedImage['height'] = int(root.find('size').find('height').text)
-    parsedImage['filename'] = root.find('filename').text
+    parsedImage['filepath'] = root.find('filepath').text
     for obj in root.findall('object'):
         bboxData = {}
         className = obj.find('name').text
@@ -45,7 +45,7 @@ def load_file(fileName, classMap={}, classCount={}):
 def create_file(name,w,h,d,bboxData):
     root = ET.Element("annotation")
     folder = ET.SubElement(root,"folder").text="BBox_Data"
-    fname = ET.SubElement(root,"filename").text="{}{}.png".format("../resources/data/images/training_data/generated_training_images/",name)
+    fname = ET.SubElement(root,"filepath").text="{}{}.png".format("../resources/data/images/training_data/generated_training_images/",name)
     size = ET.SubElement(root,"size")
     ET.SubElement(size,"width").text=str(w)
     ET.SubElement(size,"height").text=str(h)
@@ -68,7 +68,7 @@ def save_object_data(root,x1,y1,x2,y2):
     ET.SubElement(obj, "truncated").text="0"
     ET.SubElement(obj, "difficult").text="0"
     bbox = ET.SubElement(obj, "bndbox")
-    ET.SubElement(bbox,"xmin").text=str(x1)
-    ET.SubElement(bbox,"ymin").text=str(y1)
-    ET.SubElement(bbox,"xmax").text=str(x2)
-    ET.SubElement(bbox,"ymax").text=str(y2)
+    ET.SubElement(bbox,"x1").text=str(x1)
+    ET.SubElement(bbox,"y1").text=str(y1)
+    ET.SubElement(bbox,"x2").text=str(x2)
+    ET.SubElement(bbox,"y2").text=str(y2)

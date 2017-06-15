@@ -61,7 +61,6 @@ class Network(object):
             print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format("config.pickle"))
         np.random.shuffle(images)
         numImages = len(images)
-
         
         trainImages = [s for s in images if s['imageset'] == 'trainval']
         valImages = [s for s in images if s['imageset'] == 'test']
@@ -83,7 +82,7 @@ class Network(object):
     def train(self, data_gen_train, data_gen_val, classMap, C):
         model_rpn,model_classifier,model_all = self.models
 
-        epoch_length = 1000
+        epoch_length = 50
         num_epochs = 25
         iter_num = 0
 
@@ -95,6 +94,7 @@ class Network(object):
         best_loss = np.Inf
         for epoch_num in range(num_epochs):
             while(True):
+                print("Iteration",iter_num)
                 if len(rpn_accuracy_rpn_monitor) == epoch_length and C.verbose:
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor))/len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
@@ -104,15 +104,17 @@ class Network(object):
 
                 X, Y, img_data = next(data_gen_train)
                 
-                print("fitting RPN batch...")
-                #loss_rpn = model_rpn.train_on_batch(X, Y)
-                loss_rpn = model_rpn.fit(X,Y,batch_size=1,epochs=1,verbose=1)
+                #print("fitting RPN on batch...")
+                loss_rpn = model_rpn.train_on_batch(X, Y)
+                #loss_rpn = model_rpn.fit(X,Y,batch_size=1,epochs=1,verbose=1)
 
-                print("Predicting RPN on batch...")
+                #print("History object: ",loss_rpn.history)
+
+                #print("Predicting RPN on batch...")
                 P_rpn = model_rpn.predict_on_batch(X)
-                print("Calculating ROIs from RPN")
+                #print("Calculating ROIs from RPN")
                 R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, use_regr=True, overlap_thresh=0.7, max_boxes=300)
-                print("Calculating IOU scores")
+                #print("Calculating IOU scores")
                 # note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format
                 X2, Y1, Y2 = roi_helpers.calc_iou(R, img_data, C, classMap)
 
@@ -122,30 +124,30 @@ class Network(object):
                     rpn_accuracy_for_epoch.append(0)
                     continue
                 
-                print("Finding positive and negative samples")
+                #print("Finding positive and negative samples")
                 neg_samples = np.where(Y1[0, :, -1] == 1)
                 pos_samples = np.where(Y1[0, :, -1] == 0)
 
                 if len(neg_samples) > 0:
-                    print("Found negative samples")
+                    #print("Found negative samples")
                     neg_samples = neg_samples[0]
                 else:
-                    print("Found no negative samples")
+                    #print("Found no negative samples")
                     neg_samples = []
 
                 if len(pos_samples) > 0:
-                    print("Found positive samples")
+                    #print("Found positive samples")
                     pos_samples = pos_samples[0]
                 else:
-                    print("Found no positive samples")
+                    #print("Found no positive samples")
                     pos_samples = []
 
-                print("Adding to RPN accuracy monitor")
+                #print("Adding to RPN accuracy monitor")
                 rpn_accuracy_rpn_monitor.append(len(pos_samples))
                 rpn_accuracy_for_epoch.append((len(pos_samples)))
 
                 if C.num_rois > 1:
-                    print("num ROIs > 1")
+                    #print("num ROIs > 1")
                     if len(pos_samples) < C.num_rois/2:
                             selected_pos_samples = pos_samples.tolist()
                     else:
@@ -157,7 +159,7 @@ class Network(object):
 
                     sel_samples = selected_pos_samples + selected_neg_samples
                 else:
-                    print("num ROIs == 1")
+                    #print("num ROIs == 1")
                     # in the extreme case where num_rois = 1, we pick a random pos or neg sample
                     selected_pos_samples = pos_samples.tolist()
                     selected_neg_samples = neg_samples.tolist()
@@ -166,13 +168,13 @@ class Network(object):
                     else:
                         sel_samples = random.choice(pos_samples)
 
-                print("Fitting classifier to batch")
-                print("sel_samples:",sel_samples)
-                loss_class = model_classifier.fit([X, X2[:, sel_samples, :]], [Y1[:, sel_samples, :], Y2[:, sel_samples, :]],batch_size=1,epochs=1,verbose=1)
+                #print("Fitting classifier to batch")
+                #print("sel_samples:",sel_samples)
+                loss_class = (0,0,0,0)#model_classifier.fit([X, X2[:, sel_samples, :]], [Y1[:, sel_samples, :], Y2[:, sel_samples, :]],batch_size=1,epochs=1,verbose=1)
 
-                print("Storing loss scores")
-                losses[iter_num, 0] = loss_rpn[1]
-                losses[iter_num, 1] = loss_rpn[2]
+                #print("Storing loss scores")
+                losses[iter_num, 0] = loss_rpn[1]#.history['rpn_out_class_loss'][0]
+                losses[iter_num, 1] = loss_rpn[2]#.history['rpn_out_regress_loss'][0]
 
                 losses[iter_num, 2] = loss_class[1]
                 losses[iter_num, 3] = loss_class[2]
