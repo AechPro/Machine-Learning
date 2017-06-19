@@ -3,7 +3,6 @@ import pdb
 import math
 import copy
 from util import Image_Processor as processor
-
 def calc_iou(R, img_data, C, class_mapping):
 
 	bboxes = img_data['bboxes']
@@ -168,8 +167,11 @@ def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
 	if boxes.dtype.kind == "i":
 		boxes = boxes.astype("float")
 
-	# initialize the list of picked indexes 
+	# initialize the list of picked indexes	
 	pick = []
+
+	# calculate the areas
+	area = (x2 - x1) * (y2 - y1)
 
 	# sort the bounding boxes 
 	idxs = np.argsort(probs)
@@ -190,21 +192,16 @@ def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
 		xx2_int = np.minimum(x2[i], x2[idxs[:last]])
 		yy2_int = np.minimum(y2[i], y2[idxs[:last]])
 
-		# find the union
-		xx1_un = np.minimum(x1[i], x1[idxs[:last]])
-		yy1_un = np.minimum(y1[i], y1[idxs[:last]])
-		xx2_un = np.maximum(x2[i], x2[idxs[:last]])
-		yy2_un = np.maximum(y2[i], y2[idxs[:last]])
-
-		# compute the width and height of the bounding box
 		ww_int = np.maximum(0, xx2_int - xx1_int)
 		hh_int = np.maximum(0, yy2_int - yy1_int)
 
-		ww_un = np.maximum(0, xx2_un - xx1_un)
-		hh_un = np.maximum(0, yy2_un - yy1_un)
+		area_int = ww_int * hh_int
+
+		# find the union
+		area_union = area[i] + area[idxs[:last]] - area_int
 
 		# compute the ratio of overlap
-		overlap = (ww_int*hh_int)/(ww_un*hh_un + 1e-9)
+		overlap = area_int/(area_union + 1e-6)
 
 		# delete all indexes from the index list that have
 		idxs = np.delete(idxs, np.concatenate(([last],
@@ -219,7 +216,7 @@ def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
 	return boxes, probs
 
 import time
-def rpn_to_roi(rpn_layer, regr_layer, C, use_regr=True, max_boxes=300,overlap_thresh=0.9):
+def rpn_to_roi(rpn_layer, regr_layer, C, dim_ordering='tf', use_regr=True, max_boxes=300,overlap_thresh=0.9):
 
 	regr_layer = regr_layer / C.std_scaling
 
@@ -227,18 +224,30 @@ def rpn_to_roi(rpn_layer, regr_layer, C, use_regr=True, max_boxes=300,overlap_th
 	anchor_ratios = C.anchor_box_ratios
 
 	assert rpn_layer.shape[0] == 1
-	(rows,cols) = rpn_layer.shape[2:]
+
+	if dim_ordering == 'th':
+		(rows,cols) = rpn_layer.shape[2:]
+
+	elif dim_ordering == 'tf':
+		(rows, cols) = rpn_layer.shape[1:3]
 
 	curr_layer = 0
-	A = np.zeros((4, rpn_layer.shape[2], rpn_layer.shape[3], rpn_layer.shape[1]))
+	if dim_ordering == 'tf':
+		A = np.zeros((4, rpn_layer.shape[1], rpn_layer.shape[2], rpn_layer.shape[3]))
+	elif dim_ordering == 'th':
+		A = np.zeros((4, rpn_layer.shape[2], rpn_layer.shape[3], rpn_layer.shape[1]))
 
 	for anchor_size in anchor_sizes:
 		for anchor_ratio in anchor_ratios:
 
 			anchor_x = (anchor_size * anchor_ratio[0])/C.rpn_stride
 			anchor_y = (anchor_size * anchor_ratio[1])/C.rpn_stride
-			regr = regr_layer[0, 4 * curr_layer:4 * curr_layer + 4, :, :]
-		
+			if dim_ordering == 'th':
+				regr = regr_layer[0, 4 * curr_layer:4 * curr_layer + 4, :, :]
+			else:
+				regr = regr_layer[0, :, :, 4 * curr_layer:4 * curr_layer + 4]
+				regr = np.transpose(regr, (2, 0, 1))
+
 			X, Y = np.meshgrid(np.arange(cols),np. arange(rows))
 
 			A[0, :, :, curr_layer] = X - anchor_x/2

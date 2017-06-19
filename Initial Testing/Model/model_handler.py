@@ -1,7 +1,7 @@
 """
 @Author: Matthew Allen
 @Date 05/24/2017
-@File: model_builder.py
+@File: model_handler.py
 @Description:
     This file is responsible for handling the models built from the components defined
     in model_structure.py. This file also has the capability to train a model
@@ -49,7 +49,7 @@ class Network(object):
     def testStep(self):
         C = Config.Config()
         
-        images, classCount, classMap = get_data(os.path.expanduser("~/Desktop/training_data/PASCAL VOC/VOCdevkit"))
+        """images, classCount, classMap = get_data(os.path.expanduser("~/Desktop/training_data/PASCAL VOC/VOCdevkit"))
         
         if 'bg' not in classCount:
             classCount['bg'] = 0
@@ -69,21 +69,21 @@ class Network(object):
         print('Num val samples {}'.format(len(valImages)))
         
         trainIter = processor.get_anchor_gt(trainImages,classCount,C)
-        valIter = processor.get_anchor_gt(trainImages,classCount,C,mode='val')
+        valIter = processor.get_anchor_gt(trainImages,classCount,C,mode='val')"""
 
-        #trainIter,valIter,inputImageShape,allImgs,classCount,classMap = dLoader.load_data("../resources/data/images/training_data/generated_training_images/BBox_Data",C)
+        trainIter,valIter,inputImageShape,allImgs,classCount,classMap = dLoader.load_data("../resources/data/images/training_data/generated_training_images/BBox_Data",C)
         
         numAnchors = len(C.anchor_box_scales)*len(C.anchor_box_ratios)
         
-        self.models = self.get_models((3,None,None),C.num_rois,numAnchors,len(classCount))
+        self.models = self.get_models((None,None,3),C.num_rois,numAnchors,len(classCount))
         
         self.train(trainIter,valIter,classMap, C)
 
     def train(self, data_gen_train, data_gen_val, classMap, C):
         model_rpn,model_classifier,model_all = self.models
 
-        epoch_length = 50
-        num_epochs = 25
+        epoch_length = 200
+        num_epochs = 1000
         iter_num = 0
 
         losses = np.zeros((epoch_length, 5))
@@ -112,6 +112,7 @@ class Network(object):
 
                 #print("Predicting RPN on batch...")
                 P_rpn = model_rpn.predict_on_batch(X)
+                #print(P_rpn[0].shape,P_rpn[1].shape)
                 #print("Calculating ROIs from RPN")
                 R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, use_regr=True, overlap_thresh=0.7, max_boxes=300)
                 #print("Calculating IOU scores")
@@ -119,7 +120,7 @@ class Network(object):
                 X2, Y1, Y2 = roi_helpers.calc_iou(R, img_data, C, classMap)
 
                 if X2 is None:
-                    print("Found X2 to be None")
+                    #print("Found X2 to be None")
                     rpn_accuracy_rpn_monitor.append(0)
                     rpn_accuracy_for_epoch.append(0)
                     continue
@@ -131,16 +132,16 @@ class Network(object):
                 if len(neg_samples) > 0:
                     #print("Found negative samples")
                     neg_samples = neg_samples[0]
-                else:
+                if(len(neg_samples)==0):
                     #print("Found no negative samples")
-                    neg_samples = []
+                    neg_samples = [0]
 
                 if len(pos_samples) > 0:
                     #print("Found positive samples")
                     pos_samples = pos_samples[0]
                 else:
                     #print("Found no positive samples")
-                    pos_samples = []
+                    pos_samples = [0]
 
                 #print("Adding to RPN accuracy monitor")
                 rpn_accuracy_rpn_monitor.append(len(pos_samples))
@@ -148,13 +149,19 @@ class Network(object):
 
                 if C.num_rois > 1:
                     #print("num ROIs > 1")
+                    #print("NEGATIVE:",neg_samples)
+                    #print("POSITIVE:",pos_samples)
                     if len(pos_samples) < C.num_rois/2:
                             selected_pos_samples = pos_samples.tolist()
                     else:
                             selected_pos_samples = np.random.choice(pos_samples, int(C.num_rois/2), replace=False).tolist()
                     try:
+                        if(len(neg_samples)>0):
+                            #print("attempting to select...")
                             selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=False).tolist()
                     except:
+                        if(len(neg_samples)>0):
+                            #print("exception tripped")
                             selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples), replace=True).tolist()
 
                     sel_samples = selected_pos_samples + selected_neg_samples
@@ -170,7 +177,8 @@ class Network(object):
 
                 #print("Fitting classifier to batch")
                 #print("sel_samples:",sel_samples)
-                loss_class = (0,0,0,0)#model_classifier.fit([X, X2[:, sel_samples, :]], [Y1[:, sel_samples, :], Y2[:, sel_samples, :]],batch_size=1,epochs=1,verbose=1)
+                #loss_class = (0,0,0,0)
+                loss_class = model_classifier.train_on_batch([X, X2[:, sel_samples, :]], [Y1[:, sel_samples, :], Y2[:, sel_samples, :]])
 
                 #print("Storing loss scores")
                 losses[iter_num, 0] = loss_rpn[1]#.history['rpn_out_class_loss'][0]

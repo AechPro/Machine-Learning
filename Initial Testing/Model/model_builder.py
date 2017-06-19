@@ -11,7 +11,7 @@ WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases
 def build_models(inputImageShape,numROIs,numAnchors,numClasses):
     weights_path = get_file('resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5',WEIGHTS_PATH_NO_TOP,cache_subdir='models',md5_hash='a268eb855778b3df3c7506639542a6af')
     ROIInput = Input(shape=(numROIs,4))
-    imgInput = Input(shape=(3,None,None))
+    imgInput = Input(shape=(inputImageShape))
     base = nn_base(input_tensor = imgInput,trainable=True)
     rpnLayers = rpn(base,numAnchors)
     classifier = get_classifier(base,ROIInput,numROIs,nb_classes=numClasses,trainable=True)
@@ -214,3 +214,4 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),
     x = Add()([x, shortcut])
     x = Activation('relu')(x)
     return x
+

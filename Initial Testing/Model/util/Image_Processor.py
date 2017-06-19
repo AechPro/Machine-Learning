@@ -15,18 +15,18 @@ def get_img_output_length(width, height):
 		filter_sizes = [7, 3, 1, 1]
 		stride = 2
 		for filter_size in filter_sizes:
-                        #Floordiv in Python 2.6 and Python 3.6 perform the same. No error here.
+			#Floordiv in Python 2.6 and Python 3.6 perform the same. No error here.
 			input_length = (input_length - filter_size + stride) // stride
 		return input_length
 
 	return get_output_length(width), get_output_length(height)
 
-def union(au, bu):
-	x = min(au[0], bu[0])
-	y = min(au[1], bu[1])
-	w = max(au[2], bu[2]) - x
-	h = max(au[3], bu[3]) - y
-	return x, y, w, h
+def union(au, bu, intersection):
+	area_a = (au[2] - au[0]) * (au[3] - au[1])
+	area_b = (bu[2] - bu[0]) * (bu[3] - bu[1])
+	area_intersection = intersection[2] * intersection[3]
+	area_union = area_a + area_b - area_intersection
+	return area_union
 
 def intersection(ai, bi):
 	x = max(ai[0], bi[0])
@@ -44,10 +44,9 @@ def iou(a, b):
 		return 0.0
 
 	i = intersection(a, b)
-	u = union(a, b)
+	area_u = union(a,b,i)
 
 	area_i = i[2] * i[3]
-	area_u = u[2] * u[3]
 	return float(area_i) / float(area_u)
 
 
@@ -333,11 +332,9 @@ def get_anchor_gt(all_img_data, class_count, C, mode='train'):
 				x_img = np.expand_dims(x_img, axis=0)
 
 				y_rpn_regr[:, int(y_rpn_regr.shape[1]/2):, :, :] *= C.std_scaling
-
-
-				print(("X:",x_img.shape))
-				print(("Y1:",y_rpn_cls.shape))
-				print(("Y2:",y_rpn_regr.shape))
+				x_img = np.transpose(x_img, (0, 2, 3, 1))
+				y_rpn_cls = np.transpose(y_rpn_cls, (0, 2, 3, 1))
+				y_rpn_regr = np.transpose(y_rpn_regr, (0, 2, 3, 1))
 
 				yield np.copy(x_img), [np.copy(y_rpn_cls), np.copy(y_rpn_regr)], img_data_aug
 
