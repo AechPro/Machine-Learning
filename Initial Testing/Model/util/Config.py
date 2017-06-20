@@ -13,7 +13,7 @@ class Config:
 		self.rot_90 = False
 
 		# anchor box scales
-		self.anchor_box_scales = [128, 256, 512]
+		self.anchor_box_scales = [32, 64, 128]
 
 		# anchor box ratios
 		self.anchor_box_ratios = [[1, 1], [1, 2], [2, 1]]
@@ -22,7 +22,7 @@ class Config:
 		self.im_size = 600
 
 		# image channel-wise mean to subtract
-		self.img_channel_mean = [103.939, 116.779, 123.68]
+		self.img_channel_mean = [10.3939, 11.6779, 12.368]
 		self.img_scaling_factor = 1.0
 
 		# number of ROIs at once

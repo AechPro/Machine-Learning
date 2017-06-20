@@ -48,8 +48,9 @@ class Network(object):
 
     def testStep(self):
         C = Config.Config()
-        
-        """images, classCount, classMap = get_data(os.path.expanduser("~/Desktop/training_data/PASCAL VOC/VOCdevkit"))
+        """
+        #images, classCount, classMap = get_data(os.path.expanduser("../resources/data/PASCAL VOC/VOCdevkit"))
+        images, classCount, classMap = get_data(os.path.expanduser("../PASCALVOC"))
         
         if 'bg' not in classCount:
             classCount['bg'] = 0
@@ -72,7 +73,10 @@ class Network(object):
         valIter = processor.get_anchor_gt(trainImages,classCount,C,mode='val')"""
 
         trainIter,valIter,inputImageShape,allImgs,classCount,classMap = dLoader.load_data("../resources/data/images/training_data/generated_training_images/BBox_Data",C)
-        
+        with open("config.pickle", 'wb') as config_f:
+            pickle.dump(C,config_f)
+            print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format("config.pickle"))
+
         numAnchors = len(C.anchor_box_scales)*len(C.anchor_box_ratios)
         
         self.models = self.get_models((None,None,3),C.num_rois,numAnchors,len(classCount))
@@ -82,8 +86,8 @@ class Network(object):
     def train(self, data_gen_train, data_gen_val, classMap, C):
         model_rpn,model_classifier,model_all = self.models
 
-        epoch_length = 200
-        num_epochs = 1000
+        epoch_length = 1000
+        num_epochs = 2000
         iter_num = 0
 
         losses = np.zeros((epoch_length, 5))
@@ -93,8 +97,9 @@ class Network(object):
 
         best_loss = np.Inf
         for epoch_num in range(num_epochs):
+            progbar = generic_utils.Progbar(epoch_length)
+            print('Epoch {}/{}'.format(epoch_num + 1, num_epochs))
             while(True):
-                print("Iteration",iter_num)
                 if len(rpn_accuracy_rpn_monitor) == epoch_length and C.verbose:
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor))/len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
@@ -189,6 +194,10 @@ class Network(object):
                 losses[iter_num, 4] = loss_class[3]
 
                 iter_num += 1
+                progbar.update(iter_num, [('rpn_cls', np.mean(losses[:iter_num, 0])), ('rpn_regr', np.mean(losses[:iter_num, 1])),
+                                      ('detector_cls', np.mean(losses[:iter_num, 2])),
+                                                                          ('detector_regr', np.mean(losses[:iter_num, 3]))])
+
                 if iter_num >= epoch_length:
                     print("Iter num reached epoch length")
                     loss_rpn_cls = np.mean(losses[:, 0])

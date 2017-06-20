@@ -69,8 +69,18 @@ def augment_data():
     bboxData = load_bbox_data("../../resources/data/image_labels/Snippet_Labels.txt")
     dictionary = {}
     newBBoxData = []
+    boxNames = []
+    for dataPack in bboxData:
+        name, cls, x1, y1, x2, y2 = dataPack
+        name = name[name.rfind("/")+1:name.rfind("png")-1]
+        boxNames.append(name)
     for im in cells:
         imgs.append(im)
+    for im in imgs:
+        imageName = im.filename[im.filename.rfind("/")+1:im.filename.rfind("png")-1]
+        if imageName not in boxNames:
+            imgs.remove(im)
+    
     for im in bg:
         imgs.append(im)
     filePath = imgs[0].filename
@@ -78,12 +88,12 @@ def augment_data():
     filePath = filePath[:filePath.rfind("training_data/")+len("training_data/")]
     filePath = ''.join([filePath,"cell_images/augmented_data/"])
     dictionary = build_bbox_dictionary(imgs,bboxData)
-    print(usingWindows)
+    #print(usingWindows)
     for im in imgs:
         imageName = im.filename[im.filename.rfind("/")+1:im.filename.rfind("png")-1]
         saveImageName = "{}{}.png".format(filePath,imageName)
-        if usingWindows:
-            saveImageName = format_for_windows(saveImageName)
+        #if usingWindows:
+        #   saveImageName = format_for_windows(saveImageName)
         im.save(saveImageName)
         for r in range(90,360,90):
             rImageName = "{}{}_{}.png".format(filePath,r,imageName)
@@ -114,9 +124,9 @@ def augment_data():
                     origBoxName = ''.join(["resources/data/images/training_data/cell_images/augmented_images/",imageName,".png"])
                     origBox = pack_bbox(origBoxName,cls,[x1,y1,x2,y2])
                     newBBoxData.append(origBox)
-            if usingWindows:
+            """if usingWindows:
                 rImageName = format_for_windows(rImageName)
-                mirImageName = format_for_windows(mirImageName)
+                mirImageName = format_for_windows(mirImageName)"""
             rImage = im.rotate(r)
             mImage = ImageOps.mirror(rImage)
             rImage.save(rImageName)

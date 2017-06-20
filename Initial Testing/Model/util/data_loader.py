@@ -5,7 +5,7 @@ import numpy as np
 from util import Image_Processor as processor
 from keras import backend as K
 from keras.layers import Input
-def load_data(filePath, C, validation_split=0.333):
+def load_data(filePath, C, validation_split=0.0):
     imageData = []
     classCount = {}
     classMap = {}
@@ -26,6 +26,8 @@ def load_data(filePath, C, validation_split=0.333):
             trainSet.append(data)
         else:
             valSet.append(data)
+    print("Training samples:",len(trainSet))
+    print("Validation samples:",len(valSet))
     trainIter = processor.get_anchor_gt(trainSet,classCount,C)
     valIter = processor.get_anchor_gt(valSet,classCount,C)
     inputImageShape = (3,None,None)
