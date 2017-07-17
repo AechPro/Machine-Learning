@@ -26,8 +26,13 @@ def load_data():
 
     xTrain = xTrain.astype('float32')
     xTest = xTest.astype('float32')
+    mean = np.mean(xTrain)
+    print("CHANNEL-WISE IMAGE MEAN: ",mean)
+    xTrain -= mean
+    xTest -= mean
     xTrain /= 255
     xTest /= 255
+    
     print('xTrain shape:', xTrain.shape)
     print(xTrain.shape[0], 'train samples')
     print(xTest.shape[0], 'test samples')
@@ -37,20 +42,20 @@ def load_data():
     yTest = keras.utils.to_categorical(yTest, numClasses)
     return (xTrain, yTrain), (xTest, yTest), inputShape, numClasses
 def get_images(w,h):
-    cellPath = "blobs/cells"
-    nonCellPath = "blobs"
+    cellPath = "../../resources/data/images/training_data/blobs/cells"
+    nonCellPath = "../../resources/data/images/training_data/blobs"
     cells = []
     nonCells = []
     for filename in os.listdir(cellPath):
         try:
-            img = cv2.imread(''.join(["blobs/cells/",filename]),cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread(''.join([cellPath,"/",filename]),cv2.IMREAD_GRAYSCALE)
             img = cv2.resize(img, (w,h), interpolation=cv2.INTER_CUBIC)
             cells.append(img)
         except:
             continue
     for filename in os.listdir(nonCellPath):
         try:
-            img = cv2.imread(''.join(["blobs/",filename]),cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread(''.join([nonCellPath,"/",filename]),cv2.IMREAD_GRAYSCALE)
             img = cv2.resize(img, (w,h), interpolation=cv2.INTER_CUBIC)
             nonCells.append(img)
         except:

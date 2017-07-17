@@ -1,7 +1,7 @@
 import cv2
 import os
-import Region_Optimizer as network
-import blob_detection_test as regionFinder
+import Region_Filter as network
+import Region_Detector as regionFinder
 import Data_Loader as dLoader
 import numpy as np
 
@@ -16,19 +16,22 @@ def readImages():
             print("Error reading image: ",filename)
     imgs = {k:v for k,v in imgs.items() if v is not None}
     return imgs
-def createImages(img, normal):
-    imgs = regionFinder.get_regions(normal, img)
+def createImages(img, sourceImg):
+    img = cv2.imread(img)
+    sourceImg = cv2.imread(sourceImg)
+    imgs = regionFinder.get_regions(img, sourceImg)
     return imgs
 def filter_images(imgs,bg,cell,net):
     filepath = "test/"
     confirmationName = "cell"
     nonConfirmationName = "blob"
-    thresh = 0.4
+    thresh = 0.95
     for img in imgs:
         key = 0
-        preds = net.parseImage(img,hardChoice=False)
+        preds = net.classify(img,hardChoice=False)
         if img is not None:
             img*=255.
+            img+=111.385
             img = img.astype('uint8')
         if isinstance(preds, int):
             cv2.imwrite(''.join([filepath,nonConfirmationName,"_{}.png"]).format(bg),img)
@@ -53,11 +56,18 @@ def filter_images(imgs,bg,cell,net):
                 cv2.imwrite(''.join([filepath,nonConfirmationName,"_{}.png"]).format(bg),img)
                 bg+=1
     return bg,cell
-cell = 0
-bg = 0
+cell = 3442
+bg = 3405
 net = network.filter_CNN()
-imgs = createImages("5.png","Normalized Image.png")
-bg,cell = filter_images(imgs,bg,cell,net)
-imgs = createImages("5stained.png","Normalized Image Stained.png")
-bg, cell = filter_images(imgs,bg,cell,net)
-
+filepath = "Normalized Images"
+regions = []
+for filename in os.listdir(filepath):
+    if ".png" in filename:
+        srcName = filename[filename.rfind("Normalized_")+len("Normalized_"):]
+        srcName = ''.join(["../../resources/data/images/originals/",srcName])
+        imgName = ''.join([filepath,"/",filename])
+        imgs = createImages(imgName,srcName)
+        for im in imgs:
+            regions.append(im)
+bg,cell = filter_images(regions,bg,cell,net)
+print(bg,cell)
