@@ -20,5 +20,6 @@ This project requires the following packages:
 2. Place the reference image for the hologram images in resources/holograms/processing_bin_1/reference.
 3. Open a Terminal instance.
 4. Navigate to the directory that this project was unpacked in.
-5. Type "Python Reconstruction.py -dir1"
+5. Type "Python Reconstruction.py -dir1".
+
 When all of the images have been processed, the code will display the message "Processing complete!" and the diagnostic results will be found in resources/diagnostics/results/processing_bin_1.
