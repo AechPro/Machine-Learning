@@ -1,8 +1,6 @@
-## Cell Localization with Machine Learning and Region-Based Object Reconstruction for Lymphoma Detection.
+## Cell Localization with Machine Learning and Region-Based Hologram Reconstruction for Lymphoma Diagnosis.
 
 This project was created by Matthew W. Allen for Partner's Healthcare.
-
-This project is under the Apache License, see LICENSE for more details.
 
 ## Required packages
 This project requires the following packages:
