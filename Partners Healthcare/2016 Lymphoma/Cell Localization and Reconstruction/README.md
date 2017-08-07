@@ -24,8 +24,6 @@ This project finds diagnostic data from holographic images of cells. The project
 3. Place the reference image for the hologram images in ```resources/holograms/processing_bin_x/reference``` where ```processing_bin_x``` is the processing bin you placed the holograms in.
 4. Open a Terminal instance.
 5. Navigate to the directory that this project was unpacked to.
-6. Type ```Python Reconstruction.py``` with arguments -dirx where dirx is the number for the processing bin you placed the holograms in.
-
-The reconstruction file can be run with multiple directories as arguments to process more than one processing bin in a single session. I.E. ```Python Reconstruction.py -dir1 -dir2 -dir3```
+6. Type ```Python Reconstruction.py```
 
 When all of the images have been processed, the code will display the message ```"Processing complete!"``` and the diagnostic results will be found in ```resources/diagnostics/results/processing_bin_x```.
