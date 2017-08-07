@@ -28,4 +28,4 @@ This project finds diagnostic data from holographic images of cells. The project
 
 The reconstruction file can be run with multiple directories as arguments to process more than one processing bin in a single session. I.E. ```Python Reconstruction.py -dir1 -dir2 -dir3```
 
-When all of the images have been processed, the code will display the message ```"Processing complete!"``` and the diagnostic results will be found in ```resources/diagnostics/results/processing_bin_1```.
+When all of the images have been processed, the code will display the message ```"Processing complete!"``` and the diagnostic results will be found in ```resources/diagnostics/results/processing_bin_x```.
