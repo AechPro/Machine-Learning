@@ -30,13 +30,13 @@ import matplotlib.pyplot as plt
 """Convolutional Neural Network used to filter cells from proposed regions in a hologram."""
 class filter_CNN(object):
     def __init__(self):
-        self.model_file = "cell_model.h5"
+        self.model_file = "hologram_model.h5"
 
-        #self.model = self.build_model(None,None,load=True)
+        self.model = self.build_model(None,None,load=True)
         #plot_model(self.model, to_file='model.png')
-        trainData, valData, inputShape, numClasses = dl.load_data()
-        self.model = self.build_model(inputShape, numClasses)
-        self.train(trainData, valData)
+        #trainData, valData, inputShape, numClasses = dl.load_data()
+        #self.model = self.build_model(inputShape, numClasses)
+        #self.train(trainData, valData)
 
     """
        Function to construct a new model or load trained model from designated file and return it.
@@ -156,4 +156,4 @@ class filter_CNN(object):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper right')
         plt.savefig("Loss.png")
-net = filter_CNN()
+#net = filter_CNN()

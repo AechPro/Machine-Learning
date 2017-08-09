@@ -1,15 +1,19 @@
 """
 Copyright 2017 Ismail Degani
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
     http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import numpy as np
 import scipy
 import scipy.misc
@@ -17,7 +21,6 @@ import scipy.ndimage
 import scipy.io
 import scipy.interpolate
 import skimage
-import time
 import cv2
 import os.path
 import skimage.morphology
@@ -146,7 +149,7 @@ class Reconstruction(object):
         F2 = ft2(Input, self.delta2)
         ReconImage = ift2(mul(F2, Gbp), dfx, dfy)
 
-        return ReconImage, support
+        return ReconImage
 
     def process(self, image_path, reference_path):
         image = cv2.imread(image_path,0)
@@ -186,16 +189,3 @@ class Reconstruction(object):
                 cv2.circle(support8bit, (i[0], i[1]), 2, (0, 0, 255), 3)
         self.debug_save_mat(support8bit, 'supportCirclesPy')
         return support8bit
-
-
-# Usage
-"""
-recon = Reconstruction()
-# change parameters if needed
-# recon.lmbda = 625e-9
-# recon.delta = 2.2e-6
-recon.debug = True
-t1 = time.time()
-result = recon.process('cell snapshot.png', 'snapshot ref.png')
-print("Reconstruction runs in:", time.time() - t1, "seconds")
-scipy.misc.imsave('output.png', np.abs(result))"""
