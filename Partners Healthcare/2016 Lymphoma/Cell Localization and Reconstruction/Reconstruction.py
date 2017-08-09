@@ -58,17 +58,30 @@ def get_diagnostic_data(region):
     #Create a BGR copy of the region to display boundary boxes on.
     vis = region.copy()
     vis = cv2.cvtColor(vis,cv2.COLOR_GRAY2BGR)
+
+    stainedCellCount = 0
     #For all boundary boxes.
     for box in bboxes:
         x1, y1, x2, y2 = box
+        #Reduce boundary box area by 30% to best fit around cell body for intensity calculation.
+        reduction = abs(x1-x2)*0.15
+        x1 = int(round(x1+reduction))
+        x2 = int(round(x2-reduction))
+        y1 = int(round(y1+reduction))
+        y2 = int(round(y2-reduction))
 
         #Draw boundary box on visualization image.
         cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
         colorIntensity = region[y1:y2, x1:x2]
+
+        #The intensity value of each cell is
         colorIntensity = (255 - np.average(colorIntensity))/255
-        print(colorIntensity)
-    return vis, len(bboxes),0
+        if colorIntensity >= 0.53:
+            stainedCellCount+=1
+
+    #Len(bboxes) represents the number of detected cells in the region.
+    return vis, len(bboxes), stainedCellCount
 
 """
     Function to normalize a hologram image given a reference image.
@@ -125,27 +138,45 @@ def load_images():
     return images, normalizedImages, filenames
 
 
-#Testing code.
+"""Program entry code."""
+
+#Load and process required data.
 images, normalImages, names = load_images()
+directory = "resources/diagnostics/results"
 for img, norm, name in zip(images,normalImages,names):
-    print("Processing image: ",name)
-    normalizedRegions, regions = detector.get_regions(norm, img, imName="Detected Image.png", classify=True)
-    numCells = 0
-    directory = "resources/diagnostics/results"
+    print("Processing image: ", name)
+
+    #Create necessary variables.
     bin = name[name.rfind("processing_bin"):]
-    dataFile = ''.join(
-        ["resources/diagnostics/results/", bin[:bin.rfind("/") + 1], name[name.rfind("/") + 1:name.rfind(".png")],
-         ".txt"])
-    print(dataFile)
-    file = open(dataFile,'w')
+    numStainedCells = 0
+    numCells = 0
+
+    #Extract regions for reconstruction.
+    normalizedRegions, regions = detector.get_regions(norm, img, imName="Detected Image.png", classify=True)
+
+    #Create diagnostic data file in the appropriate directory
+    dataFileDirectory = ''.join(["resources/diagnostics/results/", bin[:bin.rfind("/") + 1],
+                        name[name.rfind("/")+1:name.rfind(".png")],".txt"])
+    dataFile = open(dataFileDirectory,'w')
+
+    #Loop through each detected region.
     for region in normalizedRegions:
 
+        #Reconstruct region.
         reconRegion = rec.compute(region)
+
+        #Normalize magnitude of reconstructed region to between 255 and 0 for image analysis.
         regionMag = np.abs(reconRegion)
         regionMag *= 255./np.max(regionMag)
         regionMag = regionMag.astype('uint8')
-        blob,cellCountFromRegion, stainedCellsInRegion = get_diagnostic_data(regionMag)
-        numCells+=cellCountFromRegion
 
-    file.write("Total cells discovered: {}".format(numCells))
-    #file.write("Number of stained cells: {}".format(stainedCells))
+        #Get diagnostic data from region.
+        blob,cellCountFromRegion, stainedCellsInRegion = get_diagnostic_data(regionMag)
+
+        #Add to cell counts.
+        numCells+=cellCountFromRegion
+        numStainedCells+=stainedCellsInRegion
+
+    #Write requisite data.
+    dataFile.write("Total cells discovered: {}\n".format(numCells))
+    dataFile.write("Number of stained cells: {}\n".format(numStainedCells))
