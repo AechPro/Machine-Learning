@@ -1,4 +1,4 @@
-from NN_Models import SingleColorModel, RedColorModel
+from NN_Models import Single_Color_Model
 import cv2
 import matplotlib
 import numpy as np
@@ -28,8 +28,8 @@ class Manager(object):
     def __init__(self):
         self.load_data()
         #inputShape, numClasses, modelNumber
-        blueModel = SingleColorModel.NN_Model(self.inputShape, self.num470Classes,0)
-        redModel = SingleColorModel.NN_Model(self.inputShape,self.num625Classes,1)
+        blueModel = Single_Color_Model.NN_Model(self.inputShape, self.num470Classes,0)
+        redModel = Single_Color_Model.NN_Model(self.inputShape,self.num625Classes,1)
         self.models = [blueModel,redModel]
         self.debug_training_data()
     def load_data(self):
