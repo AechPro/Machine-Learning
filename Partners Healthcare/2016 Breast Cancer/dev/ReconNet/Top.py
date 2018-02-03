@@ -1,6 +1,6 @@
 import os
 from NN_Models import Reconnet as rnet
-from NN_Models import ModelManager as modelManager
+from NN_Models import Model_Manager as modelManager
 from util import Image_Excel_Wrapper as wrapper
 from util import Image_Processor as imp
 import numpy as np
