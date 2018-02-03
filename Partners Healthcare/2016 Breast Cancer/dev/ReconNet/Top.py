@@ -5,11 +5,10 @@ from util import Image_Excel_Wrapper as wrapper
 from util import Image_Processor as imp
 import numpy as np
 def create_excel_files():
-    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/" \
-                       "3. MACHINE LEARNING/Machine Learning/Patient samples/171009_BrCa_CSB1"
+    workingDirectory = "REDACTED"
     dirs = ["0. Unstained", "1. Red", "2. Blue", "3. Dual"]
     colors = ["uns", "red", "blue", "dual"]
-    folders = ["BT474_{}_bot left,BT474_{}_bot right,BT474_{}_top left,BT474_{}_top right".format(c, c, c, c).split(',')
+    folders = ["REDACTED".format(c, c, c, c).split(',')
                for c in colors]
     gen = os.walk(workingDirectory)
     dirs = next(gen)[1]
@@ -40,10 +39,10 @@ def sort_training_samples():
         os.mkdir("../training_data/reconnet/cells")
         os.mkdir("../training_data/reconnet/non_cells")
 
-    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/2. Experiments/Machine Learning/dev/images/new samples"
+    workingDirectory = "REDACTED"
     dirs = ["0. Unstained", "1. Red", "2. Blue", "3. Dual"]
     colors = ["uns", "red", "blue", "dual"]
-    folders = ["BT474_{}_bot left,BT474_{}_bot right,BT474_{}_top left,BT474_{}_top right".format(c, c, c, c).split(',')
+    folders = ["REDACTED".format(c, c, c, c).split(',')
                for c in colors]
 
     gen = os.walk(workingDirectory)
@@ -121,7 +120,7 @@ def evaluate_data(workingDirectory):
 """
 #Basically this line is necessary because windows is shit.
 if __name__ == '__main__':
-    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/2. Experiments/Machine Learning_JM/dev/Sample data evalution results"
+    workingDirectory = "REDACTED"
     #evaluate_data(workingDirectory)
     #test_model("data/model_0/reconnet_model_0.h5")
     #train_model()
