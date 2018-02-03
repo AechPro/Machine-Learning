@@ -136,40 +136,6 @@ class NN_Model(object):
         layers = AveragePooling2D()(layers)
         return layers
 
-    """
-        Function to classify an input image with a trained model.
-        @param img: A grayscale input image for classification.
-        @param hardChoice: Flag to determine whether or not the returned value should be the
-                           full output of the model, or a boolean classification based on the output.
-    """
-
-    def classify(self, inputs, certaintyThreshold=0.9, hardChoice=True):
-        in1 = np.asarray(inputs[0]).astype('float32')
-        in2 = np.asarray(inputs[1]).astype('float32')
-        # Return bad value if the image is 0 in any dimension.
-        if 0 in in1.shape or 0 in in2.shape:
-            if (hardChoice):
-                return False
-            return -1
-        in1 -= 31605.9
-        in2 -= 31605.9
-        in2 /= np.power(2, 16) - 1
-        in1 /= np.power(2, 16) - 1
-        in1 = cv2.resize(in1,(64,64),interpolation=cv2.INTER_CUBIC)
-        in2 = cv2.resize(in2,(64,64),interpolation=cv2.INTER_CUBIC)
-        # calculated channel mean
-        #inputImg /= np.power(2, 16) - 1"""
-
-        inp = [in1.reshape(1,64,64,1),in2.reshape(1,64,64,1)]
-        preds = self.model.predict(inp)
-        return preds
-
-    """
-       Function to train a fresh model architecture.
-       @param trainData: A tuple containing the xTrain, yTrain training set for the network.
-       @param valData: A tuple containing the xVal, yVal validation set for the network.
-    """
-
     def train(self, epochs, batchSize, epochSteps, valSteps, trainGen, valGen):
 
         # Set up generator for data augmentation.
