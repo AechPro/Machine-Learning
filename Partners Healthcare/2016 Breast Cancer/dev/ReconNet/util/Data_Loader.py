@@ -37,8 +37,9 @@ def load_data(path,numClasses=None):
     
     #Get images sized to 64x64x1 and fill xTrain, yTrain tuples with them.
     trainingData = get_images(path,(64,64))
-    xTrain = []
-    yTrain = []
+    trainingSets = []
+    validationSets = []
+    inputShapes = []
     if numClasses is None:
         bins470 = [0,0.1,0.2,0.3,0.4,0.5,0.6]
         bins625 = [0,0.125,0.25,0.375,0.5,0.625,0.75]
@@ -51,57 +52,63 @@ def load_data(path,numClasses=None):
         bins = create_bins_for_data(trainingData,numClasses)
         print(bins)
         trainingData = bin_data(trainingData,bins)
-
-    for sample in trainingData:
-        xTrain.append(sample["x"])
-        yTrain.append(sample["y"])
+    classes = [num470Classes,num625Classes]
+    for channel in range(len(trainingData[0]["x"])):
+        x = []
+        y = []
+        for sample in trainingData:
+            x.append(sample["x"][channel])
+            y.append(sample["y"][channel])
+        train, val, inputShape = process_training_set(x,y,classes[channel])
+        trainingSets.append(train)
+        validationSets.append(val)
+        inputShapes.append(inputShape)
+    return trainingSets, validationSets, inputShapes, classes
+    
+def process_training_set(xTrain, yTrain, numClasses):
     xTrain = np.asarray(xTrain)
     yTrain = np.asarray(yTrain)
     print(xTrain.shape)
-    #Shuffle training set and split for training and validation.
-    xTrain,yTrain = shuffle(xTrain,yTrain)
-    xTrain,yTrain,xVal,yVal = split(xTrain,yTrain)
-    inputs, rows, cols = xTrain.shape[1:]
+    # Shuffle training set and split for training and validation.
+    xTrain, yTrain = shuffle(xTrain, yTrain)
+    xTrain, yTrain, xVal, yVal = split(xTrain, yTrain)
+    rows, cols = xTrain.shape[1:]
 
-    #Reshape x arrays to (batches,rows,cols,channels).
-    xTrain = xTrain.reshape(xTrain.shape[0],2, rows, cols, 1)
-    xVal = xVal.reshape(xVal.shape[0],2, rows, cols, 1)
+    # Reshape x arrays to (batches,rows,cols,channels).
+    xTrain = xTrain.reshape(xTrain.shape[0], rows, cols, 1)
+    xVal = xVal.reshape(xVal.shape[0], rows, cols, 1)
 
-    #Determine input shape (64x64x1).
+    # Determine input shape (64x64x1).
     inputShape = (rows, cols, 1)
 
     xTrain = xTrain.astype('float32')
     xVal = xVal.astype('float32')
 
-    #Calculate channel-wise image mean and subtract it from x arrays.
+    # Calculate channel-wise image mean and subtract it from x arrays.
     mean = np.mean(xTrain)
-    print("CHANNEL-WISE IMAGE MEAN: ",mean)
+    print("CHANNEL-WISE IMAGE MEAN: ", mean)
     xTrain -= mean
     xVal -= mean
 
-    #Normalize x arrays to be within 0,1.
-    xTrain = np.divide(xTrain, np.power(2,16)-1)
-    xVal = np.divide(xVal, np.power(2,16)-1)
+    # Normalize x arrays to be within 0,1.
+    xTrain = np.divide(xTrain, np.power(2, 16) - 1)
+    xVal = np.divide(xVal, np.power(2, 16) - 1)
 
     print('xTrain shape:', xTrain.shape)
-    print("yTrain shape:",yTrain.shape)
+    print("yTrain shape:", yTrain.shape)
     print(xTrain.shape[0], 'train samples')
     print(xVal.shape[0], 'test samples')
+    # Convert class vectors to binary class matrices.
+    y = [y for y in yTrain]
+    vy = [y  for y in yVal]
 
-    #Convert class vectors to binary class matrices.
-    y1 = [y[0] for y in yTrain]
-    y2 = [y[1] for y in yTrain]
-    vy1 = [y[0] for y in yVal]
-    vy2 = [y[1] for y in yVal]
+    y = keras.utils.to_categorical(y, numClasses)
+    vy = keras.utils.to_categorical(vy, numClasses)
+    yTrain = np.asarray(y)
+    yVal = np.asarray(vy)
+    print(yTrain.shape,yVal.shape)
+    return (xTrain, yTrain), (xVal, yVal), inputShape
 
-    y1 = keras.utils.to_categorical(y1, num470Classes)
-    y2 = keras.utils.to_categorical(y2, num625Classes)
-    vy1 = keras.utils.to_categorical(vy1, num470Classes)
-    vy2 = keras.utils.to_categorical(vy2, num625Classes)
-    yTrain = np.asarray([y1,y2])
-    yVal = np.asarray([vy1,vy2])
-    #print(yTrain.shape,yVal.shape)
-    return (xTrain, yTrain), (xVal, yVal), inputShape, num470Classes,num625Classes
 
 """
     Function to load, reshape and return all available images in the training set.

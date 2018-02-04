@@ -8,7 +8,7 @@ import os
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-dataGen = augmentor(rotation_range=359, horizontal_flip=True, vertical_flip=True)
+dataGen = augmentor(horizontal_flip=True, vertical_flip=True)
 
 def single_input_data_generator(x, y, batch_size):
     genX = dataGen.flow(x, y, batch_size=batch_size)
@@ -28,49 +28,40 @@ class Manager(object):
     def __init__(self):
         self.load_data()
         #inputShape, numClasses, modelNumber
-        blueModel = Single_Color_Model.NN_Model(self.inputShape, self.num470Classes,0)
-        redModel = Single_Color_Model.NN_Model(self.inputShape,self.num625Classes,1)
+        blueModel = Single_Color_Model.NN_Model(0)
+        redModel = Single_Color_Model.NN_Model(1)
         self.models = [blueModel,redModel]
         self.debug_training_data()
     def load_data(self):
-        self.trainData, self.valData, self.inputShape, \
-        self.num470Classes, self.num625Classes = dl.load_data("../training_data/reconnet")
+        self.trainingSets, self.validationSets, self.inputShapes,\
+            self.outputShapes = dl.load_data("../training_data/reconnet")
     def debug_training_data(self):
-        xt,yt = self.trainData
-        data470, data625 = yt
-        binCounts = {}
-        for entry in data470:
-            val = np.argmax(entry)
-            if val in binCounts.keys():
-                binCounts[val] += 1
-            else:
-                binCounts[val] = 0
-        binCounts = sorted(binCounts.items())
-        print("470nm bins:",binCounts)
-        binCounts = {}
-        for entry in data625:
-            val = np.argmax(entry)
-            if val in binCounts.keys():
-                binCounts[val] += 1
-            else:
-                binCounts[val] = 0
-        binCounts = sorted(binCounts.items())
-        print("625nm bins:",binCounts)
+        for i in range(len(self.trainingSets)):
+            xt,yt = self.trainingSets[i]
+            binCounts = {}
+            for entry in yt:
+                val = np.argmax(entry)
+                if val in binCounts.keys():
+                    binCounts[val] += 1
+                else:
+                    binCounts[val] = 0
+            binCounts = sorted(binCounts.items())
+            print("Bins for training set {}:".format(i),binCounts)
     def train_models(self):
-        xTrain, yTrain = self.trainData
-        xVal, yVal = self.valData
         batchSize = 32
         epochs = 150
         for i in range(len(self.models)):
-            vout = yVal[i]
-            vinp = np.asarray([x[i] for x in xVal])
-            inp = np.asarray([x[i] for x in xTrain])
-            out = yTrain[i]
+            xTrain, yTrain = self.trainingSets[i]
+            xVal, yVal = self.validationSets[i]
+            vout = yVal
+            vinp = np.asarray([x for x in xVal])
+            inp = np.asarray([x for x in xTrain])
+            out = yTrain
             trainGen = single_input_data_generator(inp, out, batch_size=batchSize)
             valGen = single_input_data_generator(vinp, vout, batch_size=batchSize)
             epochSteps = len(xTrain) / batchSize
             valSteps = len(xVal)/batchSize
-            self.models[i].build_model()
+            self.models[i].build_model(self.inputShapes[i],self.outputShapes[i])
             history = self.models[i].train(epochs, batchSize, epochSteps, valSteps, trainGen, valGen)
             self.plot_training_metrics(history,self.models[i].modelNumber)
             self.save_training_metrics(history,self.models[i].modelNumber)

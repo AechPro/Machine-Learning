@@ -5,10 +5,11 @@ from util import Image_Excel_Wrapper as wrapper
 from util import Image_Processor as imp
 import numpy as np
 def create_excel_files():
-    workingDirectory = "REDACTED"
+    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/" \
+                       "3. MACHINE LEARNING/Machine Learning/Patient samples/171009_BrCa_CSB1"
     dirs = ["0. Unstained", "1. Red", "2. Blue", "3. Dual"]
     colors = ["uns", "red", "blue", "dual"]
-    folders = ["REDACTED".format(c, c, c, c).split(',')
+    folders = ["BT474_{}_bot left,BT474_{}_bot right,BT474_{}_top left,BT474_{}_top right".format(c, c, c, c).split(',')
                for c in colors]
     gen = os.walk(workingDirectory)
     dirs = next(gen)[1]
@@ -39,10 +40,10 @@ def sort_training_samples():
         os.mkdir("../training_data/reconnet/cells")
         os.mkdir("../training_data/reconnet/non_cells")
 
-    workingDirectory = "REDACTED"
+    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/2. Experiments/Machine Learning/dev/images/new samples"
     dirs = ["0. Unstained", "1. Red", "2. Blue", "3. Dual"]
     colors = ["uns", "red", "blue", "dual"]
-    folders = ["REDACTED".format(c, c, c, c).split(',')
+    folders = ["BT474_{}_bot left,BT474_{}_bot right,BT474_{}_top left,BT474_{}_top right".format(c, c, c, c).split(',')
                for c in colors]
 
     gen = os.walk(workingDirectory)
@@ -65,6 +66,10 @@ def train_model():
     net.train()
 
 def train_single_color_models():
+    # Remember to try separating the data sets completely in the data loader
+    # subtract channel-wise image mean on a per-training-set basis. Don't just
+    # subtract the image mean from every image in both sets from every image.
+    # find image mean for 625nm AND 470nm, treat them as different training sets.
     manager = modelManager.Manager()
     manager.train_models()
 
@@ -120,7 +125,7 @@ def evaluate_data(workingDirectory):
 """
 #Basically this line is necessary because windows is shit.
 if __name__ == '__main__':
-    workingDirectory = "REDACTED"
+    workingDirectory = "C:/Users/Matt/Dropbox (Partners HealthCare)/2016 Breast Cancer/2. Experiments/Machine Learning_JM/dev/Sample data evalution results"
     #evaluate_data(workingDirectory)
     #test_model("data/model_0/reconnet_model_0.h5")
     #train_model()
