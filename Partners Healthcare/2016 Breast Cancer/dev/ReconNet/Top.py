@@ -3,6 +3,7 @@ from NN_Models import Reconnet as rnet
 from NN_Models import Model_Manager as modelManager
 from util import Image_Excel_Wrapper as wrapper
 from util import Image_Processor as imp
+#from optimization import Genome_Optimizer as gOpt
 import numpy as np
 def create_excel_files():
     workingDirectory = ""
@@ -14,23 +15,15 @@ def create_excel_files():
     dirs = next(gen)[1]
     for d in dirs:
         gen2 = os.walk(''.join([workingDirectory,'/',d]))
+        directory = ''.join([workingDirectory, '/', d, '/training'])
+        print(d)
+        wrapper.cell_images_to_excel(directory)
         imageFolders = next(gen2)[1]
         for folder in imageFolders:
             try:
-                directory = ''.join([workingDirectory, '/', d, '/',folder,'/training'])
-                print(folder)
-                wrapper.cell_images_to_excel(directory)
+                continue
             except:
                 continue
-    """
-    for i in range(len(dirs)):
-        d = dirs[i]
-        for folder in folders[i]:
-            try:
-                directory = ''.join([workingDirectory, '/', d, '/', folder, '/training'])
-                wrapper.cell_images_to_excel(directory)
-            except:
-                continue"""
 
 def sort_training_samples():
     if not os.path.exists("../training_data"):
@@ -40,11 +33,6 @@ def sort_training_samples():
         os.mkdir("../training_data/reconnet/non_cells")
 
     workingDirectory = ""
-    dirs = ["0. Unstained", "1. Red", "2. Blue", "3. Dual"]
-    colors = ["uns", "red", "blue", "dual"]
-    folders = ["BT474_{}_bot left,BT474_{}_bot right,BT474_{}_top left,BT474_{}_top right".format(c, c, c, c).split(',')
-               for c in colors]
-
     gen = os.walk(workingDirectory)
     dirs = next(gen)[1]
     for d in dirs:
@@ -53,7 +41,7 @@ def sort_training_samples():
         for folder in imageFolders:
             try:
                 directory = ''.join([workingDirectory, '/', d, '/', folder, '/training'])
-                print(folder)
+                print(directory)
                 wrapper.sort_training_samples(directory)
             except:
                 continue
@@ -67,16 +55,18 @@ def train_model():
 def train_single_color_models():
     manager = modelManager.Manager()
     manager.train_models()
-
+def find_cell_coordinates(directory):
+    processedIms = imp.process_dual_wavelength(directory)
+    imp.save_processed_images_txt(processedIms)
 def examine_models():
     from keras.models import load_model
     model_file = "reconnet_model_file_"
     for i in range(10):
-        print("\n\n****MODEL {}****\n".format(i))
+        print("/n/n****MODEL {}****/n".format(i))
         model = load_model("data/{}{}{}".format(model_file, i, ".h5"))
         print(model.summary())
 
-def test_model(model):
+def check_model(model):
     import numpy as np
     net = rnet.Reconnet(0)
     net.load_data()
@@ -111,7 +101,14 @@ def evaluate_data(workingDirectory):
         directory = ''.join([workingDirectory,'/',d])
         processedImages = imp.process_dual_wavelength(directory)
         imp.save_processed_images(processedImages,net)
-
+def optimize_MSER():
+    from optimization.targets import MSER_Target as targ
+    #genome = [[0, 27], [1, 192], [2, 345], [3, 0.47969661370152983], [4, 0.47349351051002975], [5, 721], [6, 6], [7, 0.8067395218562651], [8, 1]]
+    #target = targ.Target()
+    #target.build_from_genome(genome)
+    #target.evaluate()
+    #opt = gOpt.Optimizer(targ.Target(),1,1)
+    #opt.run()
 """
     On Windows platforms there is no fork() routine, so the multiprocessing library is forced to import
     the current module to get access to the worker function. Without the if statement below, the child 
@@ -120,9 +117,11 @@ def evaluate_data(workingDirectory):
 """
 #Basically this line is necessary because windows is shit.
 if __name__ == '__main__':
+    #optimize_MSER()
     workingDirectory = ""
+    #find_cell_coordinates(workingDirectory)
     #evaluate_data(workingDirectory)
-    #test_model("data/model_0/reconnet_model_0.h5")
+    #check_model("data/model_0/reconnet_model_0.h5")
     #train_model()
     train_single_color_models()
     #sort_training_samples()

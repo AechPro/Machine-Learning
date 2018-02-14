@@ -1,4 +1,5 @@
 from NN_Models import Single_Color_Model
+from NN_Models import ResNet
 import cv2
 import matplotlib
 import numpy as np
@@ -8,7 +9,7 @@ import os
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-dataGen = augmentor(horizontal_flip=True, vertical_flip=True)
+dataGen = augmentor(rotation_range=45,horizontal_flip=True, vertical_flip=True)
 
 def single_input_data_generator(x, y, batch_size):
     genX = dataGen.flow(x, y, batch_size=batch_size)
@@ -33,9 +34,11 @@ class Manager(object):
         self.models = [blueModel,redModel]
         self.debug_training_data()
     def load_data(self):
+        print("Loading Data...")
         self.trainingSets, self.validationSets, self.inputShapes,\
             self.outputShapes = dl.load_data("../training_data/reconnet")
     def debug_training_data(self):
+        print("Getting Debug Output for Training Data...")
         for i in range(len(self.trainingSets)):
             xt,yt = self.trainingSets[i]
             binCounts = {}
@@ -48,8 +51,9 @@ class Manager(object):
             binCounts = sorted(binCounts.items())
             print("Bins for training set {}:".format(i),binCounts)
     def train_models(self):
-        batchSize = 32
-        epochs = 150
+        print("Beginning Training Process...")
+        batchSize = 64
+        epochs = 250
         for i in range(len(self.models)):
             xTrain, yTrain = self.trainingSets[i]
             xVal, yVal = self.validationSets[i]
@@ -66,6 +70,7 @@ class Manager(object):
             self.plot_training_metrics(history,self.models[i].modelNumber)
             self.save_training_metrics(history,self.models[i].modelNumber)
     def plot_training_metrics(self, history, num):
+        print("Plotting training metrics...")
         path = "data/model_{}".format(num)
         # Since Keras starts history logs after the first epoch, we will copy them to an array starting at 0.
         acc = [0]
@@ -103,6 +108,7 @@ class Manager(object):
 
 
     def save_training_metrics(self, history,num):
+        print("Saving Training Metrics to Text File...")
         path = "data/model_{}".format(num)
         val_acc = open(''.join([path, '/', 'val_acc_history.txt']), 'w')
         acc = open(''.join([path, '/', 'acc_history.txt']), 'w')

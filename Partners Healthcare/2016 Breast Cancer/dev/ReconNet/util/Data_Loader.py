@@ -1,12 +1,9 @@
 """
 Copyright 2017 Matthew W. Allen
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +20,6 @@ from util import Image_Excel_Wrapper as cell_reader
     Function to walk through all sub-folders in a given directory and return a list containing the full file path of
     every file found in each sub-folder. The file path is given in "workingDir/folder1/folder2/.../file.extension" format.
 """
-
 def list_files(workingDirectory):
     filePaths = []
 
@@ -31,10 +27,8 @@ def list_files(workingDirectory):
         for name in files:
             filePaths.append(os.path.join(root, name).replace("\\","/"))
     return filePaths
-
 """Function to load and process all available training images."""
 def load_data(path,numClasses=None):
-    
     #Get images sized to 64x64x1 and fill xTrain, yTrain tuples with them.
     trainingData = get_images(path,(64,64))
     trainingSets = []
@@ -43,6 +37,8 @@ def load_data(path,numClasses=None):
     if numClasses is None:
         bins470 = [0,0.1,0.2,0.3,0.4,0.5,0.6]
         bins625 = [0,0.125,0.25,0.375,0.5,0.625,0.75]
+        #bins470 = [0, 0.2, 0.35, 0.45, 0.6]
+        #bins625 = [0, 0.2, 0.375, 0.5, 0.75]
         num470Classes = len(bins470)-1
         num625Classes = len(bins625)-1
         trainingData = bin_data(trainingData,bins=[bins470,bins625])
@@ -64,11 +60,11 @@ def load_data(path,numClasses=None):
         validationSets.append(val)
         inputShapes.append(inputShape)
     return trainingSets, validationSets, inputShapes, classes
-    
+
 def process_training_set(xTrain, yTrain, numClasses):
     xTrain = np.asarray(xTrain)
     yTrain = np.asarray(yTrain)
-    print(xTrain.shape)
+    print("Processing training set, input shape:",xTrain.shape)
     # Shuffle training set and split for training and validation.
     xTrain, yTrain = shuffle(xTrain, yTrain)
     xTrain, yTrain, xVal, yVal = split(xTrain, yTrain)
@@ -109,13 +105,13 @@ def process_training_set(xTrain, yTrain, numClasses):
     print(yTrain.shape,yVal.shape)
     return (xTrain, yTrain), (xVal, yVal), inputShape
 
-
 """
     Function to load, reshape and return all available images in the training set.
     @param path: The file path to all sub-folders for each class of training data.
     @param size: The desired shape for each image.
 """
 def get_images(path,shape):
+    print("Getting images...")
     #File paths for training data.
     samples = cell_reader.load_cell_images(''.join([path,'/','cells']))
     noise = cell_reader.load_noise_images(''.join([path,'/','non_cells']))
@@ -162,6 +158,7 @@ def create_bins_for_data(data,numBins):
         bins.append(currentBin)
     return bins
 def bin_data(data,bins):
+    print("Sorting data set into bins...")
     trainingData = []
     for i in range(len(data)):
         for j in range(len(bins)):
@@ -194,27 +191,16 @@ def split(x,y,splitRatio=1/3):
 
 """Function to shuffle two tuples of equal length."""
 def shuffle(x,y):
+    print("Shuffling training set...")
     #Create new tuples that will contain shuffled data.
     nx = []
     ny = []
 
-    #Tuple to contain list of used indices.
-    usedVals = []
-
-    #Random index value.
-    val = 0
-
-    #For all values in the tuples.
-    for i in range(len(y)):
-
-        #While the current value has already been selected.
-        while val in usedVals:
-
-            #Select a new value.
-            val = np.random.randint(0,len(y))
-
-        #Keep track of used values and add newly selected data points to nx and ny tuples.
-        usedVals.append(val)
+    indicesToSelect = [i for i in range(len(y))]
+    while(len(indicesToSelect)>0):
+        idx = np.random.randint(0,len(indicesToSelect))
+        val = indicesToSelect[idx]
         nx.append(x[val])
         ny.append(y[val])
+        indicesToSelect.pop(idx)
     return np.asarray(nx),np.asarray(ny)

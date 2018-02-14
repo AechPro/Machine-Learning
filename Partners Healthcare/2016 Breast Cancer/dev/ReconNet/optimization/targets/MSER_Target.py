@@ -5,8 +5,8 @@ import cv2
 import numpy as np
 class Target(object):
     def __init__(self):
-        self.encodingString = "30 1.0 delta-499 1.0 minArea-500 1.0 maxArea-3.0 1.0 maxVariation-0.9999 1.0 minDiversity-" \
-                              "1000 1.0 maxEvolution-10 1.0 areaThreshold-0.999 1.0 minMargin-15 1.0 edgeBlurSize"
+        self.encodingString = "0,30 1.0 delta_30,100 1.0 minArea_31,400 1.0 maxArea_0,3.0 1.0 maxVariation_0,1.0 1.0 minDiversity_" \
+                              "0,1000 1.0 maxEvolution_0,10 1.0 areaThreshold_0,1.0 1.0 minMargin_0,15 1.0 edgeBlurSize"
         self.rFilter = rFilter.filter_CNN()
         self.params = None
         self.canAdd = False
@@ -43,17 +43,17 @@ class Target(object):
                 imName = "genome_test.png"
                 regions, cells, computeTime = detector.extract_regions(sourceImg, reference, self.params, imName, cellName="a0",
                                                           flter=self.rFilter, show=False, classify=True)
-                if len(regions) == 0:
-                    fitness -=computeTime*1000
+                if len(regions) == 0 or len(cells)/len(regions)<=0.75 or computeTime>=175:
+                    fitness =-computeTime*100
+                    break
                 elif len(cells)>100:
-                    fitness += len(cells)*10 / len(regions) - computeTime/2 + len(cells) / np.power(10,int(
-                        np.log(len(cells))) - 1)
+                    fitness += - computeTime/10 + len(cells) / np.power(10,int(np.log(len(cells))) - 1)
                 else:
-                    fitness+=len(cells)/len(regions)-computeTime*2
-                if computeTime>=175:
-                    return fitness
+                    fitness+=len(cells)/len(regions)-computeTime
         print("\nFITNESS:",fitness,"\n")
         return fitness
+    def display(self):
+        print("MSER display function...")
     def validate_genome(self,genome):
         #validate genome
         return True

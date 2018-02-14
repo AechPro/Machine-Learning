@@ -63,7 +63,7 @@ def extract_regions(sourceImg, reference, params, imName, cellName="a0", flter=N
         # Run MSER algorithm on image and save boundary box data for each contour it finds.
         hulls = MSER_blobs(img, params, display=vis)
     else:
-        hulls = MSER_blobs(img,params)
+        hulls = MSER_blobs(img,params, display=vis)
 
     # For all contours detected by MSER.
     for cnt in hulls:
@@ -268,9 +268,9 @@ def MSER_blobs(img, params, mask=None, display=None):
             print("Display image correctly formatted.")
         print(len(hulls))
         cv2.polylines(display, hulls, 1, (0, 65000, 0))
-        cv2.imshow("Display Image with MSER hulls", display)
+        """cv2.imshow("Display Image with MSER hulls", display)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        cv2.destroyAllWindows()"""
         cv2.imwrite("MSER Hulls.png", display)
     hulls = np.asarray(hulls)
     return hulls

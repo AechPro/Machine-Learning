@@ -3,6 +3,7 @@ import os
 import cv2
 def load_cell_images(directory):
     samples = []
+    discoveredCells = {}
     #print("loading directory",directory)
     for fileName in os.listdir(directory):
         #print("processing file",fileName)
@@ -18,45 +19,31 @@ def load_cell_images(directory):
 
         cellName = fileName[:fileName.find("_")]
         #print("cell",cellName)
-        if "625" in fileName:
-            coordinates = fileName[fileName.find("cells") + len("cells"):fileName.find("_")]
-            coordinates = coordinates.split("-")
+        if "_625" in fileName:
+            wavelength = "625"
+        else:
+            wavelength = "470"
+        coordinates = fileName[fileName.find("cells") + len("cells"):fileName.find("_")]
+        coordinates = coordinates.split("-")
+        x = int(coordinates[0])
+        y = int(coordinates[1])
+        if cellName not in discoveredCells.keys():
             x = int(coordinates[0])
             y = int(coordinates[1])
-            flag = True
-            for c in samples:
-                if c["470"]["coordinates"][0] == x and c["470"]["coordinates"][1] == y:
-                    flag = False
-                    c["625"]["name"] = cellName
-                    c["625"]["coordinates"] = [x, y]
-                    c["625"]["intensities"] = [float(fileName[fileName.rfind("_int") + len("_int"):fileName.rfind(".png")])]
-                    c["625"]["pixels"] = cv2.imread(''.join([directory, '/', fileName]), cv2.IMREAD_ANYDEPTH)
-            if flag:
-                cell["625"]["name"] = cellName
-                cell["625"]["coordinates"] = [x, y]
-                cell["625"]["intensities"] = [float(fileName[fileName.rfind("_int")+len("_int"):fileName.rfind(".png")])]
-                cell["625"]["pixels"] = cv2.imread(''.join([directory, '/', fileName]), cv2.IMREAD_ANYDEPTH)
-                samples.append(cell)
+            cell[wavelength]["name"] = cellName
+            cell[wavelength]["coordinates"] = [x, y]
+            cell[wavelength]["intensities"] = [float(fileName[fileName.rfind("_int") + len("_int"):fileName.rfind(".png")])]
+            cell[wavelength]["pixels"] = cv2.imread(''.join([directory, '/', fileName]), cv2.IMREAD_ANYDEPTH)
 
-        if "470" in fileName:
-            coordinates = fileName[fileName.find("cells") + len("cells"):fileName.find("_")]
-            coordinates = coordinates.split("-")
-            x = int(coordinates[0])
-            y = int(coordinates[1])
-            flag = True
-            for c in samples:
-                if c["625"]["coordinates"][0] == x and c["625"]["coordinates"][1] == y:
-                    c["470"]["name"] = cellName
-                    c["470"]["coordinates"] = [x,y]
-                    c["470"]["intensities"] = [float(fileName[fileName.rfind("_int") + len("_int"):fileName.rfind(".png")])]
-                    c["470"]["pixels"] = cv2.imread(''.join([directory, '/', fileName]), cv2.IMREAD_ANYDEPTH)
-                    flag = False
-            if flag:
-                cell["470"]["name"] = cellName
-                cell["470"]["coordinates"] = [x, y]
-                cell["470"]["intensities"] = [float(fileName[fileName.rfind("_int")+len("_int"):fileName.rfind(".png")])]
-                cell["470"]["pixels"] = cv2.imread(''.join([directory,'/',fileName]),cv2.IMREAD_ANYDEPTH)
-                samples.append(cell)
+            discoveredCells[cellName] = len(samples)
+            #print(cellName,discoveredCells[cellName])
+            samples.append(cell)
+        else:
+            samples[discoveredCells[cellName]][wavelength]["name"] = cellName
+            samples[discoveredCells[cellName]][wavelength]["coordinates"] = [x, y]
+            samples[discoveredCells[cellName]][wavelength]["intensities"] = [float(fileName[fileName.rfind("_int") + 
+                                                                                    len("_int"):fileName.rfind(".png")])]
+            samples[discoveredCells[cellName]][wavelength]["pixels"] = cv2.imread(''.join([directory, '/', fileName]), cv2.IMREAD_ANYDEPTH)
     return samples
 def load_noise_images(directory):
     samples = []
@@ -156,10 +143,19 @@ def cell_images_to_excel(directory):
                                             ['x', 'y', 'int470', 'int625', 'name'])
     row = 1
     for cell in samples:
-        worksheet.write(row, 0, cell["625"]["coordinates"][0])
-        worksheet.write(row, 1, cell["625"]["coordinates"][1])
-        worksheet.write(row, 2, cell["470"]["intensities"][0])
-        worksheet.write(row, 3, cell["625"]["intensities"][0])
-        worksheet.write(row, 4, cell["625"]["name"])
-        row += 1
+        try:
+            worksheet.write(row, 0, cell["625"]["coordinates"][0])
+            worksheet.write(row, 1, cell["625"]["coordinates"][1])
+            worksheet.write(row, 2, cell["470"]["intensities"][0])
+            worksheet.write(row, 3, cell["625"]["intensities"][0])
+            worksheet.write(row, 4, cell["625"]["name"])
+            row += 1
+        except Exception as e:
+            print("\n\n!!!!UNABLE TO WRITE DATA TO EXCEL FILE!!!!.\nException type:", type(e).__name__,
+                  "\nException args:", e.args, "\n**625nm Cell Data**\nKEYS:",cell["625"].keys(),"INTENSITY:",
+                  cell["625"]["intensities"],"\nCOORDINATES (x,y): ({},{})".format(cell["625"]["coordinates"][0],
+                  cell["625"]["coordinates"][1]), "\nSHAPE:",cell["625"]["pixels"].shape,"NAME:",cell["625"]["name"],
+                  "\n\n**470nm Cell Data**\nKEYS:",cell["470"].keys(),"INTENSITY:", cell["470"]["intensities"],
+                  "\nCOORDINATES (x,y): ({},{})".format(cell["470"]["coordinates"][0], cell["470"]["coordinates"][1]),
+                  "\nNAME:",cell["470"]["name"])
     workbook.close()

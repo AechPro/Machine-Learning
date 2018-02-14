@@ -420,12 +420,12 @@ def save_processed_images_txt(processedImages):
         print("Writing data to",workingDirectory)
         for c470, c625 in zip(dictionary["470"]["cells"], dictionary["625"]["cells"]):
             try:
-                cv2.imwrite(''.join([workingDirectory, '/470/cells/', c470["name"], '.png']), c470["pixels"])
+                """cv2.imwrite(''.join([workingDirectory, '/470/cells/', c470["name"], '.png']), c470["pixels"])
                 cv2.imwrite(''.join([workingDirectory, '/470/refs/', c470['name'], '.png']), c470['ref'])
 
                 cv2.imwrite(''.join([workingDirectory, '/625/cells/', c625["name"], '.png']), c625["pixels"])
                 cv2.imwrite(''.join([workingDirectory, '/625/refs/', c625['name'], '.png']), c625['ref'])
-
+                """
                 coordinateFile.write(" ( {} {} )\n".format(c625["coordinates"][0], c625["coordinates"][1]))
             except:
                 print("!!!!UNABLE TO WRITE DATA TO TEXT FILE!!!!.\nSHAPES:", c470["pixels"].shape, c470["ref"].shape,

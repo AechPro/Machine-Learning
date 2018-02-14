@@ -1,4 +1,3 @@
-
 import cv2
 import numpy as np
 from keras.callbacks import ModelCheckpoint
@@ -20,29 +19,28 @@ class NN_Model(object):
         self.model = load_model(self.model_file)
         return
     def build_model(self, inputShape, numClasses):
-
+        print("Building model...")
         self.inputShape = inputShape
         self.numClasses = numClasses
-
-        print(inputShape)
 
         inp = Input(shape=inputShape)
 
         layers = Conv2D(32, kernel_size=(3, 3), activation="linear")(inp)
         layers = PReLU()(layers)
-        layers = Conv2D(32,kernel_size=(3,3),activation="linear")(layers)
+        layers = BatchNormalization(axis=3)(layers)
+        layers = Dropout(0.2)(layers)
+        layers = MaxPooling2D()(layers)
+        layers = Conv2D(64, kernel_size=(2, 2), activation="linear")(layers)
         layers = PReLU()(layers)
-        layers = Dropout(0.25)(layers)
-        layers = self.deepBlock(layers, [64, 64, 128], [2, 2, 1])
-        layers = self.deepBlock(layers, [128, 128, 256], [2, 2, 1])
-        layers = Dropout(0.25)(layers)
-        # layers = AveragePooling2D()(layers)
+        layers = BatchNormalization(axis=3)(layers)
+        layers = Dropout(0.3)(layers)
+        layers = AveragePooling2D()(layers)
         layers = Flatten()(layers)
-
-        output = Dense(256,activation='relu')(layers)
-        output = Dropout(0.25)(output)
-        output = Dense(64,activation='sigmoid')(output)
-        output = Dropout(0.25)(output)
+        output = Dense(32, activation='linear')(layers)
+        output = PReLU()(output)
+        output = Dropout(0.5)(output)
+        output = Dense(16, activation='sigmoid')(output)
+        output = Dropout(0.5)(output)
         output = Dense(numClasses,name='Model_Output',activation='softmax')(output)
         model = Model(inputs=inp,outputs=output)
         # End network architecture
@@ -59,7 +57,6 @@ class NN_Model(object):
         This function achieves downscaling by first performing a series of average pooling operations to halve the
         dimensions of the input tensor as many times as possible. Following this, a series of linear convolutional layers
         are applied to the remaining tensor to achieve the desired number of filters and final dimensions.
-
         @param inputTensor: Tensor to be downscaled.
         @param destTensor: Tensor whose shape will be downscaled to.
     """
@@ -122,8 +119,6 @@ class NN_Model(object):
         layers = BatchNormalization(axis=3)(layers)
         layers = Conv2D(filters[1], kernel_size=(kernels[1], kernels[1]), activation='linear')(layers)
         layers = PReLU()(layers)
-
-
 
         layers = Conv2D(filters[2], kernel_size=(kernels[2], kernels[2]), activation='linear')(layers)
         layers = PReLU()(layers)
