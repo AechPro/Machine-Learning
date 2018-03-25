@@ -11,14 +11,13 @@ public class Species
 	private double spawnAmount;
 	private int age;
 	private int timeSinceLastImprovement;
-	private Organism bestMember;
+	private Organism representative;
 	private ArrayList<Organism> members;
 	private Random rand;
 	private SortingUnit sorter;
 	public Species(Organism first, Random rng)
 	{
 		rand = rng;
-		setBestMember(first);
 		members = new ArrayList<Organism>();
 		members.add(first);
 		sorter = new SortingUnit();
@@ -79,10 +78,22 @@ public class Species
 		sorter.sortOrganisms(members,0,members.size()-1);
 		for(Organism org : members)
 		{
+			if(org.getFitness() > bestFitness)
+			{
+				bestFitness = org.getFitness();
+			}
 			org.tick();
 		}
 		timeSinceLastImprovement++;
 		age++;
+	}
+	public void purge()
+	{
+		int idx = rand.nextInt(members.size());
+		representative = new Organism(members.get(idx));
+		members = new ArrayList<Organism>();
+		spawnAmount = 0d;
+		
 	}
 	public void adjustFitnessValues()
 	{
@@ -114,10 +125,23 @@ public class Species
 	public int getAge() {return age;}
 	public void setAge(int age) {this.age = age;}
 	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
-	public Organism getBestMember() {return bestMember;}
-	public void setBestMember(Organism best) 
+	public Organism getRepr() {return representative;}
+	public Organism getBestMember() 
 	{
-		this.bestMember = new Organism(best);
+		double bestFitness = -1.0;
+		Organism bestMember = null;
+		for(Organism org : members)
+		{
+			if(org.getFitness() > bestFitness)
+			{
+				bestMember = org;
+				bestFitness = org.getFitness();
+			}
+		}
+		return bestMember;
+	}
+	public void setBestFitness(Organism best) 
+	{
 		bestFitness = best.getFitness();
 		timeSinceLastImprovement = 0;
 	}
