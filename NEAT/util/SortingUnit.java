@@ -8,7 +8,7 @@ public class SortingUnit
 	public SortingUnit() {}
 	public void sortNodes(ArrayList<Node> nodes, int low, int high)
 	{
-		if(low<=high) {return;}
+		if(low>=high) {return;}
 		int index = partitionNodes(nodes,low,high);
 		if(low<index-1){sortNodes(nodes,low,index-1);}
 		if(index<high){sortNodes(nodes,index,high);}
@@ -38,7 +38,7 @@ public class SortingUnit
 	
 	public void sortConnections(ArrayList<Connection> cons, int low, int high)
 	{
-		if(low<=high) {return;}
+		if(low>=high) {return;}
 		int index = partitionConnections(cons,low,high);
 		if(low<index-1){sortConnections(cons,low,index-1);}
 		if(index<high){sortConnections(cons,index,high);}
@@ -68,7 +68,7 @@ public class SortingUnit
 	
 	public void sortOrganisms(ArrayList<Organism> orgs, int low, int high)
 	{
-		if(low<=high) {return;}
+		if(low>=high) {return;}
 		int index = partitionOrganisms(orgs,low,high);
 		if(low<index-1){sortOrganisms(orgs,low,index-1);}
 		if(index<high){sortOrganisms(orgs,index,high);}

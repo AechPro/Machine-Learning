@@ -13,6 +13,7 @@ public class Organism
 	private double fitness;
 	private double spawnAmount;
 	private double adjustedFitness;
+	private double bestFitness;
 	private Genome genotype;
 	private Phenotype phenotype;
 	private SortingUnit sorter;
@@ -22,6 +23,24 @@ public class Organism
 		age = 0;
 		timeSinceLastImprovement = 0;
 		sorter = new SortingUnit();
+	}
+	public Organism(Organism other)
+	{
+		genotype = new Genome(other.getGenotype());
+		phenotype = null;
+		fitness = other.getFitness();
+		adjustedFitness = other.getAdjustedFitness();
+		spawnAmount = other.getSpawnAmount();
+		sorter = new SortingUnit();
+		bestFitness = other.getBestFitness();
+		timeSinceLastImprovement = other.getTimeSinceLastImprovement();
+		age = other.getAge();
+		ID = other.getID();
+	}
+	public void tick()
+	{
+		age++;
+		timeSinceLastImprovement = 0;
 	}
 	public void mutateGenotype(InnovationTable table, int newGenomeID)
 	{
@@ -37,9 +56,9 @@ public class Organism
 	{
 		genotype = new Genome(minimalStructure);
 	}
-	public void createGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
+	public void createGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table, int genomeID)
 	{
-		genotype = new Genome(table, rand, numInputs, numOutputs, ID);
+		genotype = new Genome(table, rand, numInputs, numOutputs, genomeID);
 	}
 	public void createPhenotype()
 	{
@@ -123,8 +142,8 @@ public class Organism
 		meanWeight /= numShared;
 		int longest = Math.max(g2.size(), g1.size());
 		if(longest<20) {longest=1;}
-		compat += numExcess * Config.COMPAT_EXCESS_COEF;
-		compat += numDisjoint * Config.COMPAT_DISJOINT_COEF;
+		compat += numExcess * Config.COMPAT_EXCESS_COEF/(double)longest;
+		compat += numDisjoint * Config.COMPAT_DISJOINT_COEF/(double)longest;
 		compat += meanWeight * Config.COMPAT_SHARED_COEF;
 		System.out.println("\nCOMPATIBILITY CALCULATION");
 		System.out.println("ORGANISM 1:"+toString());
@@ -133,10 +152,24 @@ public class Organism
 		System.out.println("COMPATIBILITY VALUE: "+compat);
 		return compat;
 	}
+	public void setFitness(double i) 
+	{
+		if(i > bestFitness) 
+		{
+			bestFitness = i;
+			timeSinceLastImprovement = 0;
+		}
+		fitness=i;
+	}
 	public void setSpawnAmount(double i) {spawnAmount = i;}
-	public void setFitness(double i) {fitness=i;}
+	
 	public void setAdjustedFitness(double i) {adjustedFitness=i;}
 	public void setID(int i) {ID=i;}
+	
+	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
+	public int getAge() {return age;}
+	public int getID() {return ID;}
+	public double getBestFitness() {return bestFitness;}
 	public double getFitness() {return fitness;}
 	public double getAdjustedFitness() {return adjustedFitness;}
 	public double getSpawnAmount() {return spawnAmount;}
