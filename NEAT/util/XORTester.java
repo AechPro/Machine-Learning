@@ -14,11 +14,27 @@ public class XORTester
 	public final int numOutputs = 1;
 	public final int numBiasNodes = 1;
 	public int numHiddenNodes = 0;
+	public double[][] inputs;
+	public double[][] outputs;
 	public XORTester()
 	{
+		inputs = new double[][]
+				{
+					{0.0,0.0},
+					{0.0,1.0},
+					{1.0,0.0},
+					{1.0,1.0}
+				};
+		outputs = new double[][] 
+				{
+					{0.0},
+					{1.0},
+					{1.0},
+					{0.0}
+				};
 		
 	}
-	public Genome buildMinimalStructure(InnovationTable table)
+	public Genome buildMinimalStructure(InnovationTable table, int genomeID)
 	{
 		ArrayList<Connection> cons = new ArrayList<Connection>();
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -66,11 +82,32 @@ public class XORTester
 				cons.add(c);
 			}
 		}
-		minimalGenome = new Genome(nodes,cons,numInputs,numOutputs);
+		minimalGenome = new Genome(cons,nodes,table,numInputs,numOutputs,genomeID);
 		return minimalGenome;
 	}
 	public double testPhenotype(Phenotype phen)
 	{
-		
+		double fitness = 0.0;
+		double[] NNOutputs = new double[outputs.length];
+		boolean success = false;
+		for(int i=0;i<inputs.length;i++)
+		{
+			success = phen.activate(inputs[i]);
+			for(int relax = 0;relax<phen.getDepth();relax++)
+			{
+				success = phen.activate(inputs[i]);
+			}
+			NNOutputs[i] = phen.readOutputVector()[0];
+		}
+		if(success)
+		{
+			for(int i=0;i<outputs.length;i++)
+			{
+				fitness += Math.abs(1.0 - outputs[i][0]);
+			}
+			fitness = Math.pow(4.0 - fitness, 2);
+		}
+		else{fitness = Math.random()*0.001;}
+		return fitness;
 	}
 }

@@ -15,7 +15,7 @@ public class Node
 	private double activeOutput;
 	private double activationResponse;
 	private double splitX, splitY;
-	private double nonActiveOutput;
+	private double inactiveActiveOutput;
 	private int x,y;
 	private ArrayList<Connection> inputs, outputs;
 	
@@ -30,7 +30,7 @@ public class Node
 		splitY = sy;
 		type = nt;
 		id = nid;
-		nonActiveOutput = 0;
+		inactiveActiveOutput = 0;
 		activationResponse = 1d;
 		inputs = new ArrayList<Connection>();
 		outputs = new ArrayList<Connection>();
@@ -46,7 +46,7 @@ public class Node
 		splitY = other.getSplitY();
 		type = other.getType();
 		id = other.getID();
-		nonActiveOutput = other.getNonActiveOutput();
+		inactiveActiveOutput = other.getInactiveOutput();
 		activationResponse = other.getActivationResponse();
 		inputs = new ArrayList<Connection>();
 		outputs = new ArrayList<Connection>();
@@ -80,7 +80,7 @@ public class Node
 				break;
 		}
 		repr+=" | ID = "+id+" | Active = "+isActive()+" | Count = "+getActivationCount();
-		repr+=" | Raw Value = "+Math.round(getNonActiveOutput()*100)/100.0+" | Active Value = "+Math.round(getActiveOutput()*100)/100d;
+		repr+=" | Raw Value = "+Math.round(getInactiveOutput()*100)/100.0+" | Active Value = "+Math.round(getActiveOutput()*100)/100d;
 		repr+=" | Response = "+getActivationResponse();
 		return repr;
 	}
@@ -90,7 +90,7 @@ public class Node
 	public int getY(){return y;}
 	public int getActivationCount() {return activationCount;}
 	public double getActiveOutput() {if(getActivationCount()>0) {return activeOutput;} else{return 0.0;}}
-	public double getNonActiveOutput(){return nonActiveOutput;}
+	public double getInactiveOutput(){return inactiveActiveOutput;}
 	public double getActivationResponse(){return activationResponse;}
 	public double getSplitX() {return splitX;}
 	public double getSplitY() {return splitY;}
@@ -98,7 +98,7 @@ public class Node
 	public ArrayList<Connection> getInputs(){return inputs;}
 	public ArrayList<Connection> getOutputs(){return outputs;}
 	
-	public void setNeuronOutput(double i){nonActiveOutput=i;}
+	public void setInactiveOutput(double i){inactiveActiveOutput=i;}
 	public void setActiveOutput(double i) {activeOutput=i;}
 	public void setType(int i){type=i;}
 	public void setID(int i){id=i;}
