@@ -15,18 +15,18 @@ public class Phenotype extends DisplayObject
 	private ArrayList<Node> nodes;
 	private SortingUnit sorter;
 	private int depth;
-	public Phenotype(ArrayList<Node> ns, int d)
+	public Phenotype(ArrayList<Node> ns)
 	{
 		super();
 		nodes = ns;
-		depth = d;
+		depth = calculateDepth();
 		init();
 	}
-	public Phenotype(ArrayList<Node> ns, int d, int _renderPriority, int _updatePriority)
+	public Phenotype(ArrayList<Node> ns, int _renderPriority, int _updatePriority)
 	{
 		super(_renderPriority, _updatePriority);
 		nodes = ns;
-		depth = d;
+		depth = calculateDepth();
 		init();
 	}
 	public void init()
@@ -128,6 +128,23 @@ public class Phenotype extends DisplayObject
 			if(nodes.get(i).getType() == Node.BIAS_NODE) {biasNodes.add(nodes.get(i));}
 			if(nodes.get(i).getType() == Node.OUTPUT_NODE) {outputNodes.add(nodes.get(i));}
 		}
+	}
+	public int calculateDepth()
+	{
+		ArrayList<Double> uniqueYVals = new ArrayList<Double>();
+		for(Node n : nodes)
+		{
+			boolean contained = false;
+			for(int i=0;i<uniqueYVals.size();i++)
+			{
+				if(uniqueYVals.get(i).doubleValue() == n.getSplitY()){contained = true;}
+			}
+			if(!contained)
+			{
+				uniqueYVals.add(n.getSplitY());
+			}
+		}
+		return uniqueYVals.size()-1;
 	}
 	public int getDepth() {return depth;}
 	@Override
