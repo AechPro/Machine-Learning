@@ -56,9 +56,13 @@ public class Organism
 	{
 		genotype = new Genome(minimalStructure);
 	}
-	public void createGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table, int genomeID)
+	public void createGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{
-		genotype = new Genome(table, rand, numInputs, numOutputs, genomeID);
+		genotype = new Genome(table, rand, numInputs, numOutputs);
+	}
+	public void createGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
+	{
+		genotype = new Genome(genes, table, rand, numInputs, numOutputs);
 	}
 	public void createPhenotype()
 	{

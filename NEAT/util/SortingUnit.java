@@ -95,4 +95,34 @@ public class SortingUnit
 		}
 		return i;
 	}
+	
+	public void sortOrganismsAdjustedFitness(ArrayList<Organism> orgs, int low, int high)
+	{
+		if(low>=high) {return;}
+		int index = partitionOrganismsAdjustedFitness(orgs,low,high);
+		if(low<index-1){sortOrganismsAdjustedFitness(orgs,low,index-1);}
+		if(index<high){sortOrganismsAdjustedFitness(orgs,index,high);}
+	}
+	public int partitionOrganismsAdjustedFitness(ArrayList<Organism> orgs, int low, int high)
+	{
+		Organism temp;
+		int i = low, j = high;
+
+		double pivot = orgs.get((low+high)/2).getAdjustedFitness();
+
+		while(i<=j)
+		{
+			while(orgs.get(i).getAdjustedFitness()<pivot){i++;}
+			while(orgs.get(j).getAdjustedFitness()>pivot){j--;}
+			if(i<=j)
+			{
+				temp = orgs.get(i);
+				orgs.set(i,orgs.get(j));
+				orgs.set(j,temp);
+				i++;
+				j--;
+			}
+		}
+		return i;
+	}
 }

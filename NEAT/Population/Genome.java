@@ -13,22 +13,54 @@ public class Genome
 	private ArrayList<Connection> connections;
 	private InnovationTable table;
 	private Random rand;
-	public Genome(ArrayList<Connection> cons, ArrayList<Node> ns, InnovationTable innovTable, Random rng, int inputs, int outputs, int id)
+	
+	//Constructor for minimal structure
+	public Genome(ArrayList<Connection> cons, ArrayList<Node> ns, InnovationTable innovTable, Random rng, int inputs, int outputs)
 	{
 		rand = rng;
 		table = innovTable;
+		ID = table.getNextGenomeID();
 		nodes = new ArrayList<Node>();
 		connections = new ArrayList<Connection>();
 		for(Connection c : cons) {connections.add(new Connection(c));}
 		for(Node n : ns) {nodes.add(new Node(n));}
 	}
-	public Genome(InnovationTable innovTable, Random rng, int inputs, int outputs, int id)
+	//Constructor for creating a genome from child genes
+	public Genome(ArrayList<Connection> cons, InnovationTable innovTable, Random rng, int inputs, int outputs)
 	{
 		rand = rng;
 		table = innovTable;
+		ID = table.getNextGenomeID();
+		nodes = new ArrayList<Node>();
+		connections = new ArrayList<Connection>();
+		for(Connection c : cons) 
+		{
+			Node inp = null;
+			Node out = null;
+			if(!duplicateNode(c.getInput())) {inp = new Node(c.getInput());}
+			else{inp = nodes.get(getNodeIndex(c.getInput()));}
+			if(!duplicateNode(c.getOutput())) {out = new Node(c.getOutput());}
+			else {out = nodes.get(getNodeIndex(c.getOutput()));}
+			if(out == null || inp == null)
+			{
+				System.out.println("ERROR TRYING TO FIND NODES FOR CONNECTION WHEN CREATING NEW GENOME");
+				System.out.println(c);
+				System.exit(0);
+			}
+			Connection con = new Connection(inp,out,c.getWeight(),c.isEnabled(),c.getInnovation());
+			connections.add(con);
+		}
+	}
+	//Constructor for blank genome
+	public Genome(InnovationTable innovTable, Random rng, int inputs, int outputs)
+	{
+		rand = rng;
+		table = innovTable;
+		ID = table.getNextGenomeID();
 		nodes = new ArrayList<Node>();
 		connections = new ArrayList<Connection>();
 	}
+	//Copy constructor
 	public Genome(Genome other)
 	{
 		duplicate(other);

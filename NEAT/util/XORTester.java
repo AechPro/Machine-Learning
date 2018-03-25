@@ -84,7 +84,7 @@ public class XORTester
 				cons.add(c);
 			}
 		}
-		minimalGenome = new Genome(cons,nodes,table,rand,numInputs,numOutputs,genomeID);
+		minimalGenome = new Genome(cons,nodes,table,rand,numInputs,numOutputs);
 		return minimalGenome;
 	}
 	public double testPhenotype(Phenotype phen)

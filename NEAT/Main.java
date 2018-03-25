@@ -15,7 +15,7 @@ public class Main
 	private static final int width = 1920, height = 1080;
 	private ArrayList<Phenotype> phenotypes;
 	private ArrayList<DisplayObject> objectsToDisplay;
-	private InnovationTable table;
+	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
 	{
@@ -27,7 +27,6 @@ public class Main
 		objectsToDisplay = new ArrayList<DisplayObject>();
 		table = new InnovationTable();
 		setupWindow();
-		
 	}
 	public void setupWindow()
 	{

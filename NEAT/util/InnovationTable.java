@@ -12,11 +12,17 @@ public class InnovationTable
 	private ArrayList<int[]> innovations;
 	private int currentID;
 	private int currentNodeID;
+	private int currentSpeciesID;
+	private int currentOrganismID;
+	private int currentGenomeID;
 	public InnovationTable()
 	{
 		innovations = new ArrayList<int[]>();
 		currentID = 0;
 		currentNodeID = 0;
+		currentGenomeID = 0;
+		currentOrganismID = 0;
+		currentGenomeID = 0;
 	}
 	public int createInnovation(int innovType, int input, int output, int nodeID, int nodeType)
 	{
@@ -72,6 +78,9 @@ public class InnovationTable
 		}
 		return -1;
 	}
+	public int getNextOrganismID() {return currentOrganismID++;}
+	public int getNextGenomeID() {return currentGenomeID++;}
+	public int getNextSpeciesID() {return currentSpeciesID++;}
 	@Override
 	public String toString()
 	{
