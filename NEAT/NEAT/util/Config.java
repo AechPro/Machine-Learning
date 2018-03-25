@@ -16,4 +16,12 @@ public interface Config
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 30;
 	public final int MAX_ATTEMPTS_ADD_NODE = 30;
 	public final int MAX_ATTEMPTS_FIND_PARENT = 90;
+	public final double COMPAT_EXCESS_COEF = 1.0;
+	public final double COMPAT_DISJOINT_COEF = 1.0;
+	public final double COMPAT_SHARED_COEF = 0.4;
+	public final int MAX_ALLOWED_ORGANISM_AGE = 50;
+	public final int MAX_TIME_ORGANISM_STAGNATION = 10;
+	public final int MAX_TIME_SPECIES_STAGNATION = 15;
+	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
+	public final int POPULATION_SIZE = 150;
 }

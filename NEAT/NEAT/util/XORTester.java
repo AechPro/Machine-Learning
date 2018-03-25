@@ -16,8 +16,10 @@ public class XORTester
 	public int numHiddenNodes = 0;
 	public double[][] inputs;
 	public double[][] outputs;
-	public XORTester()
+	public Random rand;
+	public XORTester(Random rng)
 	{
+		rand = rng;
 		inputs = new double[][]
 				{
 					{0.0,0.0},
@@ -82,7 +84,7 @@ public class XORTester
 				cons.add(c);
 			}
 		}
-		minimalGenome = new Genome(cons,nodes,table,numInputs,numOutputs,genomeID);
+		minimalGenome = new Genome(cons,nodes,table,rand,numInputs,numOutputs,genomeID);
 		return minimalGenome;
 	}
 	public double testPhenotype(Phenotype phen)
