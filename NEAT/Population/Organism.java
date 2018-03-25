@@ -10,6 +10,7 @@ public class Organism
 	private int ID;
 	private int timeSinceLastImprovement;
 	private int age;
+	private int speciesID;
 	private double fitness;
 	private double spawnAmount;
 	private double adjustedFitness;
@@ -20,12 +21,14 @@ public class Organism
 	public Organism(int id)
 	{
 		ID = id;
+		speciesID=-1;
 		age = 0;
 		timeSinceLastImprovement = 0;
 		sorter = new SortingUnit();
 	}
 	public Organism(Organism other)
 	{
+		speciesID = other.getSpeciesID();
 		genotype = new Genome(other.getGenotype());
 		phenotype = null;
 		fitness = other.getFitness();
@@ -56,11 +59,11 @@ public class Organism
 	{
 		genotype = new Genome(minimalStructure);
 	}
-	public void createGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
+	public void createEmptyGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{
 		genotype = new Genome(table, rand, numInputs, numOutputs);
 	}
-	public void createGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
+	public void createChildGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{
 		genotype = new Genome(genes, table, rand, numInputs, numOutputs);
 	}
@@ -166,10 +169,10 @@ public class Organism
 		fitness=i;
 	}
 	public void setSpawnAmount(double i) {spawnAmount = i;}
-	
 	public void setAdjustedFitness(double i) {adjustedFitness=i;}
 	public void setID(int i) {ID=i;}
-	
+	public void setSpeciesID(int i) {speciesID = i;}
+	public int getSpeciesID(){return speciesID;}
 	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
 	public int getAge() {return age;}
 	public int getID() {return ID;}

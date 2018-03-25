@@ -12,6 +12,9 @@ public interface Config
 	public final double INHERITED_CONNECTION_ENABLE_RATE = 0.25;
 	public final double MUTATED_CONNECTION_ENABLE_RATE = 0.15;
 	public final double MUTATED_CONNECTION_DISABLE_RATE = 0.25;
+	public final double SPECIES_AGE_FITNESS_MODIFIER = 0.3;
+	public final int SPECIES_OLD_THRESHOLD = 15;
+	public final int SPECIES_YOUNG_THRESHOLD = 5;
 	public final int MAX_ALLOWED_NODES = 100;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 30;
 	public final int MAX_ATTEMPTS_ADD_NODE = 30;

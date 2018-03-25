@@ -2,7 +2,9 @@ package NEAT.Population;
 
 import java.util.*;
 import NEAT.Genes.*;
+import NEAT.util.Config;
 import NEAT.util.InnovationTable;
+import NEAT.util.SortingUnit;
 public class Species 
 {
 	private double bestFitness;
@@ -12,12 +14,14 @@ public class Species
 	private Organism bestMember;
 	private ArrayList<Organism> members;
 	private Random rand;
+	private SortingUnit sorter;
 	public Species(Organism first, Random rng)
 	{
 		rand = rng;
 		setBestMember(first);
 		members = new ArrayList<Organism>();
 		members.add(first);
+		sorter = new SortingUnit();
 	}
 	public void reproduce(ArrayList<Organism> newPop, InnovationTable table)
 	{
@@ -67,17 +71,41 @@ public class Species
 		}
 		Organism child = new Organism(table.getNextOrganismID());
 		//	public void createGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
-		child.createGenotype(childGenes,p1.getGenotype().getInputs(),p1.getGenotype().getOutputs(),rand,table);
+		child.createChildGenotype(childGenes,p1.getGenotype().getInputs(),p1.getGenotype().getOutputs(),rand,table);
 		return child;
 	}
 	public void tick()
 	{
+		sorter.sortOrganisms(members,0,members.size()-1);
 		for(Organism org : members)
 		{
 			org.tick();
 		}
 		timeSinceLastImprovement++;
 		age++;
+	}
+	public void adjustFitnessValues()
+	{
+		for(Organism org : members)
+		{
+			double fitness = org.getFitness();
+			if(age < Config.SPECIES_YOUNG_THRESHOLD) {fitness*= 1.0 + Config.SPECIES_AGE_FITNESS_MODIFIER;}
+			else if(age > Config.SPECIES_OLD_THRESHOLD) {fitness*= 1.0 - Config.SPECIES_AGE_FITNESS_MODIFIER;}
+			fitness/=members.size();
+			org.setAdjustedFitness(fitness);
+		}
+	}
+	public void calculateSpawnAmounts(double globalAverage)
+	{
+		spawnAmount = 0.0d;
+		double spawns = 0;
+		for(Organism org : members)
+		{
+			spawns = org.getFitness()/globalAverage;
+			spawnAmount+=spawns;
+			org.setSpawnAmount(spawns);
+		}
+		spawnAmount = Math.round(spawnAmount);
 	}
 	public double getBestFitness() {return bestFitness;}
 	public void setBestFitness(double bestFitness) {this.bestFitness = bestFitness;}
