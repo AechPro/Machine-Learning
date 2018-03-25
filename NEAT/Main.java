@@ -1,18 +1,20 @@
 package NEAT;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
 import NEAT.Display.*;
-import NEAT.Population.Phenotype;
+import NEAT.Population.*;
+import NEAT.Genes.*;
+import NEAT.util.*;
 
 public class Main
 {
 	private static final int width = 1920, height = 1080;
 	private ArrayList<Phenotype> phenotypes;
 	private ArrayList<DisplayObject> objectsToDisplay;
+	private InnovationTable table;
 	public Main()
 	{
 		init();
@@ -20,6 +22,13 @@ public class Main
 	public void init()
 	{
 		phenotypes = new ArrayList<Phenotype>();
+		objectsToDisplay = new ArrayList<DisplayObject>();
+		table = new InnovationTable();
+		setupWindow();
+		
+	}
+	public void setupWindow()
+	{
 		JFrame f = new JFrame("NEAT");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setContentPane(new Window(width,height,60,objectsToDisplay));

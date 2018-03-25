@@ -1,6 +1,7 @@
 package NEAT.Display;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -22,6 +23,7 @@ public class Window extends JPanel implements Runnable
 	private double frameDelta;
 	private int fps;
 	private double frameRate;
+	private Font font;
 	//private int delayPeriod;
 	private double framePeriod;
 	private long frameStart;
@@ -62,12 +64,16 @@ public class Window extends JPanel implements Runnable
 	{
 		image = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		g = (Graphics2D) image.getGraphics();
+		font = new Font("TimesRoman",0,16);
+		g.setFont(font);
 		running=true;
 	}
 	//Main display loop.
-	public void run() 
+	public void run()
 	{
 		init();
+		long secondTicker = System.nanoTime();
+		double frameTick = 0;
 		while(running)
 		{
 			//Frame start measurement .
@@ -78,8 +84,13 @@ public class Window extends JPanel implements Runnable
 			//Frame delta = (actual frame time in ms) / (desired frame time in ms)
 			//Multiply frame period by 100,000 to set units of numerator from ns to ms.
 			frameDelta = (System.nanoTime() - frameStart) / (framePeriod * 1000000);
-			frameRate += frameDelta;
-			
+			frameTick += frameDelta;
+			if(System.nanoTime() - secondTicker >= 1000000000) 
+			{
+				frameRate = (int)frameTick;
+				frameTick = 0;
+				secondTicker = System.nanoTime();
+			}
 		}
 	}
 	public void update()
@@ -112,6 +123,8 @@ public class Window extends JPanel implements Runnable
 				}
 			}
 		}
+		g.setColor(Color.GREEN);
+		g.drawString("FPS: "+frameRate,2,15);
 	}
 
 	public void draw()
