@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import NEAT.Genes.*;
-import NEAT.util.InnovationTable;
+import NEAT.util.*;
 public class Genome 
 {
 	private int ID;
@@ -33,8 +33,10 @@ public class Genome
 	{
 		duplicate(other);
 	}
-	public void addConnection(double mutationRate, InnovationTable table, Random rng, int maxAttempts)
+	public void addConnection(InnovationTable table)
 	{
+		double mutationRate = Config.CONNECTION_ADD_CHANCE;
+		int maxAttempts = Config.MAX_ATTEMPTS_ADD_CONNECTION;
 		if(Math.random()>mutationRate){return;}
 		
 		Node n1 = null;
@@ -64,8 +66,10 @@ public class Genome
 		Connection newCon = new Connection(n1, n2, rand.nextGaussian(), true, id);
 		connections.add(newCon);
 	}
-	public void addNode(double mutationRate, InnovationTable table, int maxAttempts)
+	public void addNode(InnovationTable table)
 	{
+		double mutationRate = Config.NODE_ADD_CHANCE;
+		int maxAttempts = Config.MAX_ATTEMPTS_ADD_NODE;
 		if(Math.random()>mutationRate){return;}
 		
 		boolean foundSplit = false;
@@ -127,8 +131,11 @@ public class Genome
 			connections.add(con2);
 		}
 	}
-	public void mutateWeights(double mutationRate, double replaceProb, double maxPerturb)
+	public void mutateWeights()
 	{
+		double mutationRate = Config.WEIGHT_MUTATION_RATE;
+		double replaceProb = Config.WEIGHT_REPLACEMENT_RATE;
+		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;
 		for(Connection con : connections)
 		{
 			if(con.getInput().getType() == Node.BIAS_NODE){continue;}
@@ -144,8 +151,10 @@ public class Genome
 			}
 		}
 	}
-	public void mutateNode(double mutationRate, double maxPerturb)
+	public void mutateNode()
 	{
+		double mutationRate = Config.ACTIVATION_RESPONSE_MUTATION_RATE;
+		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;
 		for(Node n : nodes)
 		{
 			if(Math.random()<mutationRate)

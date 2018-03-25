@@ -1,6 +1,7 @@
 package NEAT;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -15,6 +16,7 @@ public class Main
 	private ArrayList<Phenotype> phenotypes;
 	private ArrayList<DisplayObject> objectsToDisplay;
 	private InnovationTable table;
+	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
 	{
 		init();
