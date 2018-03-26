@@ -181,6 +181,23 @@ public class Species
 		}
 		spawnAmount = Math.round(spawnAmount);
 	}
+	@Override
+	public String toString()
+	{
+		String output = "\nSPECIES "+ID+"\n";
+		output+="Genome ID        Fitness        Adjusted Fitness        Spawn Amount\n";
+		for(int i=0,stop=members.size();i<stop;i++)
+		{
+			output+=members.get(i).getID()+"              "+Math.round(100.0*members.get(i).getFitness())/100.0
+					+"             "+Math.round(100.0*members.get(i).getAdjustedFitness())/100.0+"                    "
+					+Math.round(100.0*members.get(i).getSpawnAmount())/100.0;
+			output+="\n";
+		}
+		output+="Spawn amounts for this species: "+spawnAmount;
+		output+="\nMembers in this species: "+members.size();
+		if(members.size()>0){output+="\nBest member for this species:"+getBestMember();}
+		return output;
+	}
 	public double getBestFitness() {return bestFitness;}
 	public void setBestFitness(double bestFitness) {this.bestFitness = bestFitness;}
 	public double getSpawnAmount() {return spawnAmount;}

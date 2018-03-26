@@ -159,6 +159,19 @@ public class Organism
 		System.out.println("COMPATIBILITY VALUE: "+compat);*/
 		return compat;
 	}
+	@Override
+	public String toString()
+	{
+		String output = "\nORGANISM "+ID;
+		output+="\nFitness: "+fitness;
+		output+="\nAdj Fitness: "+adjustedFitness;
+		output+="\nAge: "+age;
+		output+="\nLast improvement: "+timeSinceLastImprovement;
+		output+="\nSpawn amounts: "+spawnAmount;
+		output+="\nGenome: "+genotype;
+		output+="\nPhenotype: "+phenotype;
+		return output;
+	}
 	public void setFitness(double i) 
 	{
 		if(i > bestFitness) 

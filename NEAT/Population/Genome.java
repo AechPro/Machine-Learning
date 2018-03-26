@@ -245,6 +245,14 @@ public class Genome
 		table = other.getTable();
 		rand = other.getRand();
 	}
+	@Override
+	public String toString()
+	{
+		String output = "\nGENOME "+ID;
+		output+="\nCONNECTIONS: "+connections.size();
+		output+="\nNODES: "+nodes.size();
+		return output;
+	}
 	public Random getRand() {return rand;}
 	public void setRand(Random rng) {rand = rng;}
 	public int getID() {return ID;}

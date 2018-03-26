@@ -57,12 +57,12 @@ public class Main
 	}
 	public void epoch()
 	{
-		testPhenotypes();
 		reset();
 		speciate();
 		tick();
 		repopulate();
 		printOutput();
+		testPhenotypes();
 	}
 	public void printOutput()
 	{
@@ -112,7 +112,9 @@ public class Main
 			s.tick();
 			s.adjustFitnessValues();
 			s.calculateSpawnAmounts(avg);
+			System.out.println(s);
 		}
+		//for(Organism org : population) {System.out.println(org);}
 	}
 	public void reset()
 	{
@@ -139,10 +141,15 @@ public class Main
 	}
 	public void testPhenotypes()
 	{
-		for(int i=0;i<population.size();i++)
+		double fitness = 0d;
+		for(Species s : species)
 		{
-			population.get(i).createPhenotype();
-			population.get(i).setFitness(testUnit.testPhenotype(population.get(i).getPhenotype()));
+			for(Organism org : s.getMembers())
+			{
+				org.createPhenotype();
+				fitness = testUnit.testPhenotype(org.getPhenotype());
+				org.setFitness(fitness);
+			}
 		}
 	}
 	public double calculateAverageFitness()
