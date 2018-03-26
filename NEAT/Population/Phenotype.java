@@ -1,7 +1,12 @@
 package NEAT.Population;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import NEAT.Display.DisplayObject;
 import NEAT.Genes.*;
@@ -15,17 +20,21 @@ public class Phenotype extends DisplayObject
 	private ArrayList<Node> nodes;
 	private SortingUnit sorter;
 	private int depth;
-	public Phenotype(ArrayList<Node> ns)
+	private int x,y;
+	public Phenotype(ArrayList<Node> ns, int _x, int _y)
 	{
 		super();
+		x = _x;
+		y = _y;
 		nodes = ns;
 		depth = calculateDepth();
 		init();
 	}
-	public Phenotype(ArrayList<Node> ns, int _renderPriority, int _updatePriority)
+	public Phenotype(ArrayList<Node> ns, int _x, int _y, int _renderPriority, int _updatePriority)
 	{
 		super(_renderPriority, _updatePriority);
-		
+		x = _x;
+		y = _y;
 		nodes = ns;
 		depth = calculateDepth();
 		init();
@@ -38,6 +47,8 @@ public class Phenotype extends DisplayObject
 		sorter.sortNodes(inputNodes, 0, inputNodes.size()-1);
 		sorter.sortNodes(outputNodes, 0, outputNodes.size()-1);
 		sorter.sortNodes(biasNodes, 0, biasNodes.size()-1);
+		//System.out.println("PHENOTYPE CREATED WITH\n"+nodes.size()+" TOTAL NODES\n"+inputNodes.size()+" INPUT NODES\n"
+			//	+ biasNodes.size()+" BIAS NODES\n"+outputNodes.size()+" OUTPUT NODES");
 	}
 	public boolean activate(double[] input)
 	{
@@ -164,6 +175,10 @@ public class Phenotype extends DisplayObject
 		}
 	}
 	public int getDepth() {return depth;}
+	public ArrayList<Node> getNodes(){return nodes;}
+	public ArrayList<Node> getInputNodes(){return inputNodes;}
+	public ArrayList<Node> getOutputNodes(){return outputNodes;}
+	public ArrayList<Node> getBiasNodes(){return biasNodes;}
 	@Override
 	public void update(double delta)
 	{
@@ -171,10 +186,56 @@ public class Phenotype extends DisplayObject
 	@Override
 	public void render(Graphics2D g) 
 	{
+		int r = 15;
+		g.setColor(Color.WHITE);
+		for(Node n : nodes)
+		{
+			for(Connection c : n.getOutputs())
+			{
+				int x1 = x + n.getX() + r/2;
+				int y1 = y + n.getY() + r/2;
+				int x2 = x + c.getOutput().getX()+r/2;
+				int y2 = y + c.getOutput().getY()+r/2;
+				g.drawLine(x1, y1, x2, y2);
+			}
+		}
+		for(Node n : nodes)
+		{
+			switch(n.getType())
+			{
+				case(Node.INPUT_NODE):
+					g.setColor(Color.GREEN);
+					break;
+				case(Node.OUTPUT_NODE):
+					g.setColor(Color.RED);
+					break;
+				case(Node.BIAS_NODE):
+					g.setColor(Color.WHITE);
+					break;
+				default:
+					g.setColor(Color.YELLOW);
+					break;
+			}
+			g.fillOval(x+n.getX(),y+n.getY(),r,r);
+		}
 	}
-	public void saveAsImage(String dir)
+	public void saveAsImage(String dir, int w, int h)
 	{
+		BufferedImage im = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
 		
+		Graphics2D graphics = (Graphics2D) im.getGraphics();
+		graphics.setColor(Color.BLACK);
+		graphics.fillRect(0,0,w,h);
+		int oldX = x;
+		int oldY = y;
+		x = 100;
+		y = h - 30;
+		render(graphics);
+		graphics.dispose();
+		try{ImageIO.write(im, "png", new File(dir));}
+		catch(Exception e){e.printStackTrace();}
+		x = oldX;
+		y = oldY;
 	}
 	public double sigmoid(double x, double response)
 	{

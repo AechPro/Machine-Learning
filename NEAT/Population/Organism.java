@@ -31,9 +31,9 @@ public class Organism
 		speciesID = other.getSpeciesID();
 		genotype = new Genome(other.getGenotype());
 		phenotype = null;
-		fitness = other.getFitness();
-		adjustedFitness = other.getAdjustedFitness();
-		spawnAmount = other.getSpawnAmount();
+		fitness = Math.random();
+		adjustedFitness = Math.random();
+		spawnAmount = 0.0;
 		sorter = new SortingUnit();
 		bestFitness = other.getBestFitness();
 		timeSinceLastImprovement = other.getTimeSinceLastImprovement();
@@ -73,7 +73,7 @@ public class Organism
 	{
 		genotype = new Genome(genes, table, rand, numInputs, numOutputs);
 	}
-	public void createPhenotype()
+	public void createPhenotype(int renderX, int renderY)
 	{
 		phenotype = null;
 		ArrayList<Node> phenotypeNodes = new ArrayList<Node>();
@@ -122,7 +122,7 @@ public class Organism
 				n2.addInput(phenCon);
 			}
 		}
-		phenotype = new Phenotype(phenotypeNodes);
+		phenotype = new Phenotype(phenotypeNodes,renderX,renderY);
 	}
 	public double calculateCompatibility(Organism other)
 	{

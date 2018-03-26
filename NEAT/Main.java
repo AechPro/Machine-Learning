@@ -17,9 +17,10 @@ public class Main
 	private ArrayList<Phenotype> phenotypes;
 	private ArrayList<Species> species;
 	private ArrayList<Organism> population;
-	private ArrayList<DisplayObject> objectsToDisplay;
+	private ArrayList<DisplayObject> displayObjects;
 	private SortingUnit sorter;
 	private XORTester testUnit;
+	private int generation;
 	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
@@ -31,7 +32,8 @@ public class Main
 		population = new ArrayList<Organism>();
 		phenotypes = new ArrayList<Phenotype>();
 		species = new ArrayList<Species>();
-		objectsToDisplay = new ArrayList<DisplayObject>();
+		displayObjects = new ArrayList<DisplayObject>();
+		generation = 0;
 		table = new InnovationTable();
 		testUnit = new XORTester(rng);
 		sorter = new SortingUnit();
@@ -51,6 +53,7 @@ public class Main
 		while(running)
 		{
 			epoch();
+			generation++;
 			try{Thread.sleep(1000);}
 			catch(Exception e) {e.printStackTrace();}
 		}
@@ -62,14 +65,15 @@ public class Main
 		tick();
 		repopulate();
 		printOutput();
-		testPhenotypes();
+		testPhenotypes(generation%20==0);
 	}
 	public void printOutput()
 	{
+		System.out.println("\nGENERATION: "+generation);
 		System.out.println("POP SIZE: "+population.size());
 		System.out.println("SPECIES: "+species.size());
 		System.out.println("BEST FITNESS: "+bestFitness);
-		System.out.println("--INNOVATION TABLE--\n"+table);
+		//System.out.println("--INNOVATION TABLE--\n"+table);
 	}
 	public void repopulate()
 	{
@@ -139,16 +143,24 @@ public class Main
 		species = newSpecies;
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
-	public void testPhenotypes()
+	public void testPhenotypes(boolean save)
 	{
+		displayObjects.clear();
 		double fitness = 0d;
+		int itr = 0;
 		for(Species s : species)
 		{
 			for(Organism org : s.getMembers())
 			{
-				org.createPhenotype();
+				org.createPhenotype(width/2,height/2);
 				fitness = testUnit.testPhenotype(org.getPhenotype());
 				org.setFitness(fitness);
+				displayObjects.add(org.getPhenotype());
+				if(save)
+				{
+					org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 600,600);
+				}
+				
 			}
 		}
 	}
@@ -166,7 +178,7 @@ public class Main
 	{
 		JFrame f = new JFrame("NEAT");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setContentPane(new Window(width,height,60,objectsToDisplay));
+		f.setContentPane(new Window(width,height,60,displayObjects));
 		f.setSize(width,height);
 		f.setVisible(true);
 	}

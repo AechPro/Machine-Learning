@@ -50,7 +50,6 @@ public class Species
 			}
 		}
 		else {culledMembers = members;}
-		if(numToSpawn>=1) {newPop.add(new Organism(getBestMember()));}
 		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
 		{
 			if(culledMembers.size()==1) {child = new Organism(culledMembers.get(0));}
