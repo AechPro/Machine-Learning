@@ -4,27 +4,79 @@ import java.util.*;
 import NEAT.Genes.*;
 import NEAT.util.Config;
 import NEAT.util.InnovationTable;
+import NEAT.util.SelectionUnit;
 import NEAT.util.SortingUnit;
 public class Species 
 {
 	private double bestFitness;
 	private double spawnAmount;
+	private int ID;
 	private int age;
 	private int timeSinceLastImprovement;
 	private Organism representative;
 	private ArrayList<Organism> members;
 	private Random rand;
 	private SortingUnit sorter;
-	public Species(Organism first, Random rng)
+	private SelectionUnit selector;
+	public Species(Organism first, Random rng, int id)
 	{
+		ID=id;
 		rand = rng;
 		members = new ArrayList<Organism>();
 		members.add(first);
 		sorter = new SortingUnit();
+		selector = new SelectionUnit();
 	}
-	public void reproduce(ArrayList<Organism> newPop, InnovationTable table)
-	{
-		
+	public void reproduce(InnovationTable table)
+	{	
+		int popSize = members.size();
+		ArrayList<Organism> newPop = new ArrayList<Organism>();
+		int numToSpawn = (int)(Math.round(spawnAmount));
+		Organism child = null;
+		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
+		if(popSize>=5)
+		{
+			child = new Organism(getBestMember());
+			child.mutateGenotype(table);
+			newPop.add(child);
+			int cutoff = (int)(Math.round(members.size()*Config.WORST_PERCENT_REMOVED));
+			for(int i=cutoff;i<members.size();i++)
+			{
+				if(members.get(i).getTimeSinceLastImprovement()>Config.MAX_TIME_ORGANISM_STAGNATION)
+				{continue;}
+				culledMembers.add(members.get(i));
+			}
+		}
+		else {culledMembers = members;}
+		newPop.add(new Organism(getBestMember()));
+		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
+		{
+			if(culledMembers.size()==1) {child = new Organism(culledMembers.get(0));}
+			else
+			{
+				if(Math.random()<Config.CROSSOVER_RATE)
+				{
+					ArrayList<Organism> parents = selector.tournamentSelect(2, culledMembers.size()-1, true, culledMembers);
+					child = crossover(parents.get(0),parents.get(1),table);
+				}
+				else
+				{
+					child = selector.rouletteSelect(1, true, culledMembers).get(0);
+					child = new Organism(child);
+				}
+			}
+			child.mutateGenotype(table);
+			newPop.add(child);
+		}
+		if(newPop.size()<popSize)
+		{
+			ArrayList<Organism> remainder = selector.tournamentSelect(Math.abs(newPop.size()-popSize), culledMembers.size()-1, true, culledMembers);
+			for(Organism org : remainder)
+			{
+				newPop.add(new Organism(org));
+			}
+		}
+		members = newPop;
 	}
 	public Organism crossover(Organism p1, Organism p2, InnovationTable table)
 	{
@@ -69,7 +121,6 @@ public class Species
 			childGenes.add(selection);
 		}
 		Organism child = new Organism(table.getNextOrganismID());
-		//	public void createGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
 		child.createChildGenotype(childGenes,p1.getGenotype().getInputs(),p1.getGenotype().getOutputs(),rand,table);
 		return child;
 	}
@@ -87,10 +138,20 @@ public class Species
 		timeSinceLastImprovement++;
 		age++;
 	}
+	public void addMember(Organism mem)
+	{
+		members.add(mem);
+		mem.setSpeciesID(ID);
+	}
 	public void purge()
 	{
 		int idx = rand.nextInt(members.size());
 		representative = new Organism(members.get(idx));
+		for(int i=0;i<members.size();i++)
+		{
+			members.get(i).setSpeciesID(-1);
+		}
+		representative.setSpeciesID(ID);
 		members = new ArrayList<Organism>();
 		spawnAmount = 0d;
 		

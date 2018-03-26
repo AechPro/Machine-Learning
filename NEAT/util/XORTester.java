@@ -36,7 +36,7 @@ public class XORTester
 				};
 		
 	}
-	public Genome buildMinimalStructure(InnovationTable table, int genomeID)
+	public Genome buildMinimalStructure(InnovationTable table)
 	{
 		ArrayList<Connection> cons = new ArrayList<Connection>();
 		ArrayList<Node> nodes = new ArrayList<Node>();

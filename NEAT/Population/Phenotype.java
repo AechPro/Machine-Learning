@@ -48,7 +48,7 @@ public class Phenotype extends DisplayObject
 		if(debugging) {System.out.println("Beginning activation on input "+input[0]+" | "+input[1]);}
 		while(inactiveOutputs() || !activatedOnce)
 		{
-			if(attempts++>20) {System.out.println("Returning false"); return false;}
+			if(attempts++>20) {if(debugging) {System.out.println("Returning false");} return false;}
 			for(Node n : nodes)
 			{
 				if(n.getType() == Node.INPUT_NODE || n.getType() == Node.BIAS_NODE){continue;}

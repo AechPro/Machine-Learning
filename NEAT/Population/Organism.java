@@ -45,19 +45,25 @@ public class Organism
 		age++;
 		timeSinceLastImprovement = 0;
 	}
-	public void mutateGenotype(InnovationTable table, int newGenomeID)
+	public void mutateGenotype(InnovationTable table)
 	{
 		if(genotype.getNodes().size()<Config.MAX_ALLOWED_NODES) {genotype.addNode(table);}
 		genotype.addConnection(table);
 		genotype.mutateNode();
 		genotype.mutateWeights();
-		genotype.setID(newGenomeID);
+		genotype.setID(table.getNextGenomeID());
 		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
 		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
 	}
-	public void createMinimalGenotype(Genome minimalStructure)
+	public void createMinimalGenotype(Genome minimalStructure, InnovationTable table)
 	{
 		genotype = new Genome(minimalStructure);
+		for(int i=0;i<3;i++)
+		{
+			genotype.mutateNode();
+			genotype.mutateWeights();
+		}
+		genotype.setID(table.getNextGenomeID());
 	}
 	public void createEmptyGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{

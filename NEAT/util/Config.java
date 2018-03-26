@@ -15,6 +15,7 @@ public interface Config
 	public final double SPECIES_AGE_FITNESS_MODIFIER = 0.3;
 	public final int SPECIES_OLD_THRESHOLD = 15;
 	public final int SPECIES_YOUNG_THRESHOLD = 5;
+	public final int SPECIES_SIZE_FOR_CHAMP_CLONING = 5;
 	public final int MAX_ALLOWED_NODES = 100;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 30;
 	public final int MAX_ATTEMPTS_ADD_NODE = 30;
@@ -27,4 +28,5 @@ public interface Config
 	public final int MAX_TIME_SPECIES_STAGNATION = 15;
 	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
 	public final int POPULATION_SIZE = 150;
+	public final double WORST_PERCENT_REMOVED = 0.25;
 }

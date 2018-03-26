@@ -13,8 +13,13 @@ import NEAT.util.*;
 public class Main
 {
 	private static final int width = 1920, height = 1080;
+	private double bestFitness;
 	private ArrayList<Phenotype> phenotypes;
+	private ArrayList<Species> species;
+	private ArrayList<Organism> population;
 	private ArrayList<DisplayObject> objectsToDisplay;
+	private SortingUnit sorter;
+	private XORTester testUnit;
 	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
@@ -23,10 +28,131 @@ public class Main
 	}
 	public void init()
 	{
+		population = new ArrayList<Organism>();
 		phenotypes = new ArrayList<Phenotype>();
+		species = new ArrayList<Species>();
 		objectsToDisplay = new ArrayList<DisplayObject>();
 		table = new InnovationTable();
-		setupWindow();
+		testUnit = new XORTester(rng);
+		sorter = new SortingUnit();
+		Genome minimalStructure = testUnit.buildMinimalStructure(table);
+		for(int i=0;i<Config.POPULATION_SIZE;i++)
+		{
+			Organism org = new Organism(table.getNextOrganismID());
+			org.createMinimalGenotype(minimalStructure,table);
+			population.add(org);
+		}
+		//setupWindow();
+		run();
+	}
+	public void run()
+	{
+		boolean running = true;
+		while(running)
+		{
+			epoch();
+			try{Thread.sleep(1000);}
+			catch(Exception e) {e.printStackTrace();}
+		}
+	}
+	public void epoch()
+	{
+		testPhenotypes();
+		reset();
+		speciate();
+		tick();
+		repopulate();
+		printOutput();
+	}
+	public void printOutput()
+	{
+		System.out.println("POP SIZE: "+population.size());
+		System.out.println("SPECIES: "+species.size());
+		System.out.println("BEST FITNESS: "+bestFitness);
+		System.out.println("--INNOVATION TABLE--"+table);
+	}
+	public void repopulate()
+	{
+		ArrayList<Organism> newPop = new ArrayList<Organism>();
+		for(Species s : species)
+		{
+			s.reproduce(table);
+			for(Organism org : s.getMembers())
+			{
+				newPop.add(org);
+			}
+		}
+	}
+	public void speciate()
+	{
+		for(Organism org : population)
+		{
+			boolean found = false;
+			for(Species s : species)
+			{
+				if(org.calculateCompatibility(s.getRepr()) > Config.SPECIES_COMPAT_THRESHOLD)
+				{
+					found = true;
+					s.addMember(org);
+					break;
+				}
+			}
+			if(!found)
+			{
+				Species newSpecies = new Species(org,rng,table.getNextSpeciesID());
+				species.add(newSpecies);
+			}
+		}
+	}
+	public void tick()
+	{
+		double avg = calculateAverageFitness();
+		for(Species s : species)
+		{
+			s.tick();
+			s.adjustFitnessValues();
+			s.calculateSpawnAmounts(avg);
+		}
+	}
+	public void reset()
+	{
+		if(species.size()==0) 
+		{
+			sorter.sortOrganisms(population, 0, population.size()-1);
+			return;
+		}
+		ArrayList<Species> newSpecies = new ArrayList<Species>();
+		population = new ArrayList<Organism>();
+		for(Species s : species)
+		{
+			if(s.getMembers().size()==0) {continue;}
+			for(Organism org : s.getMembers()) 
+			{
+				if(org.getFitness() > bestFitness) {bestFitness = org.getFitness();}
+				population.add(org);
+			}
+			s.purge();
+			newSpecies.add(s);
+		}
+		sorter.sortOrganisms(population, 0, population.size()-1);
+	}
+	public void testPhenotypes()
+	{
+		for(int i=0;i<population.size();i++)
+		{
+			population.get(i).createPhenotype();
+			population.get(i).setFitness(testUnit.testPhenotype(population.get(i).getPhenotype()));
+		}
+	}
+	public double calculateAverageFitness()
+	{
+		if(population.size() == 0) {return 0d;}
+		double avg = 0d;
+		for(Organism org : population)
+		{
+			avg+=org.getFitness();
+		}
+		return avg/population.size();
 	}
 	public void setupWindow()
 	{
