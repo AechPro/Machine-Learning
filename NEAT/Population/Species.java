@@ -35,7 +35,7 @@ public class Species
 		int numToSpawn = (int)(Math.round(spawnAmount));
 		Organism child = null;
 		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
-		newPop.add(new Organism(getBestMember()));
+		
 		if(popSize>=5)
 		{
 			child = new Organism(getBestMember());
@@ -50,7 +50,7 @@ public class Species
 			}
 		}
 		else {culledMembers = members;}
-		
+		if(numToSpawn>=1) {newPop.add(new Organism(getBestMember()));}
 		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
 		{
 			if(culledMembers.size()==1) {child = new Organism(culledMembers.get(0));}

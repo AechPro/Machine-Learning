@@ -25,6 +25,7 @@ public class Phenotype extends DisplayObject
 	public Phenotype(ArrayList<Node> ns, int _renderPriority, int _updatePriority)
 	{
 		super(_renderPriority, _updatePriority);
+		
 		nodes = ns;
 		depth = calculateDepth();
 		init();
@@ -63,7 +64,9 @@ public class Phenotype extends DisplayObject
 					{
 						n.setActive(true);
 					}
-					sum+=c.getWeight()*c.getInput().getActiveOutput();
+					//System.out.println("CONNECTION INPUT: "+c.getInput());
+				//	System.out.println("NODES CHECK: "+nodes.get(nodes.indexOf(c.getInput())));
+					sum+=c.getWeight()*nodes.get(nodes.indexOf(c.getInput())).getActiveOutput();
 					if(debugging) {System.out.println("SUM SO FAR: "+sum);}
 				}
 				n.setInactiveOutput(sum);
@@ -92,30 +95,34 @@ public class Phenotype extends DisplayObject
 		double[] outputVector = new double[outputNodes.size()];
 		for(int i=0,stop=outputNodes.size();i<stop;i++)
 		{
-			outputVector[i] = outputNodes.get(i).getActiveOutput();
+				outputVector[i] = outputNodes.get(i).getActiveOutput();
 		}
 		return outputVector;
 	}
 	public void loadInputs(double[] inps)
 	{
+		//System.out.println("LOADING TO "+inputNodes.size()+" INPUT NODES");
 		for(int i=0;i<inputNodes.size();i++)
-		{
+		{	
 			inputNodes.get(i).setActiveOutput(inps[i]);
 			inputNodes.get(i).setActive(true);
+			inputNodes.get(i).setActivationCount(1);
+			//System.out.println("LOADED NODE "+inputNodes.get(i));
 		}
 		for(int i=0;i<biasNodes.size();i++)
 		{
 			biasNodes.get(i).setActiveOutput(1.0);
 			biasNodes.get(i).setActive(true);
+			inputNodes.get(i).setActivationCount(1);
 		}
 	}
 	public boolean inactiveOutputs()
 	{
 		for(int i=0,stop=outputNodes.size();i<stop;i++)
 		{
-			if(!outputNodes.get(i).isActive()) {return false;}
+			if(outputNodes.get(i).getActivationCount() == 0) {return true;}
 		}
-		return true;
+		return false;
 	}
 	public void separateNodes()
 	{
@@ -145,6 +152,16 @@ public class Phenotype extends DisplayObject
 			}
 		}
 		return uniqueYVals.size()-1;
+	}
+	public void reset()
+	{
+		for(Node n : nodes)
+		{
+			n.setInactiveOutput(0d);
+			n.setActivationCount(0);
+			n.setActiveOutput(0d);
+			n.setActive(false);
+		}
 	}
 	public int getDepth() {return depth;}
 	@Override

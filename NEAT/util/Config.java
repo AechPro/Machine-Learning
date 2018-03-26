@@ -2,8 +2,8 @@ package NEAT.util;
 
 public interface Config
 {
-	public final double CONNECTION_ADD_CHANCE = 0.07;
-	public final double NODE_ADD_CHANCE = 0.03;
+	public final double CONNECTION_ADD_CHANCE = 0.00;
+	public final double NODE_ADD_CHANCE = 0.00;
 	public final double CROSSOVER_RATE = 0.75;
 	public final double WEIGHT_MUTATION_RATE = 0.8;
 	public final double MAX_MUTATION_PERTURBATION = 0.5;

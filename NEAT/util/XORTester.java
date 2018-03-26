@@ -89,6 +89,62 @@ public class XORTester
 	}
 	public double testPhenotype(Phenotype phen)
 	{
+		/*
+		 * ArrayList<Double> fitnessScores = new ArrayList<Double>();
+		if(controller.getPhenotypes().size() == 0)
+		{
+			for(int i=0,stop=workers.size();i<stop;i++)
+			{
+				fitnessScores.add(Math.random()*0.01);
+			}
+		}
+		double[][] inputTable = new double[4][2];
+		inputTable[0] = new double[]{0,0};
+		inputTable[1] = new double[]{0,1};
+		inputTable[2] = new double[]{1,0};
+		inputTable[3] = new double[]{1,1};
+		double[][] outputTable = new double[4][1];
+		outputTable[0] = new double[]{0};
+		outputTable[1] = new double[]{1};
+		outputTable[2] = new double[]{1};
+		outputTable[3] = new double[]{0};
+		for(int i=0,stop=controller.getPhenotypes().size();i<stop;i++)
+		{
+			boolean success = false;
+			//System.out.println("\n\n\nPHENOTYPE "+i);
+			double fitness = 0;
+			ArrayList<Double> nnOutputs = new ArrayList<Double>();
+			for(int j=0;j<inputTable.length;j++)
+			{
+				//System.out.println("\n\nNEW INPUT SELECTED");
+				ArrayList<Double> inp = new ArrayList<Double>();
+				inp.add(inputTable[j][0]);
+				inp.add(inputTable[j][1]);
+				success = controller.getPhenotypes().get(i).activate(inp, NeuralNetwork.TYPE_SNAPSHOT);
+				for(int relax=0;relax<controller.getPhenotypes().get(i).getDepth();relax++)
+				{
+					success = controller.getPhenotypes().get(i).activate(inp, NeuralNetwork.TYPE_SNAPSHOT);
+				}
+				nnOutputs.add(controller.getPhenotypes().get(i).getOutputVector().get(0));
+				controller.getPhenotypes().get(i).resetNeurons();
+			}
+			if(success)
+			{
+				//(fabs(out[0])+fabs(1.0-out[1])+fabs(1.0-out[2])+fabs(out[3]))
+				
+				fitness = Math.abs(nnOutputs.get(0))
+						+ Math.abs(1.0 - nnOutputs.get(1)) 
+						+ Math.abs(1.0 - nnOutputs.get(2)) 
+						+ Math.abs(nnOutputs.get(3));
+				fitness = Math.pow(4.0-fitness, 2);
+			}
+			else
+			{
+				fitness = 0.001;
+			}
+			fitnessScores.add(fitness);
+		}
+		 */
 		double fitness = 0.0;
 		double[] NNOutputs = new double[outputs.length];
 		boolean success = false;
@@ -100,12 +156,15 @@ public class XORTester
 				success = phen.activate(inputs[i]);
 			}
 			NNOutputs[i] = phen.readOutputVector()[0];
+			phen.reset();
 		}
 		if(success)
 		{
 			for(int i=0;i<outputs.length;i++)
 			{
-				fitness += Math.abs(1.0 - outputs[i][0]);
+				//System.out.println("INPUT: "+inputs[i][0]+" | "+inputs[i][1]);
+				//System.out.println("OUTPUT: "+NNOutputs[i]);
+				fitness += Math.abs(NNOutputs[i] - outputs[i][0]);
 			}
 			fitness = Math.pow(4.0 - fitness, 2);
 		}

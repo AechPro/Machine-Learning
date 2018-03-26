@@ -82,11 +82,9 @@ public class Organism
 			if(c.isEnabled())
 			{
 				int pixelSeperator = 300;
-				int inpID = genotype.getNodeIndex(c.getInput());
-				int outID = genotype.getNodeIndex(c.getOutput());
 				//System.out.println(c.getInput()+"\n"+c.getOutput());
-				Node n1 = new Node(genotype.getNodes().get(inpID));
-				Node n2 = new Node(genotype.getNodes().get(outID));
+				Node n1 = new Node(c.getInput());
+				Node n2 = new Node(c.getOutput());
 
 				n1.setX((int)(n1.getSplitX()*pixelSeperator));
 				n1.setY((int)(-n1.getSplitY()*pixelSeperator));
@@ -95,37 +93,33 @@ public class Organism
 				n2.setY((int)(-n2.getSplitY()*pixelSeperator));
 				if(n1.getType() == Node.HIDDEN_NODE){n1.setX((int)(n1.getSplitX()*pixelSeperator/2));}
 				if(n2.getType() == Node.HIDDEN_NODE){n2.setX((int)(n2.getSplitX()*pixelSeperator/2));}
-
-				Connection phenCon = new Connection(n1,n2,c.getWeight(),c.isEnabled(),c.getInnovation());
-				n1.addOutput(phenCon);
-				n2.addInput(phenCon);
 				boolean found = false;
 				for(int i=0;i<phenotypeNodes.size();i++)
 				{
 					if(phenotypeNodes.get(i).equals(n1))
 					{
+						n1 = phenotypeNodes.get(i);
 						found = true;
-						try{phenCon.setInput(phenotypeNodes.get(i));}
-						catch(Exception e) {e.printStackTrace();}
-						phenotypeNodes.get(i).addOutput(phenCon);
 						break;
 					}
 				}
-				if(!found){phenotypeNodes.add(n1);}
+				if(!found)
+				{phenotypeNodes.add(n1);}
 
 				found = false;
 				for(int i=0;i<phenotypeNodes.size();i++)
 				{
 					if(phenotypeNodes.get(i).equals(n2))
 					{
+						n2 = phenotypeNodes.get(i);
 						found = true;
-						try{phenCon.setOutput(phenotypeNodes.get(i));}
-						catch(Exception e) {e.printStackTrace();}
-						phenotypeNodes.get(i).addInput(phenCon);
 						break;
 					}
 				}
 				if(!found){phenotypeNodes.add(n2);}
+				Connection phenCon = new Connection(n1,n2,c.getWeight(),c.isEnabled(),c.getInnovation());
+				n1.addOutput(phenCon);
+				n2.addInput(phenCon);
 			}
 		}
 		phenotype = new Phenotype(phenotypeNodes);
