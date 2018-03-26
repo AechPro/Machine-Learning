@@ -62,7 +62,7 @@ public class Connection
 		{
 			throw new Exception("Attempted to set output of connection to a bias node!\n"+input+" "+output+"\n"+toString());
 		}
-		this.output = new Node(output);
+		this.output = output;
 	}
 	public void setWeight(double weight)
 	{
@@ -76,7 +76,7 @@ public class Connection
 		{
 			throw new Exception("A node cannot be connected to itself! "+input+" "+output);
 		}
-		this.input = new Node(input);
+		this.input = input;
 	}
 	
 	

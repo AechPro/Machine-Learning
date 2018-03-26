@@ -66,7 +66,7 @@ public class Phenotype extends DisplayObject
 					}
 					//System.out.println("CONNECTION INPUT: "+c.getInput());
 				//	System.out.println("NODES CHECK: "+nodes.get(nodes.indexOf(c.getInput())));
-					sum+=c.getWeight()*nodes.get(nodes.indexOf(c.getInput())).getActiveOutput();
+					sum+=c.getWeight()*c.getInput().getActiveOutput();
 					if(debugging) {System.out.println("SUM SO FAR: "+sum);}
 				}
 				n.setInactiveOutput(sum);
@@ -113,7 +113,7 @@ public class Phenotype extends DisplayObject
 		{
 			biasNodes.get(i).setActiveOutput(1.0);
 			biasNodes.get(i).setActive(true);
-			inputNodes.get(i).setActivationCount(1);
+			biasNodes.get(i).setActivationCount(1);
 		}
 	}
 	public boolean inactiveOutputs()
