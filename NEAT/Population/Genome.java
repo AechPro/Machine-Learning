@@ -233,6 +233,17 @@ public class Genome
 		}
 		return -1;
 	}
+	public void randomize()
+	{
+		for(Connection c : connections)
+		{
+			c.setWeight(rand.nextGaussian());
+		}
+		for(Node n : nodes)
+		{
+			n.setActivationResponse(rand.nextGaussian());
+		}
+	}
 	public void duplicate(Genome other)
 	{
 		nodes = new ArrayList<Node>();
@@ -244,6 +255,24 @@ public class Genome
 		outputs = other.getOutputs();
 		table = other.getTable();
 		rand = other.getRand();
+	}
+	public String toString(int verbosity)
+	{
+		if(verbosity == 0) {return toString();}
+		String output = "\nGENOME "+ID;
+		output+="\nNUM CONNECTIONS: "+connections.size();
+		output+="\nNUM NODES: "+nodes.size();
+		output+="\nGENOME CONNECTIONS\n";
+		for(Connection c : connections)
+		{
+			output+=c+"\n";
+		}
+		output+="\nGENOME NODES\n";
+		for(Node n : nodes)
+		{
+			output+=n+"\n";
+		}
+		return output;
 	}
 	@Override
 	public String toString()

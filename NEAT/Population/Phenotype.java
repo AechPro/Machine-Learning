@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import NEAT.Display.DisplayObject;
 import NEAT.Genes.*;
 import NEAT.util.SortingUnit;
+import NEAT.util.XORTester;
 
 public class Phenotype extends DisplayObject
 {
@@ -219,18 +220,52 @@ public class Phenotype extends DisplayObject
 			g.fillOval(x+n.getX(),y+n.getY(),r,r);
 		}
 	}
+	public void renderDebug(Graphics2D g)
+	{
+		int r = 15;
+		for(int i=0;i<XORTester.inputs.length;i++)
+		{
+			loadInputs(XORTester.inputs[i]);
+			g.setColor(Color.WHITE);
+			r+=15;
+			for(Node n : inputNodes)
+			{
+				g.drawString(""+n.getActiveOutput(),x+n.getX(),y+n.getY()+r);
+				
+			}
+			for(Node n : biasNodes)
+			{
+				g.drawString(""+n.getActiveOutput(),x+n.getX(),y+n.getY()+r);
+			}
+			for(int count = 0;count<depth+1;count++)
+			{
+				activate(XORTester.inputs[i]);
+			}
+			for(Node n : nodes)
+			{
+				if(n.getType() == Node.HIDDEN_NODE)
+				{
+					g.drawString(""+Math.round(n.getActiveOutput()*100.0)/100.0,x+n.getX()+30,y+n.getY()+r-15);
+				}
+			}
+			for(Node n : outputNodes)
+			{
+				g.drawString(""+Math.round(n.getActiveOutput()*100.0)/100.0,x+n.getX()+30,y+n.getY()+r-15);
+			}
+		}
+	}
 	public void saveAsImage(String dir, int w, int h)
 	{
 		BufferedImage im = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
-		
 		Graphics2D graphics = (Graphics2D) im.getGraphics();
 		graphics.setColor(Color.BLACK);
 		graphics.fillRect(0,0,w,h);
 		int oldX = x;
 		int oldY = y;
 		x = 100;
-		y = h - 30;
+		y = 100+h/2;
 		render(graphics);
+		renderDebug(graphics);
 		graphics.dispose();
 		try{ImageIO.write(im, "png", new File(dir));}
 		catch(Exception e){e.printStackTrace();}

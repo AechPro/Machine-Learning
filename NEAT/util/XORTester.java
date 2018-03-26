@@ -15,26 +15,11 @@ public class XORTester
 	public final int numBiasNodes = 1;
 	public final int minimumHiddenNodes = 1;
 	public int numHiddenNodes = 0;
-	public double[][] inputs;
-	public double[][] outputs;
+	
 	public Random rand;
 	public XORTester(Random rng)
 	{
 		rand = rng;
-		inputs = new double[][]
-				{
-					{0.0,0.0},
-					{0.0,1.0},
-					{1.0,0.0},
-					{1.0,1.0}
-				};
-		outputs = new double[][] 
-				{
-					{0.0},
-					{1.0},
-					{1.0},
-					{0.0}
-				};
 		
 	}
 	public Genome buildMinimalStructure(InnovationTable table)
@@ -184,4 +169,18 @@ public class XORTester
 		else{fitness = Math.random()*0.001;}
 		return fitness;
 	}
+	public static final double[][] inputs = new double[][]
+	{
+		{0.0,0.0},
+		{0.0,1.0},
+		{1.0,0.0},
+		{1.0,1.0}
+	};
+	public static final double[][] outputs = new double[][] 
+	{
+		{0.0},
+		{1.0},
+		{1.0},
+		{0.0}
+	};
 }

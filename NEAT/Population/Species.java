@@ -36,15 +36,22 @@ public class Species
 		Organism child = null;
 		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
 		
-		if(popSize>=5)
+		if(popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING)
 		{
-			child = new Organism(getBestMember());
-			child.mutateGenotype(table);
-			newPop.add(child);
+			if(getBestMember().getAge()<Config.MAX_ALLOWED_ORGANISM_AGE)
+			{
+				if(getBestMember().getTimeSinceLastImprovement()<Config.MAX_TIME_ORGANISM_STAGNATION)
+				{
+					child = new Organism(getBestMember());
+					newPop.add(child);
+				}
+			}
 			int cutoff = (int)(Math.round(members.size()*Config.WORST_PERCENT_REMOVED));
 			for(int i=cutoff;i<members.size();i++)
 			{
 				if(members.get(i).getTimeSinceLastImprovement()>Config.MAX_TIME_ORGANISM_STAGNATION)
+				{continue;}
+				if(members.get(i).getAge()>Config.MAX_ALLOWED_ORGANISM_AGE)
 				{continue;}
 				culledMembers.add(members.get(i));
 			}
@@ -52,40 +59,49 @@ public class Species
 		else {culledMembers = members;}
 		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
 		{
-			if(culledMembers.size()==1) {child = new Organism(culledMembers.get(0));}
+			child = null;
+			if(culledMembers.size()==1 || Math.random()>Config.CROSSOVER_RATE)
+			{
+				child = new Organism(selector.rouletteSelect(1, true, culledMembers).get(0));
+				child.mutateGenotype(table);
+			}
 			else
 			{
-				if(Math.random()<Config.CROSSOVER_RATE)
+				ArrayList<Organism> parents = selector.tournamentSelect(2, culledMembers.size()-1, true, culledMembers);
+				child = crossover(parents.get(0),parents.get(1),table);
+				if(Math.random()<Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 				{
-					ArrayList<Organism> parents = selector.tournamentSelect(2, culledMembers.size()-1, true, culledMembers);
-					child = crossover(parents.get(0),parents.get(1),table);
-				}
-				else
-				{
-					child = selector.rouletteSelect(1, true, culledMembers).get(0);
-					child = new Organism(child);
+					child.mutateGenotype(table);
 				}
 			}
-			child.mutateGenotype(table);
 			newPop.add(child);
 		}
 		if(newPop.size()<popSize)
 		{
-			ArrayList<Organism> remainder = selector.tournamentSelect(Math.abs(newPop.size()-popSize), culledMembers.size()-1, true, culledMembers);
-			for(Organism org : remainder)
+			ArrayList<Organism> newSelection = selector.tournamentSelect(popSize-newPop.size(),culledMembers.size(),true,culledMembers);
+			for(Organism org : newSelection)
 			{
-				newPop.add(new Organism(org));
+				child = new Organism(org);
+				child.mutateGenotype(table);
+				newPop.add(child);
 			}
 		}
 		members = newPop;
 	}
 	public Organism crossover(Organism p1, Organism p2, InnovationTable table)
 	{
+		boolean debugging = false;
 		boolean p1Best = false;
 		ArrayList<Connection> dominant = p2.getGenotype().getConnections();
 		ArrayList<Connection> recessive = p1.getGenotype().getConnections();
 		ArrayList<Connection> childGenes = new ArrayList<Connection>();
 		Connection selection = null;
+		if(debugging)
+		{
+			System.out.println("---CROSSING OVER GENOMES----");
+			System.out.println("\n***P1***\n"+p1.toString(1));
+			System.out.println("\n***P2***\n"+p2.toString(1));
+		}
 		if(p1.getAdjustedFitness() == p2.getAdjustedFitness())
 		{
 			if(p1.getGenotype().getConnections().size() == p2.getGenotype().getConnections().size())
@@ -101,11 +117,13 @@ public class Species
 			dominant = p1.getGenotype().getConnections();
 			recessive = p2.getGenotype().getConnections();
 		}
-		
+		if(debugging){System.out.println("P1 DOMINANT: "+p1Best);}
 		for(int i=0,stop=dominant.size();i<stop;i++)
 		{
+			if(debugging) {System.out.println("CHECKING GENE "+dominant.get(i));}
 			if(recessive.contains(dominant.get(i)))
 			{
+				if(debugging) {System.out.println("FOUND SHARED GENE");}
 				if(Math.random()>=0.5)
 				{
 					selection = dominant.get(i);
@@ -117,17 +135,30 @@ public class Species
 			}
 			else
 			{
+				if(debugging) {System.out.println("FOUND DISJOINT OR EXCESS GENE");}
 				selection = dominant.get(i);
 			}
 			childGenes.add(selection);
 		}
+		for(Connection c : childGenes)
+		{
+			if(!c.isEnabled())
+			{
+				if(Math.random() < Config.INHERITED_CONNECTION_ENABLE_RATE)
+				{
+					c.setEnable(true);
+				}
+			}
+		}
+		
 		Organism child = new Organism(table.getNextOrganismID());
 		child.createChildGenotype(childGenes,p1.getGenotype().getInputs(),p1.getGenotype().getOutputs(),rand,table);
+		if(debugging) {System.out.println("\n***CHILD***\n"+child.toString(1));}
 		return child;
 	}
 	public void tick()
 	{
-		sorter.sortOrganisms(members,0,members.size()-1);
+		sorter.sortOrganismsAdjustedFitness(members,0,members.size()-1);
 		for(Organism org : members)
 		{
 			if(org.getFitness() > bestFitness)

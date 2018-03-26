@@ -54,7 +54,7 @@ public class Main
 		{
 			epoch();
 			generation++;
-			try{Thread.sleep(1000);}
+			try{Thread.sleep(250);}
 			catch(Exception e) {e.printStackTrace();}
 		}
 	}
@@ -83,9 +83,12 @@ public class Main
 			s.reproduce(table);
 			for(Organism org : s.getMembers())
 			{
+				
 				newPop.add(org);
 			}
 		}
+		population = newPop;
+		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
 	public void speciate()
 	{
@@ -122,26 +125,18 @@ public class Main
 	}
 	public void reset()
 	{
-		if(species.size()==0) 
+		if(species.size()==0)
 		{
-			sorter.sortOrganisms(population, 0, population.size()-1);
 			return;
 		}
 		ArrayList<Species> newSpecies = new ArrayList<Species>();
-		population = new ArrayList<Organism>();
 		for(Species s : species)
 		{
 			if(s.getMembers().size()==0) {continue;}
-			for(Organism org : s.getMembers()) 
-			{
-				if(org.getFitness() > bestFitness) {bestFitness = org.getFitness();}
-				population.add(org);
-			}
 			s.purge();
 			newSpecies.add(s);
 		}
 		species = newSpecies;
-		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
 	public void testPhenotypes(boolean save)
 	{
@@ -154,6 +149,7 @@ public class Main
 			{
 				org.createPhenotype(width/2,height/2);
 				fitness = testUnit.testPhenotype(org.getPhenotype());
+				if(fitness > bestFitness) {bestFitness = fitness;}
 				org.setFitness(fitness);
 				displayObjects.add(org.getPhenotype());
 				if(save)

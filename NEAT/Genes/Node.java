@@ -2,7 +2,7 @@ package NEAT.Genes;
 
 import java.util.ArrayList;
 
-public class Node 
+public class Node
 {
 	public static final int INPUT_NODE = 0;
 	public static final int HIDDEN_NODE = 1;

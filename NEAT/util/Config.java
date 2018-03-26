@@ -2,10 +2,10 @@ package NEAT.util;
 
 public interface Config
 {
-	public final double CONNECTION_ADD_CHANCE = 0.07;
+	public final double CONNECTION_ADD_CHANCE = 0.05;
 	public final double NODE_ADD_CHANCE = 0.03;
 	public final double CROSSOVER_RATE = 0.75;
-	public final double WEIGHT_MUTATION_RATE = 0.8;
+	public final double WEIGHT_MUTATION_RATE = 0.9;
 	public final double MAX_MUTATION_PERTURBATION = 0.5;
 	public final double WEIGHT_REPLACEMENT_RATE = 0.1;
 	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.1;
@@ -23,10 +23,11 @@ public interface Config
 	public final double COMPAT_EXCESS_COEF = 1.0;
 	public final double COMPAT_DISJOINT_COEF = 1.0;
 	public final double COMPAT_SHARED_COEF = 0.4;
-	public final int MAX_ALLOWED_ORGANISM_AGE = 50;
+	public final int MAX_ALLOWED_ORGANISM_AGE = 20;
 	public final int MAX_TIME_ORGANISM_STAGNATION = 10;
 	public final int MAX_TIME_SPECIES_STAGNATION = 15;
 	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
 	public final int POPULATION_SIZE = 150;
-	public final double WORST_PERCENT_REMOVED = 0.25;
+	public final double WORST_PERCENT_REMOVED = 0.2;
+	public final double MATE_NO_MUTATION_CHANCE = 0.2;
 }

@@ -24,6 +24,7 @@ public class Organism
 		speciesID=-1;
 		age = 0;
 		timeSinceLastImprovement = 0;
+		fitness = Math.random();
 		sorter = new SortingUnit();
 	}
 	public Organism(Organism other)
@@ -58,11 +59,7 @@ public class Organism
 	public void createMinimalGenotype(Genome minimalStructure, InnovationTable table)
 	{
 		genotype = new Genome(minimalStructure);
-		for(int i=0;i<3;i++)
-		{
-			genotype.mutateNode();
-			genotype.mutateWeights();
-		}
+		genotype.randomize();
 		genotype.setID(table.getNextGenomeID());
 	}
 	public void createEmptyGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
@@ -158,6 +155,19 @@ public class Organism
 		System.out.println("\nDISJOINT: "+numDisjoint+"\nEXCESS: "+numExcess+"\nSHARED: "+numShared+"\nMEAN WEIGHT: "+meanWeight);
 		System.out.println("COMPATIBILITY VALUE: "+compat);*/
 		return compat;
+	}
+	public String toString(int verbosity)
+	{
+		if(verbosity == 0) {return toString();}
+		String output = "\nORGANISM "+ID;
+		output+="\nFitness: "+fitness;
+		output+="\nAdj Fitness: "+adjustedFitness;
+		output+="\nAge: "+age;
+		output+="\nLast improvement: "+timeSinceLastImprovement;
+		output+="\nSpawn amounts: "+spawnAmount;
+		output+="\nGenome: "+genotype.toString(verbosity);
+		output+="\nPhenotype: "+phenotype;
+		return output;
 	}
 	@Override
 	public String toString()
