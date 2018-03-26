@@ -37,9 +37,17 @@ public class Genome
 		{
 			Node inp = null;
 			Node out = null;
-			if(!duplicateNode(c.getInput())) {inp = new Node(c.getInput());}
+			if(!duplicateNode(c.getInput())) 
+			{
+				inp = new Node(c.getInput());
+				nodes.add(inp);
+			}
 			else{inp = nodes.get(getNodeIndex(c.getInput()));}
-			if(!duplicateNode(c.getOutput())) {out = new Node(c.getOutput());}
+			if(!duplicateNode(c.getOutput())) 
+			{
+				out = new Node(c.getOutput());
+				nodes.add(out);
+			}
 			else {out = nodes.get(getNodeIndex(c.getOutput()));}
 			if(out == null || inp == null)
 			{
@@ -70,7 +78,6 @@ public class Genome
 		double mutationRate = Config.CONNECTION_ADD_CHANCE;
 		int maxAttempts = Config.MAX_ATTEMPTS_ADD_CONNECTION;
 		if(Math.random()>mutationRate){return;}
-		
 		Node n1 = null;
 		Node n2 = null;
 		int inpIdx = -1;

@@ -158,11 +158,11 @@ public class Organism
 		compat += numExcess * Config.COMPAT_EXCESS_COEF/(double)longest;
 		compat += numDisjoint * Config.COMPAT_DISJOINT_COEF/(double)longest;
 		compat += meanWeight * Config.COMPAT_SHARED_COEF;
-		System.out.println("\nCOMPATIBILITY CALCULATION");
+		/*System.out.println("\nCOMPATIBILITY CALCULATION");
 		System.out.println("ORGANISM 1:"+toString());
 		System.out.println("ORGANISM 2:"+other);
 		System.out.println("\nDISJOINT: "+numDisjoint+"\nEXCESS: "+numExcess+"\nSHARED: "+numShared+"\nMEAN WEIGHT: "+meanWeight);
-		System.out.println("COMPATIBILITY VALUE: "+compat);
+		System.out.println("COMPATIBILITY VALUE: "+compat);*/
 		return compat;
 	}
 	public void setFitness(double i) 

@@ -23,7 +23,7 @@ public class SelectionUnit
 		for(int tournamentRun=0;tournamentRun<num;tournamentRun++)
 		{
 			ArrayList<Integer> seen = new ArrayList<Integer>();
-			Organism selection = null;
+			Organism selection = pop.get((int)(Math.round(Math.random()*(pop.size()-1))));
 			for(int i=0;i<tournamentSize;i++)
 			{
 				int idx = (int)(Math.round(Math.random()*(pop.size()-1)));

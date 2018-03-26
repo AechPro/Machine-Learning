@@ -51,18 +51,10 @@ public class InnovationTable
 	}
 	public int checkInnovation(int innovType, int trait1, int trait2)
 	{
-		int traitIdx1 = 0;
-		int traitIdx2 = 0;
-		if(innovType == NEW_NODE)
-			{traitIdx1 = 4;
-			traitIdx2 = 5;}
-		else
-			{traitIdx1 = 2;
-			traitIdx2 = 3;}
 		for(int i=0,stop=innovations.size();i<stop;i++)
 		{
 			int[] list = innovations.get(i);
-			if(list[traitIdx2] == trait2 && list[traitIdx1] == trait1){return list[0];}
+			if(list[3] == trait2 && list[2] == trait1 && list[1] == innovType){return list[0];}
 		}
 		return -1;
 	}
@@ -76,6 +68,7 @@ public class InnovationTable
 				return list[4];
 			}
 		}
+		System.out.println("RETURNING BAD NODE ID FOR INNOV "+innovNum);
 		return -1;
 	}
 	public int getNextOrganismID() {return currentOrganismID++;}

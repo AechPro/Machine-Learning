@@ -98,7 +98,7 @@ public class Phenotype extends DisplayObject
 	}
 	public void loadInputs(double[] inps)
 	{
-		for(int i=0;i<inps.length;i++)
+		for(int i=0;i<inputNodes.size();i++)
 		{
 			inputNodes.get(i).setActiveOutput(inps[i]);
 			inputNodes.get(i).setActive(true);

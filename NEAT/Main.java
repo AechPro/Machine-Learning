@@ -69,7 +69,7 @@ public class Main
 		System.out.println("POP SIZE: "+population.size());
 		System.out.println("SPECIES: "+species.size());
 		System.out.println("BEST FITNESS: "+bestFitness);
-		System.out.println("--INNOVATION TABLE--"+table);
+		System.out.println("--INNOVATION TABLE--\n"+table);
 	}
 	public void repopulate()
 	{
@@ -90,7 +90,7 @@ public class Main
 			boolean found = false;
 			for(Species s : species)
 			{
-				if(org.calculateCompatibility(s.getRepr()) > Config.SPECIES_COMPAT_THRESHOLD)
+				if(org.calculateCompatibility(s.getRepr()) < Config.SPECIES_COMPAT_THRESHOLD)
 				{
 					found = true;
 					s.addMember(org);
@@ -134,6 +134,7 @@ public class Main
 			s.purge();
 			newSpecies.add(s);
 		}
+		species = newSpecies;
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
 	public void testPhenotypes()

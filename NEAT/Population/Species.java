@@ -24,6 +24,7 @@ public class Species
 		rand = rng;
 		members = new ArrayList<Organism>();
 		members.add(first);
+		representative = first;
 		sorter = new SortingUnit();
 		selector = new SelectionUnit();
 	}
@@ -34,6 +35,7 @@ public class Species
 		int numToSpawn = (int)(Math.round(spawnAmount));
 		Organism child = null;
 		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
+		newPop.add(new Organism(getBestMember()));
 		if(popSize>=5)
 		{
 			child = new Organism(getBestMember());
@@ -48,7 +50,7 @@ public class Species
 			}
 		}
 		else {culledMembers = members;}
-		newPop.add(new Organism(getBestMember()));
+		
 		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
 		{
 			if(culledMembers.size()==1) {child = new Organism(culledMembers.get(0));}
@@ -190,7 +192,7 @@ public class Species
 	public Organism getBestMember() 
 	{
 		double bestFitness = -1.0;
-		Organism bestMember = null;
+		Organism bestMember = members.get(0);
 		for(Organism org : members)
 		{
 			if(org.getFitness() > bestFitness)
