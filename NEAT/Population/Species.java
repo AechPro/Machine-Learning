@@ -177,13 +177,11 @@ public class Species
 	}
 	public void purge()
 	{
-		int idx = rand.nextInt(members.size());
-		representative = new Organism(members.get(idx));
 		for(int i=0;i<members.size();i++)
 		{
 			members.get(i).setSpeciesID(-1);
 		}
-		representative.setSpeciesID(ID);
+		representative = new Organism(getBestMember());
 		members = new ArrayList<Organism>();
 		spawnAmount = 0d;
 		

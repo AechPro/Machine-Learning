@@ -37,7 +37,7 @@ public class Main
 		table = new InnovationTable();
 		testUnit = new XORTester(rng);
 		sorter = new SortingUnit();
-		Genome minimalStructure = testUnit.buildMinimalStructure(table);
+		Genome minimalStructure = testUnit.buildMinimalSolution(table);
 		for(int i=0;i<Config.POPULATION_SIZE;i++)
 		{
 			Organism org = new Organism(table.getNextOrganismID());

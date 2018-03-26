@@ -61,14 +61,20 @@ public class Organism
 		genotype = new Genome(minimalStructure);
 		genotype.randomize();
 		genotype.setID(table.getNextGenomeID());
+		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
+		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
 	}
 	public void createEmptyGenotype(int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{
 		genotype = new Genome(table, rand, numInputs, numOutputs);
+		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
+		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
 	}
 	public void createChildGenotype(ArrayList<Connection> genes, int numInputs, int numOutputs, Random rand, InnovationTable table)
 	{
 		genotype = new Genome(genes, table, rand, numInputs, numOutputs);
+		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
+		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
 	}
 	public void createPhenotype(int renderX, int renderY)
 	{

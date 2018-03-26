@@ -120,7 +120,7 @@ public class Genome
 		{
 			if(connections.size()<sizeThresh){idx = rand.nextInt(connections.size()-(int)(Math.sqrt(connections.size())));}
 			else{idx = rand.nextInt(connections.size());}
-			//idx = rand.nextInt(connections.size()-1);
+			//idx = rand.nextInt(connections.size());
 			inp = connections.get(idx).getInput();
 			
 			if(inp.getType() != Node.BIAS_NODE && connections.get(idx).isEnabled()){foundSplit = true;}
