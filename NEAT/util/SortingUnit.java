@@ -125,4 +125,34 @@ public class SortingUnit
 		}
 		return i;
 	}
+	
+	public void sortSpecies(ArrayList<Species> species, int low, int high)
+	{
+		if(low>=high) {return;}
+		int index = partitionSpecies(species,low,high);
+		if(low<index-1){sortSpecies(species,low,index-1);}
+		if(index<high){sortSpecies(species,index,high);}
+	}
+	public int partitionSpecies(ArrayList<Species> species, int low, int high)
+	{
+		Species temp;
+		int i = low, j = high;
+
+		double pivot = species.get((low+high)/2).getBestFitness();
+
+		while(i<=j)
+		{
+			while(species.get(i).getBestFitness()<pivot){i++;}
+			while(species.get(j).getBestFitness()>pivot){j--;}
+			if(i<=j)
+			{
+				temp = species.get(i);
+				species.set(i,species.get(j));
+				species.set(j,temp);
+				i++;
+				j--;
+			}
+		}
+		return i;
+	}
 }

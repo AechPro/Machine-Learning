@@ -20,7 +20,9 @@ public class Main
 	private ArrayList<DisplayObject> displayObjects;
 	private SortingUnit sorter;
 	private XORTester testUnit;
+	private int timeSinceLastImprovement;
 	private int generation;
+	private boolean running;
 	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
@@ -37,19 +39,20 @@ public class Main
 		table = new InnovationTable();
 		testUnit = new XORTester(rng);
 		sorter = new SortingUnit();
-		Genome minimalStructure = testUnit.buildMinimalSolution(table);
+		Genome minimalStructure = testUnit.buildMinimalStructure(table);
 		for(int i=0;i<Config.POPULATION_SIZE;i++)
 		{
 			Organism org = new Organism(table.getNextOrganismID());
 			org.createMinimalGenotype(minimalStructure,table);
 			population.add(org);
 		}
+		timeSinceLastImprovement = 0;
 		//setupWindow();
+		running = true;
 		run();
 	}
 	public void run()
 	{
-		boolean running = true;
 		while(running)
 		{
 			epoch();
@@ -110,9 +113,11 @@ public class Main
 				species.add(newSpecies);
 			}
 		}
+		sorter.sortSpecies(species,0,species.size()-1);
 	}
 	public void tick()
 	{
+		timeSinceLastImprovement++;
 		double avg = calculateAverageFitness();
 		for(Species s : species)
 		{
@@ -120,6 +125,14 @@ public class Main
 			s.adjustFitnessValues();
 			s.calculateSpawnAmounts(avg);
 			System.out.println(s);
+		}
+		if(timeSinceLastImprovement>Config.ALLOWED_POPULATION_STAGNATION_TIME)
+		{
+			Species s1 = species.get(species.size()-1);
+			if(species.size()>=2)
+			{
+				
+			}
 		}
 		//for(Organism org : population) {System.out.println(org);}
 	}
@@ -149,14 +162,24 @@ public class Main
 			{
 				org.createPhenotype(width/2,height/2);
 				fitness = testUnit.testPhenotype(org.getPhenotype());
-				if(fitness > bestFitness) {bestFitness = fitness;}
+				if(fitness > bestFitness) 
+				{
+					bestFitness = fitness;
+					timeSinceLastImprovement=0;
+				}
 				org.setFitness(fitness);
 				displayObjects.add(org.getPhenotype());
 				if(save)
 				{
 					org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 600,600);
 				}
-				
+				if(testUnit.victor)
+				{
+					System.out.println("FOUND VICTOR!\nFITNESS: "+fitness);
+					System.out.println("GENERATION: "+generation);
+					org.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
+					running = false;
+				}
 			}
 		}
 	}

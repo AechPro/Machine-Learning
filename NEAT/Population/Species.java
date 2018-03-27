@@ -47,12 +47,16 @@ public class Species
 				}
 			}
 			int cutoff = (int)(Math.round(members.size()*Config.WORST_PERCENT_REMOVED));
-			for(int i=cutoff;i<members.size();i++)
+			for(int i=0;i<cutoff;i++)
 			{
 				if(members.get(i).getTimeSinceLastImprovement()>Config.MAX_TIME_ORGANISM_STAGNATION)
 				{continue;}
 				if(members.get(i).getAge()>Config.MAX_ALLOWED_ORGANISM_AGE)
 				{continue;}
+				culledMembers.add(members.get(i));
+			}
+			for(int i=cutoff;i<members.size();i++)
+			{
 				culledMembers.add(members.get(i));
 			}
 		}
@@ -62,12 +66,12 @@ public class Species
 			child = null;
 			if(culledMembers.size()==1 || Math.random()>Config.CROSSOVER_RATE)
 			{
-				child = new Organism(selector.rouletteSelect(1, true, culledMembers).get(0));
+				child = new Organism(selector.randomSelect(1, culledMembers).get(0));
 				child.mutateGenotype(table);
 			}
 			else
 			{
-				ArrayList<Organism> parents = selector.tournamentSelect(2, culledMembers.size()-1, true, culledMembers);
+				ArrayList<Organism> parents = selector.randomSelect(2, culledMembers);
 				child = crossover(parents.get(0),parents.get(1),table);
 				if(Math.random()<Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 				{

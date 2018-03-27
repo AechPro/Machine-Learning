@@ -15,12 +15,12 @@ public class XORTester
 	public final int numBiasNodes = 1;
 	public final int minimumHiddenNodes = 1;
 	public int numHiddenNodes = 0;
-	
+	public boolean victor;
 	public Random rand;
 	public XORTester(Random rng)
 	{
 		rand = rng;
-		
+		victor = false;
 	}
 	public Genome buildMinimalStructure(InnovationTable table)
 	{
@@ -143,6 +143,8 @@ public class XORTester
 	}
 	public double testPhenotype(Phenotype phen)
 	{
+		victor = false;
+		double accuracy = 0.0;
 		double fitness = 0.0;
 		double[] NNOutputs = new double[outputs.length];
 		boolean success = false;
@@ -163,10 +165,14 @@ public class XORTester
 				//System.out.println("INPUT: "+inputs[i][0]+" | "+inputs[i][1]);
 				//System.out.println("OUTPUT: "+NNOutputs[i]);
 				fitness += Math.abs(NNOutputs[i] - outputs[i][0]);
+				if(NNOutputs[i] < 0.5 && outputs[i][0] == 0.0) {accuracy++;}
+				else if(NNOutputs[i] >= 0.5 && outputs[i][0] == 1.0) {accuracy++;}
 			}
 			fitness = Math.pow(4.0 - fitness, 2);
 		}
 		else{fitness = Math.random()*0.001;}
+		accuracy/=outputs.length;
+		victor = accuracy == 1.0;
 		return fitness;
 	}
 	public static final double[][] inputs = new double[][]
