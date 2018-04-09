@@ -4,8 +4,8 @@ import kivy
 
 """
     The Component class should contain a single Kivy object to display and interact with.
-    Upon user interaction with the Kivy object, the Component containing that Kivy object
-    should execute a Command associated with the interaction.
+    Upon user interaction with the Kivy object, the Component should execute a Command 
+    associated with the interaction.
 """
 class Component(object):
     def __init__(self):

@@ -23,9 +23,10 @@ class Display_Object(object):
             #If Kivy lets us render textures on their own, do that here.
             self._background.kivy_render_function()
 
-        #Call render for each of our components.
-        #It may be a good idea to add a render priority system for components to ensure
-        #some components get rendered in front of other components.
+        """
+            Call render for each of our components. It may be a good idea to add a render priority system for 
+            components to ensure that some components will be rendered in front of other components.
+        """
         for comp in self.display_components:
             comp.render()
 
