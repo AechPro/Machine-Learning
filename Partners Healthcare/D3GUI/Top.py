@@ -1,8 +1,14 @@
 import kivy
 from States import State
+
+"""
+    The Main class will be the entry point for the program. This class will be responsible for the primary state machine
+    functionality, ensuring key system functionality, performing the screen draw calls for the current display panel,
+    and attempting system recovery when possible.
+"""
 class Main(object):
     def __init__(self):
-        #set up instance variables only
+        #Set up instance variables only.
         self.states = {}
         self.load_states()
         self.running = False
@@ -11,22 +17,24 @@ class Main(object):
         self.next_state = "IDLE"
         self.display_panel = None
 
+    #This function will be the clock and main loop for the system.
     def run(self):
         while self.running and not self.system_failure:
-            #execute the current state function
+            #Execute the current state.
             self.execute_state()
 
-            #swap to the next state if available
+            #Swap to the next state if available.
             if self.next_state != None and self.next_state != self.current_state:
                 self.swap_states()
 
-            #update the current UI panel
+            #Update and render the current UI panel.
             self.update()
             self.render()
 
-            #ping critical system components
+            #Ping critical system components.
             self.ping()
 
+        #If the system has failed, attempt recovery.
         if self.system_failure:
             try:
                 self.recover()
@@ -34,42 +42,62 @@ class Main(object):
                 print("CRITICAL FAILURE")
                 #log things
 
+    #This function gets and executes the current state when available.
     def execute_state(self):
-        for key,state in self.states:
-            if self.current_state == key:
-                state.execute()
-                break
+        state = self.states.get(self.current_state,None)
+        if state:
+            state.execute()
+            self.next_state = state.get_next_state()
 
+    #This function swaps the current state and display panel to the next state and display panel.
     def swap_states(self):
         self.current_state = self.next_state
         self.display_panel = self.states[self.current_state].get_display_panel()
 
+    #This function updates the current display panel.
     def update(self):
         self.display_panel.update()
+
+    #This function renders the current display panel.
     def render(self):
         self.display_panel.render()
+
+    """
+        This function will look for unprocessed inputs to any UI component in the current display panel
+        and handle them appropriately. If Kivy doesn't use asynchronous input processing for each UI component, 
+        we will need this function to handle all user input processing. It may be worthwhile to use this function 
+        for all input processing regardless of the way Kivy does it, but that remains to be seen.
+    """
     def get_input(self):
-        #this will only be necessary if kivy doesn't multi-thread the UI components
+
         return
 
+    """
+        This function should load all of the State objects the system may ever need. It is probably a better idea
+        to load each State object dynamically when they are needed, because it would give us the ability to use
+        the __init__() method of each state as a single-call function that does not need to be checked every cycle
+        This is useful if any state needs to perform a one-time process to data that is made available after the device
+        has been running for some time.
+    """
     def load_states(self):
         #we will need a way to pull necessary global data out of the INITState object
-        self.states["INIT"] = State.INITState()
-        self.states["IDLE"] = State.IDLEState(None)
+        self.states["INIT"] = State.Init_State()
+        self.states["IDLE"] = State.Idle_State(None)
 
+    #This function will be responsible for checking all critical systems and determining if a failure has happened.
     def ping(self):
-        #ping all of our hardware
-        #ping all of our scripts
-        #perform other necessary actions to ensure smooth running
-        #return false if any system has failed
+        #Ping all of our hardware.
+        #Ping all of our scripts.
+        #Perform other necessary actions to ensure smooth running.
         self.system_failure = False
-    def recover(self):
-        #attempt to reconnect hardware
-        #attempt to re-launch scripts
-        #attempt to operate the UI components
-        #call system exit if anything cannot be recovered
 
-        #if these lines execute it means system exit has not been called and we have recovered
+    def recover(self):
+        #Attempt to reconnect hardware.
+        #Attempt to re-launch scripts.
+        #Attempt to operate the UI components.
+        #Call system exit if anything cannot be recovered.
+
+        #If these lines execute it means system exit has not been called and we have recovered.
         self.running = True
         self.system_failure = False
         self.run()
