@@ -1,0 +1,79 @@
+#:kivy 1.0.9
+
+<D3Button@Button>:
+    size_hint: .3, .2
+    color: 0, 0, 0, 1
+    font_size: 32
+    bold: True
+    background_color: 1, 1, 1, 1
+
+
+<IdleScreen@Screen>:
+    FloatLayout:
+        background_color: 1, 1, 1, 1
+
+        Label:
+            text: "D3"
+            font_size: 70
+        D3Button:
+            text: "New User"
+            pos_hint: {'x': 0.1, 'y':0.1}
+            on_release: root.manager.current = 'create_user'
+
+        D3Button:
+            text: "Browse Users"
+            pos_hint: {'x':0.6, 'y':0.1}
+            on_release: root.manager.current = 'browse_user'
+
+
+<BrowseUserScreen@Screen>:
+    FloatLayout:
+        background_color: 0, 0.5, 0.5, 1
+
+        D3Button:
+            text: "Back"
+            pos_hint: {'x': 0.1, 'y':0.1}
+            on_release: root.manager.current = 'idle'
+
+        D3Button:
+            text: "Choose User"
+            pos_hint: {'x':0.6, 'y':0.1}
+            on_release: root.manager.current = 'main_sample'
+
+<CreateUserScreen@Screen>:
+    FloatLayout:
+        background_color: 0, 0.5, 0.5, 1
+
+        D3Button:
+            text: "Back"
+            pos_hint: {'x': 0.1, 'y':0.1}
+            on_release: root.manager.current = 'idle'
+
+        D3Button:
+            text: "Save User"
+            pos_hint: {'x':0.6, 'y':0.1}
+            on_release: root.manager.current = 'main_sample'
+
+
+<MainSampleScreen@Screen>
+    FloatLayout:
+        background_color: 0, 0.5, 0.5, 1
+
+        Camera:
+            id: camera
+            resolution: (640, 480)
+            play: True
+        ToggleButton:
+            text: 'Play'
+            on_press: camera.play = not camera.play
+            size_hint_y: None
+            height: '48dp'
+        Button:
+            text: 'Capture'
+            size_hint_y: None
+            height: '48dp'
+            on_press: root.capture()
+
+<SampleViewScreen@Screen>:
+    Image:
+        size_hint: 1, 1
