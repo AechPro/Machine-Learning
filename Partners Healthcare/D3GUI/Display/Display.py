@@ -13,13 +13,16 @@ class Display_Object(Screen):
         self._background = None
         self._commands = commands
 
+    #Kivy will trigger this function when a button is pressed.
     def button_press(self,button):
+        #Check to see if we have a command for the button that was pressed. Execute it if we do.
         command = self._commands.get(button.text.upper(),None)
         if command:
             command.execute()
         else:
             print("COULD NOT RECOGNIZE COMMAND "+button.text)
 
+    #ACCESSORS & MUTATORS
     def get_name(self):
         return self._name
     def get_background(self):

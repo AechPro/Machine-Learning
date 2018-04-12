@@ -54,11 +54,17 @@ class MainApp(App):
 
     #This function swaps the current state and display panel to the next state and display panel.
     def swap_states(self):
+        #Special logic to go back a state.
         if(self.next_state == "BACK"):
             self.next_state = self.state_history[-1]
+
+        #Swap states.
         self.current_state = self.next_state
+
+        #Add our new state to the global history of states.
         self.state_history.append(self.current_state)
 
+        #Set the content pane of our screen manager to the screen associated with our new state.
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
     #This function will be responsible for checking all critical systems and determining if a failure has happened.
@@ -77,13 +83,19 @@ class MainApp(App):
         #If these lines execute it means system exit has not been called and we have recovered.
         self.running = True
         self.system_failure = False
+
+    #This function is the entry point for Kivy, I think.
     def build(self):
         Clock.schedule_interval(self.state_machine(), 1. / 60.)
         return self.manager
+
+    #This function is used to close our app if it is running and exit the application.
     def exit(self):
         if App.get_running_app() is not None:
             App.get_running_app().stop()
         sys.exit(0)
+
+
 if __name__ == "__main__":
     app = MainApp()
     app.run()
