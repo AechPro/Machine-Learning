@@ -8,7 +8,7 @@ import Commands.Command as coms
 
 class Display_Object(Screen):
     def __init__(self,commands,name=None):
-        super().__init__()
+        super().__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
@@ -17,9 +17,8 @@ class Display_Object(Screen):
         command = self._commands.get(button.text.upper(),None)
         if command:
             command.execute()
-
-    def exit(self):
-        App.get_running_app().stop()
+        else:
+            print("COULD NOT RECOGNIZE COMMAND "+button.text)
 
     def get_name(self):
         return self._name

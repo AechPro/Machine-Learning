@@ -1,4 +1,5 @@
 from Commands import Command as coms
+from Display import Display as displays
 
 """
     The State class is meant to be an abstract class with protected local variables that each State must have
@@ -75,19 +76,32 @@ class Idle_State(State):
 class Browse_Users_State(State):
     def execute(self):
         return
+    def _init_paths(self):
+        return
     def _init_commands(self):
         save_command = coms.Save_User_Button_State_Command(None,self)
         back_command = coms.Back_Button_State_Command(None,self)
-        self._commands = [save_command,back_command]
+        self._commands = {"SAVE":save_command,"BACK":back_command}
+    def _build_display(self):
+        self._display = displays.Display_Object(self._commands,name="Browse Users Screen")
 
-class Create_User_State(State):
+class Create_New_User_State(State):
     def execute(self):
         return
     def save_user(self):
         return
 
 class Start_State(State):
-    pass
+    def execute(self):
+        return
+    def _init_paths(self):
+        return
+    def _init_commands(self):
+        browse_command = coms.Browse_Users_Button_State_Command(None,self)
+        create_command = coms.Create_New_User_Button_State_Command(None,self)
+        self.commands = {"BROWSE":browse_command,"NEW USER":create_command}
+    def _build_display(self):
+        self._display = displays.Display_Object(self._commands,"Start Screen")
 class Sample_Capture_State(State):
     pass
 

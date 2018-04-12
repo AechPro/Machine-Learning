@@ -29,9 +29,9 @@ class Browse_Users_Button_State_Command(State_Command):
     def execute(self):
         self._state.set_next_state("BROWSE USERS")
 
-class New_User_Button_State_Command(State_Command):
+class Create_New_User_Button_State_Command(State_Command):
     def execute(self):
-        self._state.set_next_state("")
+        self._state.set_next_state("NEW USER")
 
 class Save_User_Button_State_Command(State_Command):
     def execute(self):

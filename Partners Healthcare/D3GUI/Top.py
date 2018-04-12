@@ -1,30 +1,31 @@
 import kivy
+from Util import System_Initializer as initializer
 from Display.Display import Display_Object
 from kivy.clock import Clock
+from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from States import State
-
+import sys
 """
     The Main class will be the entry point for the program. This class will be responsible for the primary state machine
     functionality, ensuring key system functionality, performing the screen draw calls for the current display panel,
     and attempting system recovery when possible.
 """
-class Main(object):
+class MainApp(App):
     def __init__(self):
+        super().__init__()
         #Set up instance variables only.
-        self.states = {}
-        self.state_history = ["INIT"]
-        self.load_states()
+        self.state_history = ["START"]
         self.running = False
         self.system_failure = False
-        self.current_state = "INIT"
-        self.next_state = "IDLE"
-        self.manager = ScreenManager()
+        self.current_state = "START"
+        self.next_state = "START"
+        self.states, self.manager = initializer.init()
         Clock.Schedule(self.state_machine(),1./60.)
 
     #This function will be the clock and main loop for the system.
     def state_machine(self):
-        while self.running and not self.system_failure:
+        if self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
 
@@ -42,6 +43,8 @@ class Main(object):
             except Exception as e:
                 print("CRITICAL FAILURE")
                 #log things
+        if not self.running:
+            self.exit()
 
     #This function gets and executes the current state when available.
     def execute_state(self):
@@ -56,6 +59,8 @@ class Main(object):
             self.next_state = self.state_history[-1]
         self.current_state = self.next_state
         self.state_history.append(self.current_state)
+
+        self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
     """
         This function should load all of the State objects the system may ever need. It is probably a better idea
@@ -83,4 +88,6 @@ class Main(object):
         #If these lines execute it means system exit has not been called and we have recovered.
         self.running = True
         self.system_failure = False
-        self.run()
+    def exit(self):
+        App.get_running_app().stop()
+        sys.exit(0)
