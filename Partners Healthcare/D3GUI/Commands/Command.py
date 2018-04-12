@@ -15,3 +15,22 @@ class Command(object):
     #This allows Command execution to be callable.
     def __call__(self):
         self.execute()
+
+
+"""
+    The execute() function in State_Command must trigger a state transition to happen on the next clock cycle.
+"""
+class State_Command(Command):
+    def __init__(self,obj_target,state):
+        super().__init__(obj_target)
+        self._state = state
+class Capture_Command(State_Command):
+    def __init__(self, camera, state):
+        super().__init__(camera,state)
+    def execute(self):
+        self._object.capture()
+        self._state.set_next_state("CAPTURE")
+
+class Exit_Command(Command):
+    def execute(self):
+        self._object.exit()

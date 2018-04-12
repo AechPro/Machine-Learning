@@ -1,4 +1,7 @@
 import kivy
+from Display.Display import Display_Object
+from kivy.clock import Clock
+from kivy.uix.screenmanager import ScreenManager
 from States import State
 
 """
@@ -15,10 +18,12 @@ class Main(object):
         self.system_failure = False
         self.current_state = "INIT"
         self.next_state = "IDLE"
-        self.display_panel = None
+        self.manager = ScreenManager()
+        self.init_UI()
+        Clock.Schedule(self.state_machine(),1./60.)
 
     #This function will be the clock and main loop for the system.
-    def run(self):
+    def state_machine(self):
         while self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
@@ -26,10 +31,6 @@ class Main(object):
             #Swap to the next state if available.
             if self.next_state != None and self.next_state != self.current_state:
                 self.swap_states()
-
-            #Update and render the current UI panel.
-            self.update()
-            self.render()
 
             #Ping critical system components.
             self.ping()
@@ -54,23 +55,9 @@ class Main(object):
         self.current_state = self.next_state
         self.display_panel = self.states[self.current_state].get_display_panel()
 
-    #This function updates the current display panel.
-    def update(self):
-        self.display_panel.update()
-
-    #This function renders the current display panel.
-    def render(self):
-        self.display_panel.render()
-
-    """
-        This function will look for unprocessed inputs to any UI component in the current display panel
-        and handle them appropriately. If Kivy doesn't use asynchronous input processing for each UI component, 
-        we will need this function to handle all user input processing. It may be worthwhile to use this function 
-        for all input processing regardless of the way Kivy does it, but that remains to be seen.
-    """
-    def get_input(self):
-
-        return
+    def init_UI(self):
+        IDLE_SCREEN = Display_Object()
+        self.manager.add_widget()
 
     """
         This function should load all of the State objects the system may ever need. It is probably a better idea
@@ -80,8 +67,6 @@ class Main(object):
         has been running for some time.
     """
     def load_states(self):
-        #we will need a way to pull necessary global data out of the INITState object
-        self.states["INIT"] = State.Init_State()
         self.states["IDLE"] = State.Idle_State(None)
 
     #This function will be responsible for checking all critical systems and determining if a failure has happened.

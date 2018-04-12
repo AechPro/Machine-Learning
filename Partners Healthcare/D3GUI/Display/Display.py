@@ -1,42 +1,26 @@
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from kivy.app import App
+import Commands.Command as coms
 """
-    The Display Object class should hold a list of Component objects to display and an optional background texture.
-    This class should be responsible for calling the appropriate update and render functions for each of its components,
-    as well as rendering all of its components in the appropriate positions on the screen.
+    The Display Object class holds a list of command objects to activate on a button press, and maps user input
+    to the appropriate command object.
 """
 
-class Display_Object(object):
-    def __init__(self,name=None):
-        self.display_components = []
+class Display_Object(Screen):
+    def __init__(self,commands,name=None):
+        super().__init__()
         self._name = name
-        self._build_components()
         self._background = None
+        self._commands = commands
 
-    #This function should be responsible for updating any components in the UI that need attention each cycle.
-    #In theory, this and render() should be exactly the same for every subclass, so should be implemented here.
-    def update(self):
-        for comp in self.display_components:
-            comp.update()
+    def button_press(self,button):
+        command = self._commands.get(button.text.upper(),None)
+        if command:
+            command.execute()
 
-    #This function should be responsible for ensuring this display object can be drawn in the next function call.
-    def render(self):
-        if self._background is not None:
-            #If Kivy lets us render textures on their own, do that here.
-            self._background.kivy_render_function()
-
-        """
-            Call render for each of our components. It may be a good idea to add a render priority system for 
-            components to ensure that some components will be rendered in front of other components.
-        """
-        for comp in self.display_components:
-            comp.render()
-
-    #This function should load and put together everything for this display object.
-    def _build_components(self):
-        raise NotImplementedError
-
-    def add_component(self,new_component):
-        self.display_components.append(new_component.copy())
-
+    def exit(self):
+        App.get_running_app().stop()
+        
     def get_name(self):
         return self._name
     def get_background(self):
