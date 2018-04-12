@@ -13,13 +13,13 @@ class Main(object):
     def __init__(self):
         #Set up instance variables only.
         self.states = {}
+        self.state_history = ["INIT"]
         self.load_states()
         self.running = False
         self.system_failure = False
         self.current_state = "INIT"
         self.next_state = "IDLE"
         self.manager = ScreenManager()
-        self.init_UI()
         Clock.Schedule(self.state_machine(),1./60.)
 
     #This function will be the clock and main loop for the system.
@@ -52,12 +52,10 @@ class Main(object):
 
     #This function swaps the current state and display panel to the next state and display panel.
     def swap_states(self):
+        if(self.next_state == "BACK"):
+            self.next_state = self.state_history[-1]
         self.current_state = self.next_state
-        self.display_panel = self.states[self.current_state].get_display_panel()
-
-    def init_UI(self):
-        IDLE_SCREEN = Display_Object()
-        self.manager.add_widget()
+        self.state_history.append(self.current_state)
 
     """
         This function should load all of the State objects the system may ever need. It is probably a better idea

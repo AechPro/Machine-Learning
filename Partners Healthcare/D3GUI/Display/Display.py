@@ -20,7 +20,7 @@ class Display_Object(Screen):
 
     def exit(self):
         App.get_running_app().stop()
-        
+
     def get_name(self):
         return self._name
     def get_background(self):

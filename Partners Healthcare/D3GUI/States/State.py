@@ -1,4 +1,5 @@
-import Display
+from Commands import Command as coms
+
 """
     The State class is meant to be an abstract class with protected local variables that each State must have
     and the functions each state must implement.
@@ -54,7 +55,7 @@ class Idle_State(State):
         super().__init__()
         self._camera = cameraObject
         self._display.set_camera(cameraObject)
-        self._next_state = "IDLE"
+        self._next_state = None
 
     #The idle state should update the live camera feed and check for user action each cycle.
     def execute(self):
@@ -72,14 +73,29 @@ class Idle_State(State):
         raise NotImplementedError
 
 class Browse_Users_State(State):
-    pass
+    def execute(self):
+        return
+    def _init_commands(self):
+        save_command = coms.Save_User_Button_State_Command(None,self)
+        back_command = coms.Back_Button_State_Command(None,self)
+        self._commands = [save_command,back_command]
 
+class Create_User_State(State):
+    def execute(self):
+        return
+    def save_user(self):
+        return
+
+class Start_State(State):
+    pass
+class Sample_Capture_State(State):
+    pass
 
 """
     The View Image State should contain the display objects necessary for our image viewing screen,
     and handle swapping states based on user interaction.
 """
-class View_Image_State(State):
+class Sample_View_State(State):
     def execute(self):
         return
 

@@ -24,13 +24,27 @@ class State_Command(Command):
     def __init__(self,obj_target,state):
         super().__init__(obj_target)
         self._state = state
-class Capture_Command(State_Command):
+
+class Browse_Users_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.set_next_state("BROWSE USERS")
+
+class New_User_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.set_next_state("")
+
+class Save_User_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.save_user()
+        self._state.set_next_state("IDLE")
+
+class Back_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.set_next_state("BACK")
+
+class Camera_Capture_State_Command(State_Command):
     def __init__(self, camera, state):
         super().__init__(camera,state)
     def execute(self):
         self._object.capture()
         self._state.set_next_state("CAPTURE")
-
-class Exit_Command(Command):
-    def execute(self):
-        self._object.exit()
