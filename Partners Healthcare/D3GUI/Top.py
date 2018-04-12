@@ -21,7 +21,6 @@ class MainApp(App):
         self.current_state = "START"
         self.next_state = "START"
         self.states, self.manager = initializer.init()
-        Clock.Schedule(self.state_machine(),1./60.)
 
     #This function will be the clock and main loop for the system.
     def state_machine(self):
@@ -62,16 +61,6 @@ class MainApp(App):
 
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
-    """
-        This function should load all of the State objects the system may ever need. It is probably a better idea
-        to load each State object dynamically when they are needed, because it would give us the ability to use
-        the __init__() method of each state as a single-call function that does not need to be checked every cycle
-        This is useful if any state needs to perform a one-time process to data that is made available after the device
-        has been running for some time.
-    """
-    def load_states(self):
-        self.states["IDLE"] = State.Idle_State(None)
-
     #This function will be responsible for checking all critical systems and determining if a failure has happened.
     def ping(self):
         #Ping all of our hardware.
@@ -88,6 +77,14 @@ class MainApp(App):
         #If these lines execute it means system exit has not been called and we have recovered.
         self.running = True
         self.system_failure = False
+    def build(self):
+        Clock.schedule_interval(self.state_machine(), 1. / 60.)
+        return self.manager
     def exit(self):
-        App.get_running_app().stop()
+        if App.get_running_app() is not None:
+            App.get_running_app().stop()
         sys.exit(0)
+if __name__ == "__main__":
+    app = MainApp()
+    app.run()
+    #app.exit()

@@ -29,3 +29,17 @@ class Display_Object(Screen):
         self._name = new_name
     def set_background(self,new_background):
         self._background=new_background.copy()
+
+
+# Declare screens
+class Start_Screen(Display_Object):
+    pass
+
+class Browse_Users_Screen(Display_Object):
+    pass
+
+class Create_New_User_Screen(Display_Object):
+    pass
+
+class Idle_Screen(Display_Object):
+    pass

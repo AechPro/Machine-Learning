@@ -8,8 +8,8 @@ def init():
     browse_users_state = states.Browse_Users_State()
     state_dict = {"START":start_state,"BROWSE USERS":browse_users_state}
 
-    for key,state in state_dict:
-        sm.add_widget(state.get_display_panel())
+    for state in state_dict.items():
+        sm.add_widget(state[1].get_display_panel())
 
     return state_dict, sm
 

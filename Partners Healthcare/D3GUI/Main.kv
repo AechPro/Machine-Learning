@@ -6,9 +6,7 @@
     font_size: 32
     bold: True
     background_color: 1, 1, 1, 1
-
-
-<IdleScreen@Screen>:
+<Start_Screen@Display_Object>:
     FloatLayout:
         background_color: 1, 1, 1, 1
 
@@ -18,27 +16,23 @@
         D3Button:
             text: "New User"
             pos_hint: {'x': 0.1, 'y':0.1}
-            on_release: root.manager.current = 'create_user'
 
         D3Button:
             text: "Browse Users"
             pos_hint: {'x':0.6, 'y':0.1}
-            on_release: root.manager.current = 'browse_user'
 
 
-<BrowseUserScreen@Screen>:
+<Browse_Users_Screen>:
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
         D3Button:
             text: "Back"
             pos_hint: {'x': 0.1, 'y':0.1}
-            on_release: root.manager.current = 'idle'
 
         D3Button:
             text: "Choose User"
             pos_hint: {'x':0.6, 'y':0.1}
-            on_release: root.manager.current = 'main_sample'
 
 <CreateUserScreen@Screen>:
     FloatLayout:
@@ -47,9 +41,7 @@
         D3Button:
             text: "Back"
             pos_hint: {'x': 0.1, 'y':0.1}
-            on_release: root.manager.current = 'idle'
 
         D3Button:
             text: "Save User"
             pos_hint: {'x':0.6, 'y':0.1}
-            on_release: root.manager.current = 'main_sample'

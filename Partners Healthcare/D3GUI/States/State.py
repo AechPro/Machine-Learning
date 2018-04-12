@@ -83,7 +83,7 @@ class Browse_Users_State(State):
         back_command = coms.Back_Button_State_Command(None,self)
         self._commands = {"SAVE":save_command,"BACK":back_command}
     def _build_display(self):
-        self._display = displays.Display_Object(self._commands,name="Browse Users Screen")
+        self._display = displays.Browse_Users_Screen(self._commands,name="Browse Users Screen")
 
 class Create_New_User_State(State):
     def execute(self):
@@ -101,7 +101,7 @@ class Start_State(State):
         create_command = coms.Create_New_User_Button_State_Command(None,self)
         self.commands = {"BROWSE":browse_command,"NEW USER":create_command}
     def _build_display(self):
-        self._display = displays.Display_Object(self._commands,"Start Screen")
+        self._display = displays.Start_Screen(self._commands,"Start Screen")
 class Sample_Capture_State(State):
     pass
 
