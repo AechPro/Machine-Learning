@@ -54,7 +54,7 @@ class State(object):
 """
 class Idle_State(State):
     def __init__(self, cameraObject):
-        super().__init__()
+        super(Idle_State,self).__init__()
         self._camera = cameraObject
         self._display.set_camera(cameraObject)
         self._next_state = None

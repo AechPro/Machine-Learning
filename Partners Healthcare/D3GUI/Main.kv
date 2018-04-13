@@ -6,33 +6,25 @@
     font_size: 32
     bold: True
     background_color: 1, 1, 1, 1
-<Start_Screen>:
-    FloatLayout:
-        background_color: 1, 1, 1, 1
 
-        Label:
-            text: "D3"
-            font_size: 70
-        D3Button:
-            text: "New User"
-            pos_hint: {'x': 0.1, 'y':0.1}
-
-        D3Button:
-            text: "Browse Users"
-            pos_hint: {'x':0.6, 'y':0.1}
-
-
-<Browse_Users_Screen>:
+<Display_Object@Screen>:
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
-        D3Button:
-            text: "Back"
-            pos_hint: {'x': 0.1, 'y':0.1}
+<Start_Screen@Display_Object>:
+    Label:
+        text: "D3"
+    D3Button:
+        text: "New User"
+        pos_hint: {'x': 0.1, 'y':0.1}
 
-        D3Button:
-            text: "Choose User"
-            pos_hint: {'x':0.6, 'y':0.1}
+    D3Button:
+        text: "Browse Users"
+        pos_hint: {'x':0.6, 'y':0.1}
+
+
+
+
 
 <CreateUserScreen@Screen>:
     FloatLayout:

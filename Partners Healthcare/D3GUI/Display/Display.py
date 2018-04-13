@@ -8,13 +8,14 @@ import Commands.Command as coms
 
 class Display_Object(Screen):
     def __init__(self,commands,name=None):
-        super().__init__(name=name)
+        super(Display_Object,self).__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
 
+
     #Kivy will trigger this function when a button is pressed.
-    def button_press(self,button):
+    def on_press(self,button):
         #Check to see if we have a command for the button that was pressed. Execute it if we do.
         command = self._commands.get(button.text.upper(),None)
         if command:

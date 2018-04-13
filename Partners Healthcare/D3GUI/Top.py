@@ -4,7 +4,7 @@ from Display.Display import Display_Object
 from kivy.clock import Clock
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from States import State
+from States import State as states
 import sys
 """
     The Main class will be the entry point for the program. This class will be responsible for the primary state machine
@@ -13,7 +13,7 @@ import sys
 """
 class MainApp(App):
     def __init__(self):
-        super().__init__()
+        super(MainApp,self).__init__()
         #Set up instance variables only.
         self.state_history = ["START"]
         self.running = False
@@ -86,8 +86,16 @@ class MainApp(App):
 
     #This function is the entry point for Kivy, I think.
     def build(self):
-        Clock.schedule_interval(self.state_machine(), 1. / 60.)
-        return self.manager
+        start_state = states.Start_State()
+        browse_users_state = states.Browse_Users_State()
+        state_dict = {"START": start_state, "BROWSE USERS": browse_users_state}
+
+        # Set up our Kivy screen manager.
+        sm = ScreenManager()
+        for state in state_dict.items():
+            sm.add_widget(state[1].get_display_panel())
+        #Clock.schedule_interval(self.state_machine(), 1. / 60.)
+        return sm
 
     #This function is used to close our app if it is running and exit the application.
     def exit(self):
