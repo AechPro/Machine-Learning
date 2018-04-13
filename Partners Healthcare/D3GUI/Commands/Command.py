@@ -22,7 +22,7 @@ class Command(object):
 """
 class State_Command(Command):
     def __init__(self,obj_target,state):
-        super().__init__(obj_target)
+        super(State_Command,self).__init__(obj_target)
         self._state = state
 
 class Browse_Users_Button_State_Command(State_Command):
@@ -44,7 +44,7 @@ class Back_Button_State_Command(State_Command):
 
 class Camera_Capture_State_Command(State_Command):
     def __init__(self, camera, state):
-        super().__init__(camera,state)
+        super(Camera_Capture_State_Command,self).__init__(camera,state)
     def execute(self):
         self._object.capture()
         self._state.set_next_state("CAPTURE")

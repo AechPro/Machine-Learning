@@ -14,16 +14,20 @@ import sys
 class MainApp(App):
     def __init__(self):
         super(MainApp,self).__init__()
+        print("init")
         #Set up instance variables only.
+        self.states = None
+        self.manager = None
         self.state_history = ["START"]
-        self.running = False
         self.system_failure = False
         self.current_state = "START"
         self.next_state = "START"
-        self.states, self.manager = initializer.init()
+        self.running = True
+        #Clock.schedule_interval(lambda f: self.state_machine(), 1./60.)
 
     #This function will be the clock and main loop for the system.
     def state_machine(self):
+        #print("state machine")
         if self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
@@ -94,8 +98,11 @@ class MainApp(App):
         sm = ScreenManager()
         for state in state_dict.items():
             sm.add_widget(state[1].get_display_panel())
-        #Clock.schedule_interval(self.state_machine(), 1. / 60.)
-        return sm
+        self.states = state_dict
+        self.manager = sm
+        return self.manager
+    def start(self):
+        Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
 
     #This function is used to close our app if it is running and exit the application.
     def exit(self):
@@ -106,5 +113,6 @@ class MainApp(App):
 
 if __name__ == "__main__":
     app = MainApp()
+    app.start()
     app.run()
     #app.exit()
