@@ -1,4 +1,6 @@
-import Display
+from Commands import Command as coms
+from Display import Display as displays
+
 """
     The State class is meant to be an abstract class with protected local variables that each State must have
     and the functions each state must implement.
@@ -28,10 +30,11 @@ class State(object):
         raise NotImplementedError
 
     #This function should fill the _commands list with any commands that will be exclusive to this state.
-    #Keep in mind that *ALL* UI related commands should be inside the components of the _display object.
     def _init_commands(self):
         raise NotImplementedError
 
+
+    #ACCESSORS & MUTATORS.
     def get_display_panel(self):
         return self._display
 
@@ -54,9 +57,8 @@ class Idle_State(State):
         super().__init__()
         self._camera = cameraObject
         self._display.set_camera(cameraObject)
-        self._next_state = "IDLE"
+        self._next_state = None
 
-    #The idle state should update the live camera feed and check for user action each cycle.
     def execute(self):
         self._camera.update_feed()
 
@@ -71,15 +73,43 @@ class Idle_State(State):
     def _init_commands(self):
         raise NotImplementedError
 
+"""
+    The following classes are generic incomplete state objects for basic Kivy testing.
+"""
+
 class Browse_Users_State(State):
+    def execute(self):
+        return
+    def _init_paths(self):
+        return
+    def _init_commands(self):
+        save_command = coms.Save_User_Button_State_Command(None,self)
+        back_command = coms.Back_Button_State_Command(None,self)
+        self._commands = {"SAVE":save_command,"BACK":back_command}
+    def _build_display(self):
+        self._display = displays.Browse_Users_Screen(self._commands,name="Browse_Users_Screen")
+
+class Create_New_User_State(State):
+    def execute(self):
+        return
+    def save_user(self):
+        return
+
+class Start_State(State):
+    def execute(self):
+        return
+    def _init_paths(self):
+        return
+    def _init_commands(self):
+        browse_command = coms.Browse_Users_Button_State_Command(None,self)
+        create_command = coms.Create_New_User_Button_State_Command(None,self)
+        self.commands = {"BROWSE":browse_command,"NEW USER":create_command}
+    def _build_display(self):
+        self._display = displays.Start_Screen(self._commands,"Start_Screen")
+class Sample_Capture_State(State):
     pass
 
-
-"""
-    The View Image State should contain the display objects necessary for our image viewing screen,
-    and handle swapping states based on user interaction.
-"""
-class View_Image_State(State):
+class Sample_View_State(State):
     def execute(self):
         return
 

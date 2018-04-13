@@ -1,30 +1,30 @@
 import kivy
+from Util import System_Initializer as initializer
 from Display.Display import Display_Object
 from kivy.clock import Clock
+from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from States import State
-
+import sys
 """
     The Main class will be the entry point for the program. This class will be responsible for the primary state machine
     functionality, ensuring key system functionality, performing the screen draw calls for the current display panel,
     and attempting system recovery when possible.
 """
-class Main(object):
+class MainApp(App):
     def __init__(self):
+        super().__init__()
         #Set up instance variables only.
-        self.states = {}
-        self.load_states()
+        self.state_history = ["START"]
         self.running = False
         self.system_failure = False
-        self.current_state = "INIT"
-        self.next_state = "IDLE"
-        self.manager = ScreenManager()
-        self.init_UI()
-        Clock.Schedule(self.state_machine(),1./60.)
+        self.current_state = "START"
+        self.next_state = "START"
+        self.states, self.manager = initializer.init()
 
     #This function will be the clock and main loop for the system.
     def state_machine(self):
-        while self.running and not self.system_failure:
+        if self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
 
@@ -42,6 +42,8 @@ class Main(object):
             except Exception as e:
                 print("CRITICAL FAILURE")
                 #log things
+        if not self.running:
+            self.exit()
 
     #This function gets and executes the current state when available.
     def execute_state(self):
@@ -52,22 +54,18 @@ class Main(object):
 
     #This function swaps the current state and display panel to the next state and display panel.
     def swap_states(self):
+        #Special logic to go back a state.
+        if(self.next_state == "BACK"):
+            self.next_state = self.state_history[-1]
+
+        #Swap states.
         self.current_state = self.next_state
-        self.display_panel = self.states[self.current_state].get_display_panel()
 
-    def init_UI(self):
-        IDLE_SCREEN = Display_Object()
-        self.manager.add_widget()
+        #Add our new state to the global history of states.
+        self.state_history.append(self.current_state)
 
-    """
-        This function should load all of the State objects the system may ever need. It is probably a better idea
-        to load each State object dynamically when they are needed, because it would give us the ability to use
-        the __init__() method of each state as a single-call function that does not need to be checked every cycle
-        This is useful if any state needs to perform a one-time process to data that is made available after the device
-        has been running for some time.
-    """
-    def load_states(self):
-        self.states["IDLE"] = State.Idle_State(None)
+        #Set the content pane of our screen manager to the screen associated with our new state.
+        self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
     #This function will be responsible for checking all critical systems and determining if a failure has happened.
     def ping(self):
@@ -85,4 +83,20 @@ class Main(object):
         #If these lines execute it means system exit has not been called and we have recovered.
         self.running = True
         self.system_failure = False
-        self.run()
+
+    #This function is the entry point for Kivy, I think.
+    def build(self):
+        Clock.schedule_interval(self.state_machine(), 1. / 60.)
+        return self.manager
+
+    #This function is used to close our app if it is running and exit the application.
+    def exit(self):
+        if App.get_running_app() is not None:
+            App.get_running_app().stop()
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    app = MainApp()
+    app.run()
+    #app.exit()

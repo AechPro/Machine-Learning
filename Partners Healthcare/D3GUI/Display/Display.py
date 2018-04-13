@@ -8,19 +8,21 @@ import Commands.Command as coms
 
 class Display_Object(Screen):
     def __init__(self,commands,name=None):
-        super().__init__()
+        super().__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
 
+    #Kivy will trigger this function when a button is pressed.
     def button_press(self,button):
+        #Check to see if we have a command for the button that was pressed. Execute it if we do.
         command = self._commands.get(button.text.upper(),None)
         if command:
             command.execute()
+        else:
+            print("COULD NOT RECOGNIZE COMMAND "+button.text)
 
-    def exit(self):
-        App.get_running_app().stop()
-        
+    #ACCESSORS & MUTATORS
     def get_name(self):
         return self._name
     def get_background(self):
@@ -30,3 +32,17 @@ class Display_Object(Screen):
         self._name = new_name
     def set_background(self,new_background):
         self._background=new_background.copy()
+
+
+# Declare screens
+class Start_Screen(Display_Object):
+    pass
+
+class Browse_Users_Screen(Display_Object):
+    pass
+
+class Create_New_User_Screen(Display_Object):
+    pass
+
+class Idle_Screen(Display_Object):
+    pass
