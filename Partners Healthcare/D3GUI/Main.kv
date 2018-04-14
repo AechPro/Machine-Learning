@@ -17,23 +17,48 @@
     D3Button:
         text: "New User"
         pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
     D3Button:
         text: "Browse Users"
         pos_hint: {'x':0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
 
 
 
 
 
-<CreateUserScreen@Screen>:
+<Create_New_User_Screen@Display_Object>:
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
         D3Button:
             text: "Back"
             pos_hint: {'x': 0.1, 'y':0.1}
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
 
         D3Button:
             text: "Save User"
             pos_hint: {'x':0.6, 'y':0.1}
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'right'
+
+<Browse_Users_Screen@Display_Object>:
+    FloatLayout:
+        background_color: 0, 0.5, 0.5, 1
+
+        D3Button:
+            text: "Back"
+            pos_hint: {'x': 0.1, 'y':0.1}
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'right'
+
+

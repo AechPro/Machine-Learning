@@ -7,21 +7,25 @@ import Commands.Command as coms
 """
 
 class Display_Object(Screen):
-    def __init__(self,commands,name=None):
-        super(Display_Object,self).__init__(name=name)
+    def __init__(self,commands, name=None):
+        super(Display_Object, self).__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
 
 
-    #Kivy will trigger this function when a button is pressed.
-    def on_press(self,button):
+    def button_press(self, button_text):
+        """
+        Kivy will trigger this function when a button is pressed
+        :param button_text: string identifier for the button which was pressed
+        :return:
+        """
         #Check to see if we have a command for the button that was pressed. Execute it if we do.
-        command = self._commands.get(button.text.upper(),None)
+        command = self._commands.get(button_text.upper(), None)
         if command:
             command.execute()
         else:
-            print("COULD NOT RECOGNIZE COMMAND "+button.text)
+            print("COULD NOT RECOGNIZE COMMAND "+button_text)
 
     #ACCESSORS & MUTATORS
     def get_name(self):

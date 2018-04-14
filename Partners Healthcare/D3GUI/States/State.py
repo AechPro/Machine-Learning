@@ -18,7 +18,7 @@ class State(object):
 
     #This function should execute everything this state will need to do each cycle.
     def execute(self):
-        raise NotImplementedError
+        self._next_state = None
 
     #This function should fill the _file_paths list with every static file path that will ever be needed by this object.
     def _init_paths(self):
@@ -43,23 +43,25 @@ class State(object):
 
     def set_next_state(self,state):
         self._next_state = state
+
     #This makes a State object callable with the same effect as State.execute().
     def __call__(self, *args, **kwargs):
         self.execute()
 
 
-"""
-    The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping
-    states based on user interaction.
-"""
 class Idle_State(State):
-    def __init__(self, cameraObject):
+    """
+        The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping
+        states based on user interaction.
+    """
+    def __init__(self, camera_object):
         super(Idle_State,self).__init__()
-        self._camera = cameraObject
-        self._display.set_camera(cameraObject)
+        self._camera = camera_object
+        self._display.set_camera(camera_object)
         self._next_state = None
 
     def execute(self):
+        super(Idle_State, self).execute()
         self._camera.update_feed()
 
     #Refer to superclass documentation.
@@ -79,39 +81,55 @@ class Idle_State(State):
 
 class Browse_Users_State(State):
     def execute(self):
-        return
+        super(Browse_Users_State, self).execute()
     def _init_paths(self):
         return
     def _init_commands(self):
-        save_command = coms.Save_User_Button_State_Command(None,self)
-        back_command = coms.Back_Button_State_Command(None,self)
-        self._commands = {"SAVE":save_command,"BACK":back_command}
+        save_command = coms.Save_User_Button_State_Command(None, self)
+        back_command = coms.Back_Button_State_Command(None, self)
+        self._commands = {"SAVE": save_command, "BACK": back_command}
     def _build_display(self):
         self._display = displays.Browse_Users_Screen(self._commands,name="Browse_Users_Screen")
 
 class Create_New_User_State(State):
     def execute(self):
-        return
+        super(Create_New_User_State, self).execute()
+
     def save_user(self):
         return
 
-class Start_State(State):
-    def execute(self):
-        return
     def _init_paths(self):
         return
+
     def _init_commands(self):
-        browse_command = coms.Browse_Users_Button_State_Command(None,self)
-        create_command = coms.Create_New_User_Button_State_Command(None,self)
-        self.commands = {"BROWSE":browse_command,"NEW USER":create_command}
+        back_command = coms.Back_Button_State_Command(None, self)
+        save_command = coms.Save_User_Button_State_Command(None, self)
+        self._commands = {"BACK": back_command, "SAVE USER": save_command}
+
     def _build_display(self):
-        self._display = displays.Start_Screen(self._commands,"Start_Screen")
+        self._display = displays.Create_New_User_Screen(self._commands, name="Create_User_Screen")
+
+class Start_State(State):
+    def execute(self):
+        super(Start_State, self).execute()
+
+    def _init_paths(self):
+        return
+
+    def _init_commands(self):
+        browse_command = coms.Browse_Users_Button_State_Command(None, self)
+        create_command = coms.Create_New_User_Button_State_Command(None, self)
+        self._commands = {"BROWSE USERS": browse_command, "NEW USER": create_command}
+
+    def _build_display(self):
+        self._display = displays.Start_Screen(self._commands, name="Start_Screen")
+
 class Sample_Capture_State(State):
     pass
 
 class Sample_View_State(State):
     def execute(self):
-        return
+        super(Sample_View, self).execute()
 
     #Refer to superclass documentation.
     def _init_paths(self):

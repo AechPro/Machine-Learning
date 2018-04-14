@@ -23,11 +23,12 @@ class MainApp(App):
         self.current_state = "START"
         self.next_state = "START"
         self.running = True
-        #Clock.schedule_interval(lambda f: self.state_machine(), 1./60.)
 
-    #This function will be the clock and main loop for the system.
     def state_machine(self):
-        #print("state machine")
+        """
+        This function will be the clock and main loop for the system.
+        :return: void
+        """
         if self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
@@ -49,18 +50,24 @@ class MainApp(App):
         if not self.running:
             self.exit()
 
-    #This function gets and executes the current state when available.
     def execute_state(self):
-        state = self.states.get(self.current_state,None)
+        """
+        This function gets and executes the current state when available.
+        :return: void
+        """
+        state = self.states.get(self.current_state, None)
         if state:
-            state.execute()
             self.next_state = state.get_next_state()
+            state.execute()
 
-    #This function swaps the current state and display panel to the next state and display panel.
     def swap_states(self):
+        """
+        This function swaps the current state and display panel to the next state and display panel.
+        :return: void
+        """
         #Special logic to go back a state.
         if(self.next_state == "BACK"):
-            self.next_state = self.state_history[-1]
+            self.next_state = self.state_history[-2]
 
         #Swap states.
         self.current_state = self.next_state
@@ -70,6 +77,7 @@ class MainApp(App):
 
         #Set the content pane of our screen manager to the screen associated with our new state.
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
+
 
     #This function will be responsible for checking all critical systems and determining if a failure has happened.
     def ping(self):
@@ -92,7 +100,8 @@ class MainApp(App):
     def build(self):
         start_state = states.Start_State()
         browse_users_state = states.Browse_Users_State()
-        state_dict = {"START": start_state, "BROWSE USERS": browse_users_state}
+        create_new_user_state = states.Create_New_User_State()
+        state_dict = {"START": start_state, "BROWSE USERS": browse_users_state, "NEW USER": create_new_user_state}
 
         # Set up our Kivy screen manager.
         sm = ScreenManager()
@@ -101,6 +110,7 @@ class MainApp(App):
         self.states = state_dict
         self.manager = sm
         return self.manager
+
     def start(self):
         Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
 

@@ -21,8 +21,8 @@ class Command(object):
     The execute() function in State_Command must trigger a state transition to happen on the next clock cycle.
 """
 class State_Command(Command):
-    def __init__(self,obj_target,state):
-        super(State_Command,self).__init__(obj_target)
+    def __init__(self, obj_target, state):
+        super(State_Command, self).__init__(obj_target)
         self._state = state
 
 class Browse_Users_Button_State_Command(State_Command):
