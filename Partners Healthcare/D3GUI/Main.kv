@@ -6,6 +6,7 @@
     font_size: 32
     bold: True
     background_color: 1, 1, 1, 1
+    halign: "center"
 
 <Display_Object@Screen>:
     FloatLayout:
@@ -34,20 +35,25 @@
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'left'
+            root.manager.transition.direction = 'right'
 
     D3Button:
         text: "Save User"
         pos_hint: {'x':0.6, 'y':0.1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
+            root.manager.transition.direction = 'left'
 
 <Browse_Users_Screen@Display_Object>:
+    FileChooserListView:
+        id: filechooser
+        path: "C:/Users/Matt/PycharmProjects"
+
     D3Button:
-        text: "Back"
+        text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
+
             root.button_press(self.text)
             root.manager.transition.direction = 'right'
 
@@ -55,8 +61,9 @@
         text: "Select"
         pos_hint: {'x': 0.6, 'y':0.1}
         on_press:
+            print(filechooser.path, filechooser.selection)
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
+            root.manager.transition.direction = 'left'
 
 <Sample_View_Screen@Display_Object>:
     D3Button:
@@ -71,14 +78,22 @@
         pos_hint: {'x': 0.6, 'y':0.1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
+            root.manager.transition.direction = 'left'
 
 <Idle_Screen@Display_Object>:
-    Label:
-        text: "Image\nPreview"
-        size_hint: .2, .2
-        pos_hint: {'right':1, 'top':1}
-        color: 1,0,1,1
+    StackLayout:
+        orientation: 'tb-rl'
+        Label:
+            text: "Image\nPreview"
+            size_hint: .2, .15
+            pos_hint: {'right':1, 'top':1}
+            color: 1,0,1,1
+        D3Button:
+            size_hint: .2, .2
+            text: "Change\nUser"
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
     Label:
         text: "Camera\nFeed"
         pos_hint:{'center_x':0.5,'center_y':0.5}
@@ -95,16 +110,11 @@
     StackLayout:
         orientation: 'bt-rl'
         D3Button:
-            size_hint: .2, .1
+            size_hint: .2, .2
             text: 'Capture'
             on_press:
                 root.button_press(self.text)
-
-        D3Button:
-            size_hint: .2, .1
-            text: "Browse"
-            on_press:
-                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
 
     StackLayout:
         orientation: 'lr-tb'

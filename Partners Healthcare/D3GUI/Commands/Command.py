@@ -41,6 +41,10 @@ class Save_User_Button_State_Command(State_Command):
     def execute(self):
         self._state.save_user()
         self._state.set_next_state("IDLE")
+class Save_Sample_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.save_sample()
+        self._state.set_next_state("IDLE")
 
 class Back_Button_State_Command(State_Command):
     def execute(self):
@@ -56,6 +60,7 @@ class Camera_Capture_State_Command(State_Command):
     def execute(self):
         try:
             self._object.capture()
+            self._state.set_next_state("SAMPLE VIEW")
         except Exception as e:
             print("Error trying to capture!\n",type(e).__name__,"\n",e.args)
-        self._state.set_next_state("SAMPLE VIEW")
+

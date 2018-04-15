@@ -74,7 +74,7 @@ class Idle_State(State):
         exit_command = coms.Exit_Button_State_Command(None, self)
 
         self._commands = {"CAPTURE": capture_command,
-                          "BROWSE": browse_command,
+                          "CHANGE\nUSER": browse_command,
                           "EXIT": exit_command}
         return
 
@@ -97,7 +97,7 @@ class Browse_Users_State(State):
         select_command = coms.Select_User_Button_State_Command(None, self)
         back_command = coms.Back_Button_State_Command(None, self)
         self._commands = {"SELECT": select_command,
-                          "BACK": back_command}
+                          "CANCEL": back_command}
     def _build_display(self):
         self._display = displays.Browse_Users_Screen(self._commands,name="Browse_Users_Screen")
 
@@ -114,7 +114,7 @@ class Create_New_User_State(State):
     def _init_commands(self):
         back_command = coms.Back_Button_State_Command(None, self)
         save_command = coms.Save_User_Button_State_Command(None, self)
-        self._commands = {"BACK": back_command,
+        self._commands = {"CANCEL": back_command,
                           "SAVE USER": save_command}
 
     def _build_display(self):
@@ -149,9 +149,9 @@ class Sample_View_State(State):
 
     def _init_commands(self):
         back_command = coms.Back_Button_State_Command(None, self)
-        save_command = coms.Save_User_Button_State_Command(None, self)
-        self._commands = {"BACK": back_command,
-                          "SAVE USER": save_command}
+        save_command = coms.Save_Sample_Button_State_Command(None, self)
+        self._commands = {"RETRY": back_command,
+                          "SAVE SAMPLE": save_command}
 
     def _build_display(self):
         self._display = displays.Sample_View_Screen(self._commands, name="Sample_View_Screen")
