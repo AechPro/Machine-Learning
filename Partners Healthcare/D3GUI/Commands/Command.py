@@ -33,6 +33,10 @@ class Create_New_User_Button_State_Command(State_Command):
     def execute(self):
         self._state.set_next_state("NEW USER")
 
+class Select_User_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.set_next_state("IDLE")
+
 class Save_User_Button_State_Command(State_Command):
     def execute(self):
         self._state.save_user()
@@ -42,9 +46,16 @@ class Back_Button_State_Command(State_Command):
     def execute(self):
         self._state.set_next_state("BACK")
 
+class Exit_Button_State_Command(State_Command):
+    def execute(self):
+        self._state.set_next_state("EXIT")
+
 class Camera_Capture_State_Command(State_Command):
     def __init__(self, camera, state):
         super(Camera_Capture_State_Command,self).__init__(camera,state)
     def execute(self):
-        self._object.capture()
-        self._state.set_next_state("CAPTURE")
+        try:
+            self._object.capture()
+        except Exception as e:
+            print("Error trying to capture!\n",type(e).__name__,"\n",e.args)
+        self._state.set_next_state("SAMPLE VIEW")

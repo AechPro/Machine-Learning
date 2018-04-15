@@ -28,37 +28,123 @@
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
 
-
-
-
-
 <Create_New_User_Screen@Display_Object>:
-    FloatLayout:
-        background_color: 0, 0.5, 0.5, 1
+    D3Button:
+        text: "Back"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
 
-        D3Button:
-            text: "Back"
-            pos_hint: {'x': 0.1, 'y':0.1}
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'left'
-
-        D3Button:
-            text: "Save User"
-            pos_hint: {'x':0.6, 'y':0.1}
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'right'
+    D3Button:
+        text: "Save User"
+        pos_hint: {'x':0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
 <Browse_Users_Screen@Display_Object>:
-    FloatLayout:
-        background_color: 0, 0.5, 0.5, 1
+    D3Button:
+        text: "Back"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
+    D3Button:
+        text: "Select"
+        pos_hint: {'x': 0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
+
+<Sample_View_Screen@Display_Object>:
+    D3Button:
+        text: "Back"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
+
+    D3Button:
+        text: "Save"
+        pos_hint: {'x': 0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
+
+<Idle_Screen@Display_Object>:
+    Label:
+        text: "Image\nPreview"
+        size_hint: .2, .2
+        pos_hint: {'right':1, 'top':1}
+        color: 1,0,1,1
+    Label:
+        text: "Camera\nFeed"
+        pos_hint:{'center_x':0.5,'center_y':0.5}
+        color: 0,1,0,1
+        font_size: 32
+
+    D3Button:
+        text: "Exit"
+        size_hint: .2, .1
+        pos_hint: {'left':1, 'bottom':1}
+        on_press:
+            root.button_press(self.text)
+
+    StackLayout:
+        orientation: 'bt-rl'
         D3Button:
-            text: "Back"
-            pos_hint: {'x': 0.1, 'y':0.1}
+            size_hint: .2, .1
+            text: 'Capture'
             on_press:
                 root.button_press(self.text)
-                root.manager.transition.direction = 'right'
 
+        D3Button:
+            size_hint: .2, .1
+            text: "Browse"
+            on_press:
+                root.button_press(self.text)
 
+    StackLayout:
+        orientation: 'lr-tb'
+        D3Button:
+            text: "util1"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util2"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util3"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util4"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util5"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util6"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util7"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util8"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util9"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util10"
+            size_hint: 0.08,0.075
+            font_size: 16

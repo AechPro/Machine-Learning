@@ -1,6 +1,4 @@
-from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.app import App
-import Commands.Command as coms
+from kivy.uix.screenmanager import Screen
 """
     The Display Object class holds a list of command objects to activate on a button press, and maps user input
     to the appropriate command object.
@@ -25,7 +23,8 @@ class Display_Object(Screen):
         if command:
             command.execute()
         else:
-            print("COULD NOT RECOGNIZE COMMAND "+button_text)
+            print("COULD NOT RECOGNIZE COMMAND "+button_text+"\n"
+                  "DID YOU FORGET TO ADD THAT COMMAND TO THIS DISPLAY OBJECT?")
 
     #ACCESSORS & MUTATORS
     def get_name(self):
@@ -36,7 +35,7 @@ class Display_Object(Screen):
     def set_name(self,new_name):
         self._name = new_name
     def set_background(self,new_background):
-        self._background=new_background.copy()
+        self._background = new_background.copy()
 
 
 # Declare screens
@@ -50,4 +49,7 @@ class Create_New_User_Screen(Display_Object):
     pass
 
 class Idle_Screen(Display_Object):
+    pass
+
+class Sample_View_Screen(Display_Object):
     pass

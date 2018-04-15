@@ -55,25 +55,34 @@ class Idle_State(State):
         states based on user interaction.
     """
     def __init__(self, camera_object):
-        super(Idle_State,self).__init__()
         self._camera = camera_object
-        self._display.set_camera(camera_object)
-        self._next_state = None
+        super(Idle_State,self).__init__()
 
     def execute(self):
         super(Idle_State, self).execute()
-        self._camera.update_feed()
+        if self._camera is not None:
+            self._camera.update_feed()
 
     #Refer to superclass documentation.
 
     def _init_paths(self):
-        raise NotImplementedError
-
-    def _build_display(self):
-        raise NotImplementedError
+        return
 
     def _init_commands(self):
-        raise NotImplementedError
+        capture_command = coms.Camera_Capture_State_Command(self._camera, self)
+        browse_command = coms.Browse_Users_Button_State_Command(None, self)
+        exit_command = coms.Exit_Button_State_Command(None, self)
+
+        self._commands = {"CAPTURE": capture_command,
+                          "BROWSE": browse_command,
+                          "EXIT": exit_command}
+        return
+
+    def _build_display(self):
+        self._display = displays.Idle_Screen(self._commands,name="Idle_Screen")
+        return
+
+
 
 """
     The following classes are generic incomplete state objects for basic Kivy testing.
@@ -85,9 +94,10 @@ class Browse_Users_State(State):
     def _init_paths(self):
         return
     def _init_commands(self):
-        save_command = coms.Save_User_Button_State_Command(None, self)
+        select_command = coms.Select_User_Button_State_Command(None, self)
         back_command = coms.Back_Button_State_Command(None, self)
-        self._commands = {"SAVE": save_command, "BACK": back_command}
+        self._commands = {"SELECT": select_command,
+                          "BACK": back_command}
     def _build_display(self):
         self._display = displays.Browse_Users_Screen(self._commands,name="Browse_Users_Screen")
 
@@ -104,7 +114,8 @@ class Create_New_User_State(State):
     def _init_commands(self):
         back_command = coms.Back_Button_State_Command(None, self)
         save_command = coms.Save_User_Button_State_Command(None, self)
-        self._commands = {"BACK": back_command, "SAVE USER": save_command}
+        self._commands = {"BACK": back_command,
+                          "SAVE USER": save_command}
 
     def _build_display(self):
         self._display = displays.Create_New_User_Screen(self._commands, name="Create_User_Screen")
@@ -119,7 +130,8 @@ class Start_State(State):
     def _init_commands(self):
         browse_command = coms.Browse_Users_Button_State_Command(None, self)
         create_command = coms.Create_New_User_Button_State_Command(None, self)
-        self._commands = {"BROWSE USERS": browse_command, "NEW USER": create_command}
+        self._commands = {"BROWSE USERS": browse_command,
+                          "NEW USER": create_command}
 
     def _build_display(self):
         self._display = displays.Start_Screen(self._commands, name="Start_Screen")
@@ -129,10 +141,17 @@ class Sample_Capture_State(State):
 
 class Sample_View_State(State):
     def execute(self):
-        super(Sample_View, self).execute()
+        super(Sample_View_State, self).execute()
 
     #Refer to superclass documentation.
     def _init_paths(self):
         return
+
+    def _init_commands(self):
+        back_command = coms.Back_Button_State_Command(None, self)
+        save_command = coms.Save_User_Button_State_Command(None, self)
+        self._commands = {"BACK": back_command,
+                          "SAVE USER": save_command}
+
     def _build_display(self):
-        return
+        self._display = displays.Sample_View_Screen(self._commands, name="Sample_View_Screen")
