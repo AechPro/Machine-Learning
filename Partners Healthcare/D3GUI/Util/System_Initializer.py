@@ -6,18 +6,22 @@ import os
 #Basic function to initialize all of the states, commands, and UI objects that will be used by Top and Kivy.
 def init():
     setup_directory_structure()
+
     user = User.User(123456,"jane")
+
     change_user_state = states.Change_User_State(user)
     browse_users_state = states.Browse_Users_State(user)
     create_new_user_state = states.Create_New_User_State(user)
     idle_state = states.Idle_State(user,None)
     sample_view_state = states.Sample_View_State(user)
+    clean_ccd_state = states.Clean_CCD_State(user)
 
     state_dict = {"CHANGE USER": change_user_state,
                   "BROWSE USERS": browse_users_state,
                   "NEW USER": create_new_user_state,
                   "IDLE": idle_state,
-                  "SAMPLE VIEW":sample_view_state}
+                  "SAMPLE VIEW":sample_view_state,
+                  "CLEAN CCD":clean_ccd_state}
 
     #Set up our Kivy screen manager.
     sm = ScreenManager()

@@ -57,3 +57,6 @@ class Idle_Screen(Display_Object):
 
 class Sample_View_Screen(Display_Object):
     pass
+
+class Clean_CCD_Screen(Display_Object):
+    pass

@@ -135,8 +135,16 @@ class Change_User_State(State):
     def _build_display(self):
         self._display = displays.Change_User_Screen(self._commands, name="Select_User_Screen")
 
-class Sample_Capture_State(State):
-    pass
+class Clean_CCD_State(State):
+    def execute(self):
+        super(Clean_CCD_State,self).execute()
+    def _init_paths(self):
+        return
+    def _init_commands(self):
+        ok_command = coms.Clean_CCD_Ok_Button_State_Command(None,self)
+        self._commands = {"OK":ok_command}
+    def _build_display(self):
+        self._display = displays.Clean_CCD_Screen(self._commands,name="Clean_CCD_Screen")
 
 class Sample_View_State(State):
     def execute(self):

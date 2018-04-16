@@ -12,6 +12,19 @@
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
+<Clean_CCD_Screen@Display_Object>:
+    Label:
+        text: "CLEAN CCD"
+        color: 1,0,0,1
+        pos_hint:{'center_x':0.5,'center_y':0.5}
+        font_size: 64
+    D3Button:
+        text: "OK"
+        pos_hint: {'center_x': 0.5, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
+
 <Change_User_Screen@Display_Object>:
     Label:
         text: "D3"
@@ -31,7 +44,7 @@
 
 <Create_New_User_Screen@Display_Object>:
     D3Button:
-        text: "Back"
+        text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
             root.button_press(self.text)
