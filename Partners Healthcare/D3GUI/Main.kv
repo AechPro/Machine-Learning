@@ -23,7 +23,7 @@
         pos_hint: {'center_x': 0.5, 'y':0.1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
+            root.manager.transition.direction = 'left'
 
 <Change_User_Screen@Display_Object>:
     Label:
@@ -61,7 +61,6 @@
     FileChooserListView:
         id: filechooser
         path: "data/users"
-
     D3Button:
         text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
