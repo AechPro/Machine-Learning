@@ -7,8 +7,6 @@ class User(object):
         self._name = user_name
         self._data = []
         self.file_path = "data/users/"
-        if not os.path.exists(self.file_path):
-            os.makedirs(self.file_path)
 
     def save(self):
         t = datetime.datetime.now()
@@ -22,10 +20,15 @@ class User(object):
                 f.write("{}\n".format(entry))
 
     def load(self,file_path):
-        file_name = file_path[0][file_path[0].rfind("\\")+1:]
-        print("Loading from",file_name)
-        dat = file_name.split("_")
 
+        if len(file_path) == 0:
+            print("Unable to load user, invalid selection!")
+            return False
+
+        file_name = file_path[0][file_path[0].rfind("\\")+1:]
+        print("Loading user from",file_name)
+
+        dat = file_name.split("_")
         self._data = []
         self._ID = dat[0]
         self._name = dat[1]
@@ -34,4 +37,4 @@ class User(object):
             lines = f.readlines()
             self._data = [line for line in lines]
 
-        print("ID: {}\nName: {}\nData: {}".format(self._ID,self._name,self._data))
+        return True

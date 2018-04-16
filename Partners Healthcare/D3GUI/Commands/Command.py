@@ -38,9 +38,10 @@ class Create_New_User_Button_State_Command(State_Command):
 
 class Select_User_Button_State_Command(State_Command):
     def execute(self,data=None):
-        if data is not None:
-            self._state.get_user().load(data)
         self._state.set_next_state("IDLE")
+        if data is not None:
+            if not self._state.get_user().load(data):
+                self._state.set_next_state("BROWSE USERS")
 
 class Save_User_Button_State_Command(State_Command):
     def execute(self,data=None):

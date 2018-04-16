@@ -1,9 +1,11 @@
 from kivy.uix.screenmanager import ScreenManager
 from States import State as states
 from Users import User
+import os
 
 #Basic function to initialize all of the states, commands, and UI objects that will be used by Top and Kivy.
 def init():
+    setup_directory_structure()
     user = User.User(123456,"jane")
     change_user_state = states.Change_User_State(user)
     browse_users_state = states.Browse_Users_State(user)
@@ -24,3 +26,6 @@ def init():
         sm.add_widget(state[1].get_display_panel())
 
     return state_dict, sm
+def setup_directory_structure():
+    if not os.path.exists("data/users"):
+        os.makedirs("data/users")
