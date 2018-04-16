@@ -10,9 +10,10 @@ class Display_Object(Screen):
         self._name = name
         self._background = None
         self._commands = commands
+        self._data = None
 
 
-    def button_press(self, button_text):
+    def button_press(self, button_text, data=None):
         """
         Kivy will trigger this function when a button is pressed
         :param button_text: string identifier for the button which was pressed
@@ -21,10 +22,13 @@ class Display_Object(Screen):
         #Check to see if we have a command for the button that was pressed. Execute it if we do.
         command = self._commands.get(button_text.upper(), None)
         if command:
-            command.execute()
+            command.execute(data=data)
         else:
             print("COULD NOT RECOGNIZE COMMAND "+button_text+"\n"
                   "DID YOU FORGET TO ADD THAT COMMAND TO THIS DISPLAY OBJECT?")
+
+    def pass_data(self,data):
+        self._data = data
 
     #ACCESSORS & MUTATORS
     def get_name(self):
@@ -39,7 +43,7 @@ class Display_Object(Screen):
 
 
 # Declare screens
-class Start_Screen(Display_Object):
+class Change_User_Screen(Display_Object):
     pass
 
 class Browse_Users_Screen(Display_Object):

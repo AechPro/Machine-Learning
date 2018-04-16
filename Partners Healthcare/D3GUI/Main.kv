@@ -12,7 +12,7 @@
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
-<Start_Screen@Display_Object>:
+<Change_User_Screen@Display_Object>:
     Label:
         text: "D3"
     D3Button:
@@ -47,13 +47,12 @@
 <Browse_Users_Screen@Display_Object>:
     FileChooserListView:
         id: filechooser
-        path: "C:/Users/Matt/PycharmProjects"
+        path: "data/users"
 
     D3Button:
         text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
-
             root.button_press(self.text)
             root.manager.transition.direction = 'right'
 
@@ -61,13 +60,12 @@
         text: "Select"
         pos_hint: {'x': 0.6, 'y':0.1}
         on_press:
-            print(filechooser.path, filechooser.selection)
-            root.button_press(self.text)
+            root.button_press(self.text,data=filechooser.selection)
             root.manager.transition.direction = 'left'
 
 <Sample_View_Screen@Display_Object>:
     D3Button:
-        text: "Back"
+        text: "Retry"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
             root.button_press(self.text)

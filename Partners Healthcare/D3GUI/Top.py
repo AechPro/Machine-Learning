@@ -18,10 +18,10 @@ class MainApp(App):
         #Set up instance variables only.
         self.states = None
         self.manager = None
-        self.state_history = ["START"]
+        self.state_history = ["CHANGE USER"]
         self.system_failure = False
-        self.current_state = "START"
-        self.next_state = "START"
+        self.current_state = "CHANGE USER"
+        self.next_state = "CHANGE USER"
         self.running = True
 
     def state_machine(self):
@@ -41,13 +41,14 @@ class MainApp(App):
             self.ping()
 
         #If the system has failed, attempt recovery.
-        if self.system_failure:
+        elif self.system_failure:
             try:
                 self.recover()
             except Exception as e:
                 print("CRITICAL FAILURE")
                 #log things
-        if not self.running:
+
+        elif not self.running:
             self.exit()
 
     def execute_state(self):
