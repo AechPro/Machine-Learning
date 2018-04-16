@@ -104,6 +104,12 @@
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
+        D3Button:
+            size_hint: .2, .15
+            text: "Save\nUser"
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
     Label:
         text: "Camera\nFeed"
         pos_hint:{'center_x':0.5,'center_y':0.5}

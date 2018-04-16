@@ -8,7 +8,7 @@ import os
 def init():
     setup_directory_structure()
 
-    user = User.User(123456,"jane")
+    user = User.User(123456,"jane_smith")
 
     change_user_state = Change_User.Change_User_State(user)
     browse_users_state = Browse_Users.Browse_Users_State(user)

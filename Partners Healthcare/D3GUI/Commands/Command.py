@@ -41,6 +41,11 @@ class Save_User_Button_Command(Command):
         self._object.save_user()
         self._object.set_next_state("CLEAN CCD")
 
+class Save_User_Idle_State_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.save_user()
+        self._object.set_next_state("IDLE")
+
 class Save_Sample_Button_Command(Command):
     def execute(self,data=None):
         self._object.save_sample()

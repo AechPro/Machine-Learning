@@ -16,7 +16,11 @@ class Idle_State(State.State):
             self._camera.update_feed()
 
     def capture(self):
-        return False
+        return True
+
+    def save_user(self):
+        print("user saved")
+        self._current_user.save()
 
     #Refer to superclass documentation.
     def _init_paths(self):
@@ -26,10 +30,12 @@ class Idle_State(State.State):
         capture_command = coms.Camera_Capture_Command(self)
         select_command = coms.Change_User_Button_Command(self)
         exit_command = coms.Exit_Button_Command(self)
+        save_command = coms.Save_User_Idle_State_Button_Command(self)
 
         self._commands = {"CAPTURE": capture_command,
                           "CHANGE\nUSER": select_command,
-                          "EXIT": exit_command}
+                          "EXIT": exit_command,
+                          "SAVE\nUSER": save_command}
 
     def _build_display(self):
         self._display = displays.Idle_Screen(self._commands,name="Idle_Screen")
