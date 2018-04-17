@@ -7,11 +7,6 @@ from kivy.properties import StringProperty, ObjectProperty
 
 class Create_New_User_State(State.State):
 
-    #def __init__(self, user):
-    #    super(Create_New_User_State, self).__init__(user)
-    #    patient_id = ObjectProperty(None)
-    #    patient_name = ObjectProperty(None)
-
     def execute(self):
         super(Create_New_User_State, self).execute()
 

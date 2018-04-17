@@ -101,7 +101,18 @@
 <Browse_Users_Screen@Display_Object>:
     FileChooserListView:
         id: filechooser
-        path: "data/users"
+        path: "data/users/"
+
+    D3Label:
+        text: "Patient Name (first_last)"
+        pos_hint: {'x':0.1, 'y':0.6}
+
+    D3TextInput:
+        id: patient_id
+        pos_hint: {'x':0.4, 'y':0.6}
+        text:""
+        multiline: False
+
     D3Button:
         text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
@@ -113,7 +124,7 @@
         text: "Select"
         pos_hint: {'x': 0.6, 'y':0.1}
         on_press:
-            root.button_press(self.text,data=filechooser.selection)
+            root.button_press(self.text, data=filechooser.selection)
             root.manager.transition.direction = 'left'
 
 <Sample_View_Screen@Display_Object>:
@@ -156,6 +167,12 @@
         pos_hint:{'center_x':0.5,'center_y':0.5}
         color: 0,1,0,1
         font_size: 32
+    Camera:
+        size_hint: .8, 0.85
+        pos_hint: {'x':0, 'y':.1}
+        id: camera
+        resolution: (640, 480)
+        play: True
 
     D3Button:
         text: "Exit"

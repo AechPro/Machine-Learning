@@ -30,7 +30,7 @@ class Create_New_User_Button_Command(Command):
         self._object.set_next_state("NEW USER")
 
 class Select_User_Button_Command(Command):
-    def execute(self,data=None):
+    def execute(self, data=None):
         self._object.set_next_state("CLEAN CCD")
         if data is not None:
             if not self._object.get_user().load(data):

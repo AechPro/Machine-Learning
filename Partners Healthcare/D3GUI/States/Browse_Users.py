@@ -1,6 +1,7 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+from Users import User
 
 
 class Browse_Users_State(State.State):
@@ -8,6 +9,7 @@ class Browse_Users_State(State.State):
         super(Browse_Users_State, self).execute()
     def _init_paths(self):
         return
+
     def _init_commands(self):
         select_command = coms.Select_User_Button_Command(self)
         back_command = coms.Back_Button_Command(self)

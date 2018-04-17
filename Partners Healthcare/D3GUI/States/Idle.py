@@ -1,6 +1,7 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+import time
 
 
 class Idle_State(State.State):
@@ -18,7 +19,14 @@ class Idle_State(State.State):
             self._camera.update_feed()
 
     def capture(self):
-        return True
+        '''
+        Function to capture the images and give them the names
+        according to their captured time and date.
+        '''
+        camera = self._display.ids['camera']
+        timestr = time.strftime("%Y%m%d_%H%M%S")
+        camera.export_to_png("IMG_{}.png".format(timestr))
+        print("Captured")
 
     def save_user(self):
         print("user saved")
