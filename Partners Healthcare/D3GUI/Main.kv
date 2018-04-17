@@ -6,6 +6,7 @@
     font_size: 32
     bold: True
     background_color: 1, 1, 1, 1
+    halign: "center"
 
 <Display_Object@Screen>:
     FloatLayout:
@@ -27,6 +28,20 @@
     background_color: 1, 1, 1, 1
 
 <Start_Screen@Display_Object>:
+<Clean_CCD_Screen@Display_Object>:
+    Label:
+        text: "CLEAN CCD"
+        color: 1,0,0,1
+        pos_hint:{'center_x':0.5,'center_y':0.5}
+        font_size: 64
+    D3Button:
+        text: "OK"
+        pos_hint: {'center_x': 0.5, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
+
+<Change_User_Screen@Display_Object>:
     Label:
         font_size: 140
         bold: True
@@ -59,36 +74,134 @@
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
+    D3Button:
+        text: "Cancel"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
-        D3Button:
-            text: "Save User"
-            pos_hint: {'x':0.6, 'y':0.1}
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'right'
-
-        D3TextInput:
-            pos_hint: {'x':0.2, 'y': 0.7}
-            id: patient_id
-            text: ""
-            multiline: False
-            on_text: root.update()
-
-        D3Label:
-            pos_hint: {'x':0, 'y': 0.7}
-            text: "Patient ID"
-
-
+    D3Button:
+        text: "Save User"
+        pos_hint: {'x':0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
 
 <Browse_Users_Screen@Display_Object>:
-    FloatLayout:
-        background_color: 0, 0.5, 0.5, 1
+    FileChooserListView:
+        id: filechooser
+        path: "data/users"
+    D3Button:
+        text: "Cancel"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
+    D3Button:
+        text: "Select"
+        pos_hint: {'x': 0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text,data=filechooser.selection)
+            root.manager.transition.direction = 'left'
+
+<Sample_View_Screen@Display_Object>:
+    D3Button:
+        text: "Retry"
+        pos_hint: {'x': 0.1, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
+
+    D3Button:
+        text: "Save"
+        pos_hint: {'x': 0.6, 'y':0.1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
+
+<Idle_Screen@Display_Object>:
+    StackLayout:
+        orientation: 'tb-rl'
+        Label:
+            text: "Image\nPreview"
+            size_hint: .2, .15
+            pos_hint: {'right':1, 'top':1}
+            color: 1,0,1,1
         D3Button:
-            text: "Back"
-            pos_hint: {'x': 0.1, 'y':0.1}
+            size_hint: .2, .2
+            text: "Change\nUser"
             on_press:
                 root.button_press(self.text)
-                root.manager.transition.direction = 'right'
+                root.manager.transition.direction = 'left'
+        D3Button:
+            size_hint: .2, .15
+            text: "Save\nUser"
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
+    Label:
+        text: "Camera\nFeed"
+        pos_hint:{'center_x':0.5,'center_y':0.5}
+        color: 0,1,0,1
+        font_size: 32
 
+    D3Button:
+        text: "Exit"
+        size_hint: .2, .1
+        pos_hint: {'left':1, 'bottom':1}
+        on_press:
+            root.button_press(self.text)
 
+    StackLayout:
+        orientation: 'bt-rl'
+        D3Button:
+            size_hint: .2, .2
+            text: 'Capture'
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
+
+    StackLayout:
+        orientation: 'lr-tb'
+        D3Button:
+            text: "util1"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util2"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util3"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util4"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util5"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util6"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util7"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util8"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util9"
+            size_hint: 0.08,0.075
+            font_size: 16
+        D3Button:
+            text: "util10"
+            size_hint: 0.08,0.075
+            font_size: 16

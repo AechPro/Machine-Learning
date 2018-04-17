@@ -1,5 +1,5 @@
 import kivy
-from Util import System_Initializer as initializer
+from Util import System_Initializer as sys_init
 from Display.Display import Display_Object
 from kivy.clock import Clock
 from kivy.app import App
@@ -20,10 +20,10 @@ class MainApp(App):
         #Set up instance variables only.
         self.states = None
         self.manager = None
-        self.state_history = ["START"]
+        self.state_history = ["CHANGE USER"]
         self.system_failure = False
-        self.current_state = "START"
-        self.next_state = "START"
+        self.current_state = "CHANGE USER"
+        self.next_state = "CHANGE USER"
         self.running = True
 
     def state_machine(self):
@@ -43,13 +43,14 @@ class MainApp(App):
             self.ping()
 
         #If the system has failed, attempt recovery.
-        if self.system_failure:
+        elif self.system_failure:
             try:
                 self.recover()
             except Exception as e:
                 print("CRITICAL FAILURE")
                 #log things
-        if not self.running:
+
+        elif not self.running:
             self.exit()
 
     def execute_state(self):
@@ -67,6 +68,9 @@ class MainApp(App):
         This function swaps the current state and display panel to the next state and display panel.
         :return: void
         """
+        if(self.next_state == "EXIT"):
+            self.exit()
+
         #Special logic to go back a state.
         if(self.next_state == "BACK"):
             self.next_state = self.state_history[-2]
@@ -100,17 +104,7 @@ class MainApp(App):
 
     #This function is the entry point for Kivy, I think.
     def build(self):
-        start_state = states.Start_State()
-        browse_users_state = states.Browse_Users_State()
-        create_new_user_state = states.Create_New_User_State()
-        state_dict = {"START": start_state, "BROWSE USERS": browse_users_state, "NEW USER": create_new_user_state}
-
-        # Set up our Kivy screen manager.
-        sm = ScreenManager()
-        for state in state_dict.items():
-            sm.add_widget(state[1].get_display_panel())
-        self.states = state_dict
-        self.manager = sm
+        self.states, self.manager = sys_init.init()
         return self.manager
 
     def start(self):
@@ -118,6 +112,7 @@ class MainApp(App):
 
     #This function is used to close our app if it is running and exit the application.
     def exit(self):
+        print("Shutting down...")
         if App.get_running_app() is not None:
             App.get_running_app().stop()
         sys.exit(0)

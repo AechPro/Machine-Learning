@@ -9,42 +9,63 @@ class Command(object):
         self._object = obj_target
 
     #This is the single concrete function that will be executed by the Command.
-    def execute(self):
+    def execute(self,data=None):
         raise NotImplementedError
 
     #This allows Command execution to be callable.
-    def __call__(self):
-        self.execute()
+    def __call__(self,data=None):
+        self.execute(data=data)
 
 
-"""
-    The execute() function in State_Command must trigger a state transition to happen on the next clock cycle.
-"""
-class State_Command(Command):
-    def __init__(self, obj_target, state):
-        super(State_Command, self).__init__(obj_target)
-        self._state = state
+class Browse_Users_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("BROWSE USERS")
 
-class Browse_Users_Button_State_Command(State_Command):
-    def execute(self):
-        self._state.set_next_state("BROWSE USERS")
+class Change_User_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("CHANGE USER")
 
-class Create_New_User_Button_State_Command(State_Command):
-    def execute(self):
-        self._state.set_next_state("NEW USER")
+class Create_New_User_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("NEW USER")
 
-class Save_User_Button_State_Command(State_Command):
-    def execute(self):
-        self._state.save_user()
-        self._state.set_next_state("IDLE")
+class Select_User_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("CLEAN CCD")
+        if data is not None:
+            if not self._object.get_user().load(data):
+                self._object.set_next_state("BROWSE USERS")
 
-class Back_Button_State_Command(State_Command):
-    def execute(self):
-        self._state.set_next_state("BACK")
+class Save_User_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.save_user()
+        self._object.set_next_state("CLEAN CCD")
 
-class Camera_Capture_State_Command(State_Command):
-    def __init__(self, camera, state):
-        super(Camera_Capture_State_Command,self).__init__(camera,state)
-    def execute(self):
-        self._object.capture()
-        self._state.set_next_state("CAPTURE")
+class Save_User_Idle_State_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.save_user()
+        self._object.set_next_state("IDLE")
+
+class Save_Sample_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.save_sample()
+        self._object.set_next_state("CLEAN CCD")
+
+class Back_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("BACK")
+
+class Exit_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("EXIT")
+
+class Clean_CCD_Ok_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("IDLE")
+
+class Camera_Capture_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("SAMPLE VIEW")
+        if not self._object.capture():
+            self._object.set_next_state(None)
+
