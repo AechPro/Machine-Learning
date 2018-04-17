@@ -21,10 +21,13 @@
 
 <D3Label@Label>:
     size_hint: .2, None
-    height: 35
+    height: 45
     color: 1, 1, 1, 1
     font_size: 20
     background_color: 1, 1, 1, 1
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
 
 <Clean_CCD_Screen@Display_Object>:
     Label:
@@ -61,21 +64,12 @@
 
 <Create_New_User_Screen@Display_Object>:
 
-    FloatLayout:
-        background_color: 0, 0.5, 0.5, 1
-
-        D3Button:
-            text: "Back"
-            pos_hint: {'x': 0.1, 'y':0.1}
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'left'
     D3Button:
         text: "Cancel"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
+            root.manager.transition.direction = 'left'
 
     D3Button:
         text: "Save User"
@@ -83,6 +77,26 @@
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
+
+    D3Label:
+        text: "Patient ID (######)"
+        pos_hint: {'x':0.1, 'y':0.8}
+
+    D3TextInput:
+        id: patient_id
+        pos_hint: {'x':0.4, 'y':0.8}
+        text: ""
+        multiline: False
+
+    D3Label:
+        text: "Patient Name (first_last)"
+        pos_hint: {'x':0.1, 'y':0.6}
+
+    D3TextInput:
+        id: patient_name
+        pos_hint: {'x':0.4, 'y':0.6}
+        text:""
+        multiline: False
 
 <Browse_Users_Screen@Display_Object>:
     FileChooserListView:

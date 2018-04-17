@@ -16,7 +16,6 @@ class MainApp(App):
     """
     def __init__(self):
         super(MainApp,self).__init__()
-        print("init")
         #Set up instance variables only.
         self.states = None
         self.manager = None
@@ -33,7 +32,6 @@ class MainApp(App):
         """
         if self.running and not self.system_failure:
             #Execute the current state.
-            print(self.current_state)
             self.execute_state()
 
             #Swap to the next state if available.

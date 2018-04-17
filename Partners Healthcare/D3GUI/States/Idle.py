@@ -10,7 +10,7 @@ class Idle_State(State.State):
     """
     def __init__(self, user, camera_object):
         self._camera = camera_object
-        super(Idle_State,self).__init__(user)
+        super(Idle_State, self).__init__(user)
 
     def execute(self):
         super(Idle_State, self).execute()

@@ -10,6 +10,7 @@ class User(object):
         self.file_path = "data/users/"
 
     def save(self):
+        print(self._ID, self._name)
         t = datetime.datetime.now()
         date_string = "{}{}{}{}{}{}".format(t.year, t.month, t.day, t.hour, t.minute, t.second)
         file_name = "{}_{}_{}.txt".format(self._ID, self._name, date_string)
@@ -26,7 +27,7 @@ class User(object):
             print("Unable to load user, invalid selection!")
             return False
 
-        file_name = file_path[0][file_path[0].rfind("\\")+1:]
+        file_name = file_path[0].split('/')[-1]
         print("Loading user from", file_name)
 
         dat = file_name.split("_")
