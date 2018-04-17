@@ -11,8 +11,25 @@
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
+
+<D3TextInput@TextInput>:
+    size_hint: .2, None
+    height: 35
+    color: 0, 0, 0, 1
+    font_size: 20
+    background_color: 1, 1, 1, 1
+
+<D3Label@Label>:
+    size_hint: .2, None
+    height: 35
+    color: 1, 1, 1, 1
+    font_size: 20
+    background_color: 1, 1, 1, 1
+
 <Start_Screen@Display_Object>:
     Label:
+        font_size: 140
+        bold: True
         text: "D3"
     D3Button:
         text: "New User"
@@ -29,10 +46,10 @@
             root.manager.transition.direction = 'left'
 
 
-
-
-
 <Create_New_User_Screen@Display_Object>:
+
+    patient_id: patient_id
+
     FloatLayout:
         background_color: 0, 0.5, 0.5, 1
 
@@ -49,6 +66,19 @@
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'right'
+
+        D3TextInput:
+            pos_hint: {'x':0.2, 'y': 0.7}
+            id: patient_id
+            text: ""
+            multiline: False
+            on_text: root.update()
+
+        D3Label:
+            pos_hint: {'x':0, 'y': 0.7}
+            text: "Patient ID"
+
+
 
 <Browse_Users_Screen@Display_Object>:
     FloatLayout:

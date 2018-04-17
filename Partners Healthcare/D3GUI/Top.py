@@ -6,12 +6,14 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from States import State as states
 import sys
-"""
-    The Main class will be the entry point for the program. This class will be responsible for the primary state machine
-    functionality, ensuring key system functionality, performing the screen draw calls for the current display panel,
-    and attempting system recovery when possible.
-"""
+
+
 class MainApp(App):
+    """
+        The Main class will be the entry point for the program. This class will be responsible for the primary state machine
+        functionality, ensuring key system functionality, performing the screen draw calls for the current display panel,
+        and attempting system recovery when possible.
+    """
     def __init__(self):
         super(MainApp,self).__init__()
         print("init")

@@ -1,6 +1,7 @@
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.app import App
 import Commands.Command as coms
+from kivy.properties import StringProperty, ObjectProperty
 """
     The Display Object class holds a list of command objects to activate on a button press, and maps user input
     to the appropriate command object.
@@ -47,7 +48,11 @@ class Browse_Users_Screen(Display_Object):
     pass
 
 class Create_New_User_Screen(Display_Object):
-    pass
+
+    patient_id = ObjectProperty(None)
+
+    def update(self):
+        print(self.patient_id.text)
 
 class Idle_Screen(Display_Object):
     pass
