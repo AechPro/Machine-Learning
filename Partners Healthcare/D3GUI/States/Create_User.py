@@ -1,6 +1,8 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+
+
 class Create_New_User_State(State.State):
     def execute(self):
         super(Create_New_User_State, self).execute()

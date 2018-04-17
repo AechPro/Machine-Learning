@@ -1,6 +1,8 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+
+
 class Sample_View_State(State.State):
     def execute(self):
         super(Sample_View_State, self).execute()

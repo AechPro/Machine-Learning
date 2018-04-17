@@ -1,6 +1,8 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+
+
 class Idle_State(State.State):
     """
         The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping

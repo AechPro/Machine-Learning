@@ -3,7 +3,7 @@
     and the functions each state must implement.
 """
 class State(object):
-    def __init__(self,user):
+    def __init__(self, user):
         self._current_user = user
         self._file_paths = []
         self._commands = []
@@ -14,21 +14,33 @@ class State(object):
         self._init_commands()
         self._build_display()
 
-    #This function should execute everything this state will need to do each cycle.
     def execute(self):
+        """
+        This function should execute everything this state will need to do each cycle.
+        :return: void
+        """
         self._next_state = None
 
-    #This function should fill the _file_paths list with every static file path that will ever be needed by this object.
     def _init_paths(self):
+        """
+        This function should fill the _file_paths list with every static file path that will ever be needed by this object.
+        :return: void
+        """
         raise NotImplementedError
 
-    #This function should look into the _file_paths list for any necessary textures or data files for building the
-    #display object contained by this State and load/configure the display object.
     def _build_display(self):
+        """
+        This function should look into the _file_paths list for any necessary textures or data files for building the
+        display object contained by this State and load/configure the display object.
+        :return: void
+        """
         raise NotImplementedError
 
-    #This function should fill the _commands list with any commands that will be exclusive to this state.
     def _init_commands(self):
+        """
+        This function should fill the _commands list with any commands that will be exclusive to this state.
+        :return: void
+        """
         raise NotImplementedError
 
 
@@ -48,6 +60,11 @@ class State(object):
     def set_next_state(self,state):
         self._next_state = state
 
-    #This makes a State object callable with the same effect as State.execute().
     def __call__(self, *args, **kwargs):
+        """
+        This makes a State object callable with the same effect as State.execute().
+        :param args: ...
+        :param kwargs: ...
+        :return: void
+        """
         self.execute()

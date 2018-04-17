@@ -33,6 +33,7 @@ class MainApp(App):
         """
         if self.running and not self.system_failure:
             #Execute the current state.
+            print(self.current_state)
             self.execute_state()
 
             #Swap to the next state if available.
@@ -85,8 +86,11 @@ class MainApp(App):
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
 
-    #This function will be responsible for checking all critical systems and determining if a failure has happened.
     def ping(self):
+        """
+        This function will be responsible for checking all critical systems and determining if a failure has happened.
+        :return: void
+        """
         #Ping all of our hardware.
         #Ping all of our scripts.
         #Perform other necessary actions to ensure smooth running.
@@ -110,8 +114,11 @@ class MainApp(App):
     def start(self):
         Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
 
-    #This function is used to close our app if it is running and exit the application.
     def exit(self):
+        """
+        This function is used to close our app if it is running and exit the application.
+        :return: void
+        """
         print("Shutting down...")
         if App.get_running_app() is not None:
             App.get_running_app().stop()

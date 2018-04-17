@@ -54,11 +54,7 @@ class Browse_Users_Screen(Display_Object):
     pass
 
 class Create_New_User_Screen(Display_Object):
-
-    patient_id = ObjectProperty(None)
-
-    def update(self):
-        print(self.patient_id.text)
+    pass
 
 class Idle_Screen(Display_Object):
     pass
