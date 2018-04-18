@@ -1,6 +1,7 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+from kivy.uix.popup import Popup
 import time
 import os
 
@@ -21,12 +22,12 @@ class Idle_State(State.State):
         '''
         camera = self._display.ids['camera']
         timestr = time.strftime("%Y%m%d_%H%M%S")
-        filename = 'TEMP_'+self._current_user._ID+".png"
-        path = '\data\img\\'
+        filename = 'TEMP_'+str(self._current_user._ID)+".png"
+        path = '/data/img/'
         camera.export_to_png(filename)
-        #os.rename(filename, path+filename) this doesn't work because the .png file is not placed fast enough for it to be there when this is executed
-        # doing export_to_png(path+filename) also doesn't work for some reason
+        self._display.add_data("Temp Image", filename)
         print("Captured")
+        print(self._display.get_data("Temp Image"))
         return True
 
     def save_user(self):
@@ -49,4 +50,4 @@ class Idle_State(State.State):
                           "SAVE\nUSER": save_command}
 
     def _build_display(self):
-        self._display = displays.Idle_Screen(self._commands,name="Idle_Screen")
+        self._display = displays.Idle_Screen(self._commands, name="Idle_Screen")

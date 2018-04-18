@@ -29,6 +29,9 @@
     halign: 'left'
     valign: 'middle'
 
+<D3Image@AsyncImage>:
+    allow_stretch:True
+
 <Clean_CCD_Screen@Display_Object>:
     Label:
         text: "CLEAN CCD"
@@ -118,6 +121,10 @@
             root.manager.transition.direction = 'left'
 
 <Sample_View_Screen@Display_Object>:
+
+    D3Image:
+        source: "TEMP_11111.png"
+
     D3Button:
         text: "Retry"
         pos_hint: {'x': 0.1, 'y':0.1}

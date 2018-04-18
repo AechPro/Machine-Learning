@@ -1,6 +1,7 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.app import App
+from kivy.properties import DictProperty
 import Commands.Command as coms
 from kivy.properties import StringProperty, ObjectProperty
 """
@@ -9,12 +10,12 @@ from kivy.properties import StringProperty, ObjectProperty
 """
 
 class Display_Object(Screen):
-    def __init__(self,commands, name=None):
+    _data = DictProperty(None)
+    def __init__(self, commands, name=None):
         super(Display_Object, self).__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
-        self._data = None
 
 
     def button_press(self, button_text, data=None):
@@ -31,8 +32,11 @@ class Display_Object(Screen):
             print("COULD NOT RECOGNIZE COMMAND "+button_text+"\n"
                   "DID YOU FORGET TO ADD THAT COMMAND TO THIS DISPLAY OBJECT?")
 
-    def pass_data(self,data):
-        self._data = data
+    def add_data(self, key, value):
+        self._data[key] = value
+
+    def get_data(self, key):
+        return self._data.get(key, None)
 
     #ACCESSORS & MUTATORS
     def get_name(self):
@@ -44,7 +48,7 @@ class Display_Object(Screen):
     def set_name(self,new_name):
         self._name = new_name
 
-    def set_background(self,new_background):
+    def set_background(self, new_background):
         self._background = new_background.copy()
 
 
@@ -63,7 +67,9 @@ class Idle_Screen(Display_Object):
     pass
 
 class Sample_View_Screen(Display_Object):
-    pass
+    def __init__(self, commands, name=None):
+        super(Sample_View_Screen, self).__init__(commands, name=name)
+        self._data = {}
 
 class Clean_CCD_Screen(Display_Object):
     pass
