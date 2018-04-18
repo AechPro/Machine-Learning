@@ -49,7 +49,7 @@ class Save_User_Idle_State_Button_Command(Command):
 class Save_Sample_Button_Command(Command):
     def execute(self,data=None):
         self._object.save_sample()
-        self._object.set_next_state("CLEAN CCD")
+        self._object.set_next_state("CONTINUE")
 
 class Back_Button_Command(Command):
     def execute(self,data=None):
@@ -68,4 +68,12 @@ class Camera_Capture_Command(Command):
         self._object.set_next_state("SAMPLE VIEW")
         if not self._object.capture():
             self._object.set_next_state(None)
+
+class Continue_With_Same_User_Command(Command):
+    def execute(self, data=None):
+        self._object.set_next_state("CLEAN CCD")
+
+class Continue_With_Different_User_Command(Command):
+    def execute(self, data=None):
+        self._object.set_next_state("CHANGE USER")
 

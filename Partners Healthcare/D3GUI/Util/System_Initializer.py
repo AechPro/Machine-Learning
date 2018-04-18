@@ -1,5 +1,5 @@
 from kivy.uix.screenmanager import ScreenManager
-from States import Change_User, Browse_Users, Create_User, Idle, Sample_View
+from States import Change_User, Browse_Users, Create_User, Idle, Sample_View, Continue
 from States import Clean_CCD
 from Users import User
 import os
@@ -20,9 +20,10 @@ def init():
     idle_state = Idle.Idle_State(user)
     sample_view_state = Sample_View.Sample_View_State(user)
     clean_ccd_state = Clean_CCD.Clean_CCD_State(user)
+    continue_state = Continue.Continue_State(user)
 
     state_dict = {"BROWSE USERS": browse_users_state, "NEW USER": create_new_user_state,
-                  "IDLE": idle_state, "CLEAN CCD": clean_ccd_state}
+                  "IDLE": idle_state, "CLEAN CCD": clean_ccd_state, "CONTINUE": continue_state}
 
 
     #Set up our Kivy screen manager.

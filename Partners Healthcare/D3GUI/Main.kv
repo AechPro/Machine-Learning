@@ -123,7 +123,7 @@
 <Sample_View_Screen@Display_Object>:
 
     D3Image:
-        source: "TEMP_11111.png"
+        source: "sample.png"
 
     D3Button:
         text: "Retry"
@@ -229,3 +229,19 @@
             text: "util10"
             size_hint: 0.08,0.075
             font_size: 16
+
+<Continue_Screen@Display_Object>:
+    D3Button:
+        size_hint: .45, .3
+        pos_hint: {'x':0.025, 'y':.4}
+        text: "Continue With Same\nUser"
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
+    D3Button:
+        size_hint: .45, .3
+        pos_hint: {'x':0.525, 'y':.4}
+        text: "Continue With Different\nUser"
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'

@@ -73,3 +73,6 @@ class Sample_View_Screen(Display_Object):
 
 class Clean_CCD_Screen(Display_Object):
     pass
+
+class Continue_Screen(Display_Object):
+    pass
