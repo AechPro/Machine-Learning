@@ -2,7 +2,6 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 
-
 class Continue_State(State.State):
     def execute(self):
         super(Continue_State, self).execute()
@@ -18,4 +17,4 @@ class Continue_State(State.State):
                           "CONTINUE WITH DIFFERENT\nUSER": continue_different_user_command}
 
     def _build_display(self):
-        self._display = displays.Continue_Screen(self._commands, name="Continue Screen")
+        self._display = displays.Continue_Screen(self._commands, name="Continue_Screen")

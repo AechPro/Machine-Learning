@@ -26,17 +26,17 @@ class User(object):
         if len(file_path) == 0:
             print("Unable to load user, invalid selection!")
             return False
-
-        file_name = file_path[0].split('/')[-1]
-        print("Loading user from", file_name)
-
-        dat = file_name.split("_")
-        self._data = []
-        self._ID = dat[0]
-        self._name = ''.join([dat[1], '_', dat[2]])
-
-        with open(''.join([self.file_path, file_name])) as f:
-            lines = f.readlines()
-            self._data = [line for line in lines]
+        try:
+            file_name = file_path[0].split('/')[-1]
+            print("Loading user from", file_name)
+            dat = file_name.split("_")
+            self._data = []
+            self._ID = dat[0]
+            self._name = ''.join([dat[1], '_', dat[2]])
+            with open(''.join([self.file_path, file_name])) as f:
+                lines = f.readlines()
+                self._data = [line for line in lines]
+        except:
+            return False
         print("USER NAME:", self._name)
         return True
