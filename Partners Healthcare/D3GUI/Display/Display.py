@@ -37,11 +37,13 @@ class Display_Object(Screen):
     #ACCESSORS & MUTATORS
     def get_name(self):
         return self._name
+
     def get_background(self):
         return self._background
 
     def set_name(self,new_name):
         self._name = new_name
+
     def set_background(self,new_background):
         self._background = new_background.copy()
 

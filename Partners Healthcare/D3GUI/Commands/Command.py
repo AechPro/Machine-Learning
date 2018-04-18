@@ -64,7 +64,7 @@ class Clean_CCD_Ok_Button_Command(Command):
         self._object.set_next_state("IDLE")
 
 class Camera_Capture_Command(Command):
-    def execute(self,data=None):
+    def execute(self, data=None):
         self._object.set_next_state("SAMPLE VIEW")
         if not self._object.capture():
             self._object.set_next_state(None)

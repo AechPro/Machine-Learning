@@ -79,39 +79,29 @@
             root.manager.transition.direction = 'left'
 
     D3Label:
-        text: "Patient ID (######)"
+        text: "Patient Name"
         pos_hint: {'x':0.1, 'y':0.8}
 
     D3TextInput:
-        id: patient_id
+        id: patient_name
         pos_hint: {'x':0.4, 'y':0.8}
         text: ""
         multiline: False
 
     D3Label:
-        text: "Patient Name (first_last)"
+        text: "Comments"
         pos_hint: {'x':0.1, 'y':0.6}
 
     D3TextInput:
-        id: patient_name
+        id: patient_comments
         pos_hint: {'x':0.4, 'y':0.6}
         text:""
-        multiline: False
+        height:80
 
 <Browse_Users_Screen@Display_Object>:
     FileChooserListView:
         id: filechooser
         path: "data/users/"
-
-    D3Label:
-        text: "Patient Name (first_last)"
-        pos_hint: {'x':0.1, 'y':0.6}
-
-    D3TextInput:
-        id: patient_id
-        pos_hint: {'x':0.4, 'y':0.6}
-        text:""
-        multiline: False
 
     D3Button:
         text: "Cancel"

@@ -7,6 +7,7 @@ from Users import User
 class Browse_Users_State(State.State):
     def execute(self):
         super(Browse_Users_State, self).execute()
+
     def _init_paths(self):
         return
 
@@ -15,5 +16,6 @@ class Browse_Users_State(State.State):
         back_command = coms.Back_Button_Command(self)
         self._commands = {"SELECT": select_command,
                           "CANCEL": back_command}
+
     def _build_display(self):
         self._display = displays.Browse_Users_Screen(self._commands,name="Browse_Users_Screen")

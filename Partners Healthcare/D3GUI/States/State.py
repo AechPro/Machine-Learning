@@ -5,7 +5,7 @@
 class State(object):
     def __init__(self, user):
         self._current_user = user
-        self._file_paths = []
+        self._file_paths = {}
         self._commands = []
         self._display = None
         self._name = None

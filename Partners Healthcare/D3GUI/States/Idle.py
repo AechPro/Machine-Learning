@@ -2,6 +2,7 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 import time
+import os
 
 
 class Idle_State(State.State):
@@ -9,14 +10,9 @@ class Idle_State(State.State):
         The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping
         states based on user interaction.
     """
-    def __init__(self, user, camera_object):
-        self._camera = camera_object
-        super(Idle_State, self).__init__(user)
 
     def execute(self):
         super(Idle_State, self).execute()
-        if self._camera is not None:
-            self._camera.update_feed()
 
     def capture(self):
         '''
@@ -25,8 +21,13 @@ class Idle_State(State.State):
         '''
         camera = self._display.ids['camera']
         timestr = time.strftime("%Y%m%d_%H%M%S")
-        camera.export_to_png("IMG_{}.png".format(timestr))
+        filename = 'TEMP_'+self._current_user._ID+".png"
+        path = '\data\img\\'
+        camera.export_to_png(filename)
+        #os.rename(filename, path+filename) this doesn't work because the .png file is not placed fast enough for it to be there when this is executed
+        # doing export_to_png(path+filename) also doesn't work for some reason
         print("Captured")
+        return True
 
     def save_user(self):
         print("user saved")

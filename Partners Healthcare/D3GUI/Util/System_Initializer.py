@@ -17,7 +17,7 @@ def init():
     change_user_state = Change_User.Change_User_State(user)
     browse_users_state = Browse_Users.Browse_Users_State(user)
     create_new_user_state = Create_User.Create_New_User_State(user)
-    idle_state = Idle.Idle_State(user, None)
+    idle_state = Idle.Idle_State(user)
     sample_view_state = Sample_View.Sample_View_State(user)
     clean_ccd_state = Clean_CCD.Clean_CCD_State(user)
 
