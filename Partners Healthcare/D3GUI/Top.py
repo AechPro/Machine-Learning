@@ -24,6 +24,7 @@ class MainApp(App):
         self.current_state = "CHANGE USER"
         self.next_state = "CHANGE USER"
         self.running = True
+        self.clk = None
 
     def state_machine(self):
         """
@@ -110,16 +111,16 @@ class MainApp(App):
         return self.manager
 
     def start(self):
-        Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
+        self.clk = Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
 
-    def stop(self, *largs):
+    def on_stop(self, *largs):
+        """"""
         self.root_window.close()
         stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
         stupid_camera_object._camera.stop()
-        for state in self.states.items():
-            self.manager.remove_widget(state[1].get_display_panel())
-        return super(MainApp,self).stop(*largs)
-
+        if self.clk is not None:
+            self.clk.cancel()
+            self.clk = None
     def exit(self):
         """
         This function is used to close our app if it is running and exit the application.

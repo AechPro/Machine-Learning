@@ -1,7 +1,7 @@
 from kivy.uix.screenmanager import ScreenManager
-from States import Change_User, Browse_Users, Create_User, Idle, Sample_View, Continue
+from States import Change_Patient, Browse_Patients, Create_Patient, Idle, Sample_View, Continue
 from States import Clean_CCD
-from Users import User
+from Patients import Patient_Profile
 import os
 
 
@@ -12,11 +12,11 @@ def init():
     """
     setup_directory_structure()
 
-    user = User.User(123456, "jane_smith")
+    user = Patient_Profile.Patient(123456, "jane_smith")
 
-    change_user_state = Change_User.Change_User_State(user)
-    browse_users_state = Browse_Users.Browse_Users_State(user)
-    create_new_user_state = Create_User.Create_New_User_State(user)
+    change_user_state = Change_Patient.Change_Patient_State(user)
+    browse_users_state = Browse_Patients.Browse_Patients_State(user)
+    create_new_user_state = Create_Patient.Create_New_Patient_State(user)
     idle_state = Idle.Idle_State(user)
     sample_view_state = Sample_View.Sample_View_State(user)
     clean_ccd_state = Clean_CCD.Clean_CCD_State(user)
@@ -38,5 +38,5 @@ def init():
     return state_dict, sm
 
 def setup_directory_structure():
-    if not os.path.exists("data/users"):
-        os.makedirs("data/users")
+    if not os.path.exists("data/patients"):
+        os.makedirs("data/patients")

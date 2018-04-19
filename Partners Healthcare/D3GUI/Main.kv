@@ -45,27 +45,27 @@
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
 
-<Change_User_Screen@Display_Object>:
+<Change_Patient_Screen@Display_Object>:
     Label:
         font_size: 140
         bold: True
         text: "D3"
     D3Button:
-        text: "New User"
+        text: "New Patient"
         pos_hint: {'x': 0.1, 'y':0.1}
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'right'
 
     D3Button:
-        text: "Browse Users"
+        text: "Browse Patients"
         pos_hint: {'x':0.6, 'y':0.1}
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
 
 
-<Create_New_User_Screen@Display_Object>:
+<Create_New_Patient_Screen@Display_Object>:
 
     D3Button:
         text: "Cancel"
@@ -75,7 +75,7 @@
             root.manager.transition.direction = 'left'
 
     D3Button:
-        text: "Save User"
+        text: "Save Patient"
         pos_hint: {'x':0.6, 'y':0.1}
         on_press:
             root.button_press(self.text)
@@ -101,10 +101,10 @@
         text:""
         height:80
 
-<Browse_Users_Screen@Display_Object>:
+<Browse_Patients_Screen@Display_Object>:
     FileChooserListView:
         id: filechooser
-        path: "data/users/"
+        path: "data/patients/"
 
     D3Button:
         text: "Cancel"
@@ -149,13 +149,13 @@
             color: 1,0,1,1
         D3Button:
             size_hint: .2, .2
-            text: "Change\nUser"
+            text: "Change\nPatient"
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
         D3Button:
             size_hint: .2, .15
-            text: "Save\nUser"
+            text: "Save\nPatient"
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
@@ -164,13 +164,13 @@
         pos_hint:{'center_x':0.5,'center_y':0.5}
         color: 0,1,0,1
         font_size: 32
+
     Camera:
-        size_hint: .8, 0.85
+        size_hint: .8, .85
         pos_hint: {'x':0, 'y':.1}
         id: camera
-        resolution: (640, 480)
+        resolution: (640,480)
         play: True
-
     D3Button:
         text: "Exit"
         size_hint: .2, .1
@@ -234,14 +234,14 @@
     D3Button:
         size_hint: .45, .3
         pos_hint: {'x':0.025, 'y':.4}
-        text: "Continue With Same\nUser"
+        text: "Continue With Same\nPatient"
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
     D3Button:
         size_hint: .45, .3
         pos_hint: {'x':0.525, 'y':.4}
-        text: "Continue With Different\nUser"
+        text: "Continue With Different\nPatient"
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'

@@ -17,31 +17,31 @@ class Command(object):
         self.execute(data=data)
 
 
-class Browse_Users_Button_Command(Command):
+class Browse_Patients_Button_Command(Command):
     def execute(self,data=None):
         self._object.set_next_state("BROWSE USERS")
 
-class Change_User_Button_Command(Command):
+class Change_Patient_Button_Command(Command):
     def execute(self,data=None):
         self._object.set_next_state("CHANGE USER")
 
-class Create_New_User_Button_Command(Command):
+class Create_New_Patient_Button_Command(Command):
     def execute(self,data=None):
         self._object.set_next_state("NEW USER")
 
-class Select_User_Button_Command(Command):
+class Select_Patient_Button_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CLEAN CCD")
         if data is not None:
             if not self._object.get_user().load(data):
                 self._object.set_next_state("BROWSE USERS")
 
-class Save_User_Button_Command(Command):
+class Save_Patient_Button_Command(Command):
     def execute(self,data=None):
         self._object.save_user()
         self._object.set_next_state("CLEAN CCD")
 
-class Save_User_Idle_State_Button_Command(Command):
+class Save_Patient_Idle_State_Button_Command(Command):
     def execute(self,data=None):
         self._object.save_user()
         self._object.set_next_state("IDLE")
@@ -69,11 +69,11 @@ class Camera_Capture_Command(Command):
         if not self._object.capture():
             self._object.set_next_state(None)
 
-class Continue_With_Same_User_Command(Command):
+class Continue_With_Same_Patient_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CLEAN CCD")
 
-class Continue_With_Different_User_Command(Command):
+class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CHANGE USER")
 

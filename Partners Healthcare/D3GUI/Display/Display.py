@@ -53,14 +53,14 @@ class Display_Object(Screen):
 
 
 # Declare screens
-class Change_User_Screen(Display_Object):
+class Change_Patient_Screen(Display_Object):
     pass
 
-class Browse_Users_Screen(Display_Object):
+class Browse_Patients_Screen(Display_Object):
     pass
     #TODO: make sure to filter the user files shown live
 
-class Create_New_User_Screen(Display_Object):
+class Create_New_Patient_Screen(Display_Object):
     pass
 
 class Idle_Screen(Display_Object):
