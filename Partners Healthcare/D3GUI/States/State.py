@@ -3,8 +3,8 @@
     and the functions each state must implement.
 """
 class State(object):
-    def __init__(self, user):
-        self._current_user = user
+    def __init__(self, patient):
+        self._current_patient = patient
         self._file_paths = {}
         self._commands = []
         self._display = None
@@ -51,11 +51,11 @@ class State(object):
     def get_next_state(self):
         return self._next_state
 
-    def get_user(self):
-        return self._current_user
+    def get_patient(self):
+        return self._current_patient
 
-    def set_current_user(self,user):
-        self._current_user = user
+    def set_current_patient(self,patient):
+        self._current_patient = patient
 
     def set_next_state(self,state):
         self._next_state = state

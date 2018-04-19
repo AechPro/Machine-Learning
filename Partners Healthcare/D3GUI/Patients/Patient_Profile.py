@@ -22,6 +22,7 @@ class Patient(object):
                 f.write("{}\n".format(entry))
 
     def load(self, file_path):
+        print(file_path)
         """
         :param file_path: the file path returned by Kivy of the patient data to be loadaed.
         :return bool:
@@ -36,7 +37,7 @@ class Patient(object):
             elif "/" in name_data:
                 name_data = name_data.split("/")
             name_data = name_data[-1].split("_")
-            self.ID = name_data[-4]
+            self._ID = name_data[-4]
             self._name = ''.join([name_data[-3],'_',name_data[-2]])
             file_name = "{}_{}_{}_{}".format(name_data[-4],name_data[-3],name_data[-2],name_data[-1])
             print("Loading patient from", file_name)
@@ -47,4 +48,5 @@ class Patient(object):
         except:
             return False
         print("PATIENT NAME:", self._name)
+        print("PATIENT ID:", self._ID)
         return True

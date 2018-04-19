@@ -19,10 +19,10 @@ class MainApp(App):
         #Set up instance variables only.
         self.states = None
         self.manager = None
-        self.state_history = ["CHANGE USER"]
+        self.state_history = ["CHANGE PATIENT"]
         self.system_failure = False
-        self.current_state = "CHANGE USER"
-        self.next_state = "CHANGE USER"
+        self.current_state = "CHANGE PATIENT"
+        self.next_state = "CHANGE PATIENT"
         self.running = True
         self.clk = None
 

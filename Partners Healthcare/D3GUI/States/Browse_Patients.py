@@ -1,7 +1,6 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
-from Patients import Patient_Profile
 
 
 class Browse_Patients_State(State.State):
@@ -18,4 +17,4 @@ class Browse_Patients_State(State.State):
                           "CANCEL": back_command}
 
     def _build_display(self):
-        self._display = displays.Browse_Patients_Screen(self._commands,name="Browse_Patients_Screen")
+        self._display = displays.Browse_Patients_Screen(self._commands, name="Browse_Patient_Screen")

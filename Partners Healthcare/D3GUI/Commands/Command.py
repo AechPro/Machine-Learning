@@ -19,31 +19,31 @@ class Command(object):
 
 class Browse_Patients_Button_Command(Command):
     def execute(self,data=None):
-        self._object.set_next_state("BROWSE USERS")
+        self._object.set_next_state("BROWSE PATIENTS")
 
 class Change_Patient_Button_Command(Command):
     def execute(self,data=None):
-        self._object.set_next_state("CHANGE USER")
+        self._object.set_next_state("CHANGE PATIENTS")
 
 class Create_New_Patient_Button_Command(Command):
     def execute(self,data=None):
-        self._object.set_next_state("NEW USER")
+        self._object.set_next_state("NEW PATIENTS")
 
 class Select_Patient_Button_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CLEAN CCD")
         if data is not None:
-            if not self._object.get_user().load(data):
-                self._object.set_next_state("BROWSE USERS")
+            if not self._object.get_patient().load(data):
+                self._object.set_next_state("BROWSE PATIENTS")
 
 class Save_Patient_Button_Command(Command):
-    def execute(self,data=None):
-        self._object.save_user()
+    def execute(self, data=None):
+        self._object.save_patient()
         self._object.set_next_state("CLEAN CCD")
 
 class Save_Patient_Idle_State_Button_Command(Command):
     def execute(self,data=None):
-        self._object.save_user()
+        self._object.save_patient()
         self._object.set_next_state("IDLE")
 
 class Save_Sample_Button_Command(Command):
@@ -75,5 +75,5 @@ class Continue_With_Same_Patient_Command(Command):
 
 class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
-        self._object.set_next_state("CHANGE USER")
+        self._object.set_next_state("CHANGE PATIENTS")
 

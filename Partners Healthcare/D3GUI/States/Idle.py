@@ -23,19 +23,29 @@ class Idle_State(State.State):
         try:
             camera = self._display.ids['camera']
             timestr = time.strftime("%Y%m%d_%H%M%S")
-            filename = 'TEMP_'+str(self._current_user._ID)+".png"
+            filename = 'TEMP_'+str(self._current_patient._ID)+".png"
             path = '/data/img/'
             camera.export_to_png(filename)
             self._display.add_data("Temp Image", filename)
             print("Captured")
-            print(self._display.get_data("Temp Image"))
+            self.load_and_look(filename)
         except:
             return False
         return True
 
-    def save_user(self):
-        print("user saved")
-        self._current_user.save()
+    def load_and_look(self, filename):
+        found = False
+        while not found:
+            for paths, dirs, files in os.walk(os.getcwd()):
+                for file in files:
+                    if file == filename:
+                        found = True
+                        print("FOUND")
+        return
+
+    def save_patient(self):
+        print("patient saved")
+        self._current_patient.save()
 
     #Refer to superclass documentation.
     def _init_paths(self):
