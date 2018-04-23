@@ -34,7 +34,6 @@ class MainApp(App):
         if self.running and not self.system_failure:
             #Execute the current state.
             self.execute_state()
-
             #Swap to the next state if available.
             if self.next_state != None and self.next_state != self.current_state:
                 self.swap_states()
@@ -114,13 +113,14 @@ class MainApp(App):
         self.clk = Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
 
     def on_stop(self, *largs):
-        """"""
         self.root_window.close()
         stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
         stupid_camera_object._camera.stop()
+        stupid_camera_object._camera._device.release()
         if self.clk is not None:
             self.clk.cancel()
             self.clk = None
+
     def exit(self):
         """
         This function is used to close our app if it is running and exit the application.

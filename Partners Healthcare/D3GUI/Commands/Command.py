@@ -23,11 +23,11 @@ class Browse_Patients_Button_Command(Command):
 
 class Change_Patient_Button_Command(Command):
     def execute(self,data=None):
-        self._object.set_next_state("CHANGE PATIENTS")
+        self._object.set_next_state("CHANGE PATIENT")
 
 class Create_New_Patient_Button_Command(Command):
     def execute(self,data=None):
-        self._object.set_next_state("NEW PATIENTS")
+        self._object.set_next_state("NEW PATIENT")
 
 class Select_Patient_Button_Command(Command):
     def execute(self, data=None):
@@ -75,5 +75,5 @@ class Continue_With_Same_Patient_Command(Command):
 
 class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
-        self._object.set_next_state("CHANGE PATIENTS")
+        self._object.set_next_state("CHANGE PATIENT")
 

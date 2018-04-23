@@ -16,6 +16,7 @@ class Display_Object(Screen):
         self._name = name
         self._background = None
         self._commands = commands
+        self._data = {}
 
 
     def button_press(self, button_text, data=None):
@@ -36,6 +37,7 @@ class Display_Object(Screen):
         self._data[key] = value
 
     def get_data(self, key):
+        print("RETURNING",self._data.get(key),"FROM",key)
         return self._data.get(key, None)
 
     #ACCESSORS & MUTATORS
@@ -69,7 +71,8 @@ class Idle_Screen(Display_Object):
 class Sample_View_Screen(Display_Object):
     def __init__(self, commands, name=None):
         super(Sample_View_Screen, self).__init__(commands, name=name)
-        self._data = {}
+        self._data = {"Temp Image":"TEMP_1234567.png"}
+        print("DATA: ",self._data)
 
 class Clean_CCD_Screen(Display_Object):
     pass

@@ -6,6 +6,7 @@ from Commands import Command as coms
 class Sample_View_State(State.State):
     def execute(self):
         super(Sample_View_State, self).execute()
+        self._display.ids["sample_image"].source = (self._display.get_data("Temp Image"))
 
     def save_sample(self):
         print("sample saved")
