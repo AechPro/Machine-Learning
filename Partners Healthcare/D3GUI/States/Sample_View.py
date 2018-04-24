@@ -7,18 +7,18 @@ import os
 class Sample_View_State(State.State):
     def execute(self):
         super(Sample_View_State, self).execute()
-        self._display.ids['temp_image'].source = 'TEMP_'+str(self._current_patient._ID)+".png"
+        self._display.ids['sample_image'].source = 'TEMP_'+str(self._current_patient._ID)+".png"
 
     def delete_temp_image(self):
         try:
-            os.remove(self._display.ids['temp_image'].source)
+            os.remove(self._display.ids['sample_image'].source)
         except OSError as oe:
             #log stuff
             print(oe)
 
     def save_sample(self):
         try:
-            os.rename(self._display.ids['temp_image'].source, 'data/img/'+self._display.ids['temp_image'].source)
+            os.rename(self._display.ids['sample_image'].source, 'data/img/'+self._display.ids['sample_image'].source)
             print("sample saved")
         except OSError as oe:
             #log stuff

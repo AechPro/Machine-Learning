@@ -1,5 +1,6 @@
 #:kivy 1.0.9
-
+#:import kivy kivy
+#:import win kivy.core.window
 <D3Button@Button>:
     size_hint: .3, .2
     color: 0, 0, 0, 1
@@ -29,8 +30,9 @@
     halign: 'left'
     valign: 'middle'
 
-<D3Image@AsyncImage>:
+<D3Image@Image>:
     allow_stretch:True
+    size: 400, 400
 
 <Clean_CCD_Screen@Display_Object>:
     Label:
@@ -122,8 +124,8 @@
 
 <Sample_View_Screen@Display_Object>:
     D3Image:
-        id: temp_image
-        source: "hi"
+        id: sample_image
+        source:
 
     D3Button:
         text: "Retry"

@@ -39,6 +39,7 @@ class Display_Object(Screen):
         self._data[key] = value
 
     def get_data(self, key):
+        print("RETURNING",self._data.get(key),"FROM",key)
         return self._data.get(key, None)
 
     #ACCESSORS & MUTATORS
