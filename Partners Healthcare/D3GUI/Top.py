@@ -19,10 +19,10 @@ class MainApp(App):
         #Set up instance variables only.
         self.states = None
         self.manager = None
-        self.state_history = ["CHANGE PATIENT"]
+        self.state_history = ["LOGIN"]
         self.system_failure = False
-        self.current_state = "CHANGE PATIENT"
-        self.next_state = "CHANGE PATIENT"
+        self.current_state = "LOGIN"
+        self.next_state = "LOGIN"
         self.running = True
         self.clk = None
 
@@ -80,6 +80,8 @@ class MainApp(App):
         #Add our new state to the global history of states.
         self.state_history.append(self.current_state)
 
+        print("CHANGE PATIENT" in self.states)
+        print(self.current_state)
         #Set the content pane of our screen manager to the screen associated with our new state.
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 

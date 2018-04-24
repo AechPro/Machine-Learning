@@ -78,3 +78,6 @@ class Clean_CCD_Screen(Display_Object):
 
 class Continue_Screen(Display_Object):
     pass
+
+class Login_Screen(Display_Object):
+    pass

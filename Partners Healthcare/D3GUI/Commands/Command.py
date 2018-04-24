@@ -82,3 +82,10 @@ class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CHANGE PATIENT")
 
+class Login_Command(Command):
+    def execute(self, data=None):
+        self._object.set_next_state("CHANGE_PATIENT")
+        if not self._object.validate_user():
+            print("failed")
+            self._object.set_next_state(None)
+

@@ -34,6 +34,33 @@
     allow_stretch:True
     size: 400, 400
 
+
+<Login_Screen@Display_Object>:
+    Label:
+        font_size: 140
+        bold: True
+        text: "D3"
+
+    D3TextInput:
+        id: username
+        pos_hint: {'x':0.1, 'y':0.3}
+        hint_text: "Username"
+        multiline: False
+
+    D3TextInput:
+        id: password
+        pos_hint: {'x':0.4, 'y':0.3}
+        hint_text: "Password"
+        multiline: False
+
+    D3Button:
+        text: "LOGIN"
+        pos_hint: {'x': 0.7, 'y':0.3}
+        size_hint: 0.2, 0.1
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
+
 <Clean_CCD_Screen@Display_Object>:
     Label:
         text: "CLEAN CCD"
