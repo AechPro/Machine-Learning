@@ -12,27 +12,27 @@ def init():
     """
     setup_directory_structure()
 
-    user = Patient_Profile.Patient(123456, "jane_smith")
+    patient = Patient_Profile.Patient(123456, "jane_smith")
 
-    change_user_state = Change_Patient.Change_Patient_State(user)
-    browse_users_state = Browse_Patients.Browse_Patients_State(user)
-    create_new_user_state = Create_Patient.Create_New_Patient_State(user)
-    idle_state = Idle.Idle_State(user)
-    sample_view_state = Sample_View.Sample_View_State(user)
-    clean_ccd_state = Clean_CCD.Clean_CCD_State(user)
-    continue_state = Continue.Continue_State(user)
+    change_patient_state = Change_Patient.Change_Patient_State(patient)
+    browse_patient_state = Browse_Patients.Browse_Patients_State(patient)
+    create_new_patient_state = Create_Patient.Create_New_Patient_State(patient)
+    idle_state = Idle.Idle_State(patient)
+    sample_view_state = Sample_View.Sample_View_State(patient)
+    clean_ccd_state = Clean_CCD.Clean_CCD_State(patient)
+    continue_state = Continue.Continue_State(patient)
 
-    state_dict = {"BROWSE USERS": browse_users_state, "NEW USER": create_new_user_state,
+    state_dict = {"BROWSE PATIENTS": browse_patient_state, "NEW PATIENT": create_new_patient_state,
                   "IDLE": idle_state, "CLEAN CCD": clean_ccd_state, "CONTINUE": continue_state}
 
 
     #Set up our Kivy screen manager.
     sm = ScreenManager()
-    sm.add_widget(change_user_state.get_display_panel())
+    sm.add_widget(change_patient_state.get_display_panel())
     sm.add_widget(sample_view_state.get_display_panel())
     for state in state_dict.items():
         sm.add_widget(state[1].get_display_panel())
-    state_dict["CHANGE USER"] = change_user_state
+    state_dict["CHANGE PATIENT"] = change_patient_state
     state_dict["SAMPLE VIEW"] = sample_view_state
 
     return state_dict, sm

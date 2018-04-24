@@ -26,22 +26,10 @@ class Idle_State(State.State):
             filename = 'TEMP_'+str(self._current_patient._ID)+".png"
             path = '/data/img/'
             camera.export_to_png(filename)
-            self._display.add_data("Temp Image", filename)
             print("Captured")
-            self.load_and_look(filename)
         except:
             return False
         return True
-
-    def load_and_look(self, filename):
-        found = False
-        while not found:
-            for paths, dirs, files in os.walk(os.getcwd()):
-                for file in files:
-                    if file == filename:
-                        found = True
-                        print("FOUND")
-        return
 
     def save_patient(self):
         print("patient saved")

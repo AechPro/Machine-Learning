@@ -9,13 +9,16 @@ from kivy.properties import StringProperty, ObjectProperty
     to the appropriate command object.
 """
 
+
 class Display_Object(Screen):
     _data = DictProperty(None)
+
     def __init__(self, commands, name=None):
         super(Display_Object, self).__init__(name=name)
         self._name = name
         self._background = None
         self._commands = commands
+        self._data = {}
 
 
     def button_press(self, button_text, data=None):
@@ -67,9 +70,7 @@ class Idle_Screen(Display_Object):
     pass
 
 class Sample_View_Screen(Display_Object):
-    def __init__(self, commands, name=None):
-        super(Sample_View_Screen, self).__init__(commands, name=name)
-        self._data = {}
+    pass
 
 class Clean_CCD_Screen(Display_Object):
     pass

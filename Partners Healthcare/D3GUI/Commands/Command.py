@@ -55,6 +55,11 @@ class Back_Button_Command(Command):
     def execute(self,data=None):
         self._object.set_next_state("BACK")
 
+class Retry_Button_Command(Command):
+    def execute(self, data=None):
+        self._object.delete_temp_image()
+        self._object.set_next_state("IDLE")
+
 class Exit_Button_Command(Command):
     def execute(self,data=None):
         self._object.set_next_state("EXIT")

@@ -121,6 +121,7 @@ class MainApp(App):
         if self.clk is not None:
             self.clk.cancel()
             self.clk = None
+
     def exit(self):
         """
         This function is used to close our app if it is running and exit the application.
