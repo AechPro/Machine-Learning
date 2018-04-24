@@ -2,6 +2,7 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 import os
+import time
 
 
 class Sample_View_State(State.State):
@@ -18,7 +19,7 @@ class Sample_View_State(State.State):
 
     def save_sample(self):
         try:
-            os.rename(self._display.ids['sample_image'].source, 'data/img/'+self._display.ids['sample_image'].source)
+            os.rename(self._display.ids['sample_image'].source, 'data/img/'+str(self._current_patient._ID) + "_"+time.strftime("%Y.%m.%d_%H.%M.%S")+".png")
             print("sample saved")
         except OSError as oe:
             #log stuff

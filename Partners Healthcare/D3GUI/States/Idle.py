@@ -22,7 +22,6 @@ class Idle_State(State.State):
         '''
         try:
             camera = self._display.ids['camera']
-            timestr = time.strftime("%Y%m%d_%H%M%S")
             filename = 'TEMP_'+str(self._current_patient._ID)+".png"
             path = '/data/img/'
             camera.export_to_png(filename)
