@@ -81,6 +81,9 @@ class Continue_With_Same_Patient_Command(Command):
 class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CHANGE PATIENT")
+class Toggle_LED_Button_Command(Command):
+    def execute(self, data=None):
+        self._object.toggle_LED()
 
 class Login_Command(Command):
     def execute(self, data=None):
