@@ -11,7 +11,7 @@ class Create_New_Patient_State(State.State):
     def execute(self):
         super(Create_New_Patient_State, self).execute()
 
-    def save_user(self):
+    def save_patient(self):
         #TODO: validate input
         patient_id = randint(100000, 999999)
         self._current_user = Patient_Profile.Patient(patient_id, self._display.ids['patient_name'].text)

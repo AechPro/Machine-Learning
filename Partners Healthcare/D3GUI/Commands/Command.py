@@ -88,4 +88,3 @@ class Login_Command(Command):
         if not self._object.validate_user():
             print("failed")
             self._object.set_next_state(None)
-

@@ -6,6 +6,10 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from States import State as states
 import sys
+import os
+import psutil
+process = psutil.Process(os.getpid())
+
 
 
 class MainApp(App):
@@ -16,14 +20,17 @@ class MainApp(App):
     """
     def __init__(self):
         super(MainApp,self).__init__()
+        print("MAIN INIT")
+        
         #Set up instance variables only.
+        self.current_state = "IDLE"
         self.states = None
         self.manager = None
-        self.state_history = ["LOGIN"]
+        self.state_history = [self.current_state]
         self.system_failure = False
-        self.current_state = "LOGIN"
-        self.next_state = "LOGIN"
+        self.next_state = self.current_state
         self.running = True
+        self.fps = 60.
         self.clk = None
 
     def state_machine(self):
@@ -108,17 +115,22 @@ class MainApp(App):
 
     #This function is the entry point for Kivy, I think.
     def build(self):
-        self.states, self.manager = sys_init.init()
+        self.states, self.manager = sys_init.init(self.current_state)
+        
         return self.manager
 
     def start(self):
-        self.clk = Clock.schedule_interval(lambda f: self.state_machine(), 1. / 60.)
-
+        self.clk = Clock.schedule_interval(lambda f: self.state_machine(), 1. / self.fps)
+        
     def on_stop(self, *largs):
         self.root_window.close()
+
         stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
         stupid_camera_object._camera.stop()
-        stupid_camera_object._camera._device.release()
+        try:
+            stupid_camera_object._camera._device.release()
+        except:
+            print("Camera device not detected. Release successful.")
         if self.clk is not None:
             self.clk.cancel()
             self.clk = None
@@ -135,7 +147,15 @@ class MainApp(App):
 
 
 if __name__ == "__main__":
+    print("BEFORE APP START")
+    
     app = MainApp()
+    print("AFTER APP INSTANTIATION")
+    
     app.start()
+    print("AFTER APP START")
+    
     app.run()
+    print("AFTER APP RUN")
+    
     #app.exit()

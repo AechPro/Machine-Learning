@@ -1,6 +1,7 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+from Util import D3_Camera as cam
 from kivy.uix.popup import Popup
 import time
 import os
@@ -11,6 +12,9 @@ class Idle_State(State.State):
         The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping
         states based on user interaction.
     """
+    def __init__(self,patient):
+        super(Idle_State,self).__init__(patient)
+        self._camera = None
 
     def execute(self):
         super(Idle_State, self).execute()
@@ -33,6 +37,9 @@ class Idle_State(State.State):
     def save_patient(self):
         print("patient saved")
         self._current_patient.save()
+
+    def set_camera(self,camera):
+        self._camera = camera
 
     #Refer to superclass documentation.
     def _init_paths(self):
