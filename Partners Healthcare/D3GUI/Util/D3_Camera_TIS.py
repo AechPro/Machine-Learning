@@ -113,8 +113,25 @@ class D3_Camera(CameraBase):
         output.connect("new-sample", self.camera_callback)
         self._pipeline.set_state(Gst.State.PLAYING)
         self._loop = GLib.MainLoop()
-        # this stops the self._pipeline and frees all resources
 
+        """tbin = source
+        if tbin is None:
+            print("No property source available.")
+            return
+        else:
+            # use introspection to get a property list
+            prop_names = tbin.get_tcam_property_names()
+            # we use this list to iterate all properties and create a widget list to allow
+            # user interaction
+            # each property is contained in a vbox
+            for name in prop_names:
+                print("name:",name)
+                prop_type = tbin.get_tcam_property_type(name)
+                print("type:",prop_type)
+                args = tbin.get_tcam_property(name)
+                print("args:")
+                for arg in args:
+                    print(arg)"""
     def camera_callback(self, sink):
         if self.stopped:
             return False
@@ -133,8 +150,13 @@ class D3_Camera(CameraBase):
 
                 img = img_array.reshape((height, width))
                 img = cv2.cvtColor(img,cv2.COLOR_GRAY2RGB)
-                self._buffer = img
+                self._frame_buffer[self._frame_ptr] = img
+                self._frame_ptr+=1
 
+                if self._frame_ptr >= self._num_frames_to_buffer:
+                    self._frame_ptr = 0
+
+                self._buffer = self._frame_buffer[-1].tostring()
                 Clock.schedule_once(self._update)
             finally:
                 buf.unmap(mapinfo)
@@ -151,10 +173,10 @@ class D3_Camera(CameraBase):
             self.dispatch('on_load')
         try:
             if self._buffer is not None:
-                self._buffer = self._buffer.tostring()
                 self._copy_to_gpu()
         except:
             Logger.exception('Error attempting to copy image buffer to GPU!')
+
     def _copy_to_gpu(self):
         '''Copy the the buffer into the texture'''
         if self._texture is None:
@@ -165,8 +187,7 @@ class D3_Camera(CameraBase):
         self.dispatch('on_texture')
 
     def start(self):
-        t = Thread(name='video_thread',
-                             target=self._loop.run)
+        t = Thread(name='video_thread', target=self._loop.run)
         t.start()
         super(D3_Camera, self).start()
 
@@ -174,3 +195,6 @@ class D3_Camera(CameraBase):
         self._loop.quit()
         self._pipeline.set_state(Gst.State.NULL)
         super(D3_Camera, self).stop()
+
+    def get_current_frame(self):
+        return self._frame_buffer[-1]

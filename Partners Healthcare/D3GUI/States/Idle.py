@@ -1,9 +1,9 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 
-LED_PIN = 19 # Broadcom Pin 4
+#LED_PIN = 19 # Broadcom Pin 4
 
 class Idle_State(State.State):
     """
@@ -12,14 +12,23 @@ class Idle_State(State.State):
     """
     def __init__(self,patient):
         super(Idle_State,self).__init__(patient)
-        self._LED_state = GPIO.HIGH
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(LED_PIN, GPIO.OUT)
-        GPIO.output(LED_PIN,self._LED_state)
+        #self._LED_state = GPIO.HIGH
+        #GPIO.setmode(GPIO.BCM)
+        #GPIO.setup(LED_PIN, GPIO.OUT)
+        #GPIO.output(LED_PIN,self._LED_state)
+        self._hist_update_tick = 0
 
     def execute(self):
         super(Idle_State, self).execute()
-
+        try:
+            if self._hist_update_tick >= 60:
+                self._hist_update_tick = 0
+                frame = self._display.ids['camera'].get_current_frame()
+                if frame is not None:
+                    self._display.ids['hist'].set_data(frame)
+            self._hist_update_tick+=1
+        except:
+            print("Unable to update histogram!")
     def toggle_LED(self):
         if self._LED_state == GPIO.LOW:
             self._LED_state = GPIO.HIGH
@@ -35,8 +44,7 @@ class Idle_State(State.State):
         try:
             camera = self._display.ids['camera']
             filename = 'TEMP_'+str(self._current_patient._ID)+".png"
-            path = '/data/img/'
-            camera.export_to_png(filename)
+            camera.capture(filename)
             print("Captured")
         except:
             return False

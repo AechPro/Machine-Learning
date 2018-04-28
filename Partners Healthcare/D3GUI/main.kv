@@ -40,24 +40,25 @@
         font_size: 140
         bold: True
         text: "D3"
+        pos_hint: {'x':0.0,'y':0.2}
 
     D3TextInput:
         id: username
-        pos_hint: {'x':0.1, 'y':0.3}
-        hint_text: "Username"
+        pos_hint: {'x':0.23, 'y':0.4}
+        hint_text: "User ID"
         multiline: False
 
     D3TextInput:
         id: password
-        pos_hint: {'x':0.4, 'y':0.3}
+        pos_hint: {'x':0.23, 'y':0.3}
         hint_text: "Password"
         password: True
         multiline: False
 
     D3Button:
         text: "LOGIN"
-        pos_hint: {'x': 0.7, 'y':0.3}
-        size_hint: 0.2, 0.1
+        pos_hint: {'x': 0.6, 'y':0.3}
+        size_hint: 0.15, 0.15
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
@@ -172,41 +173,32 @@
 <Idle_Screen@Display_Object>:
     StackLayout:
         orientation: 'tb-rl'
-        Label:
-            text: "Image\nPreview"
-            size_hint: .2, .15
-            pos_hint: {'right':1, 'top':1}
-            color: 1,0,1,1
-        D3Button:
-            size_hint: .2, .2
-            text: "Change\nPatient"
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'left'
-        D3Button:
-            size_hint: .2, .15
-            text: "Save\nPatient"
-            on_press:
-                root.button_press(self.text)
-                root.manager.transition.direction = 'left'
+        pos_hint:{"x":0,"y":-0.1}
         D3Button:
             size_hint: .2, .15
             text: "Toggle\nLED"
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
-    Label:
-        text: "Camera\nFeed"
-        pos_hint:{'center_x':0.5,'center_y':0.5}
-        color: 0,1,0,1
-        font_size: 32
-
-    Camera_Canvas:
-        size_hint: .8, .85
-        pos_hint: {'x':0, 'y':.1}
-        id: camera
-        resolution: (640, 480)
-        play: True
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: .2,.1
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, .5
+                Rectangle:
+                    # self here refers to the widget i.e BoxLayout
+                    pos: self.pos
+                    size: self.size
+            D3Button:
+                text: "Reference\nImage"
+                font_size: 16
+                size_hint: 1.0, 1.0
+                on_press:
+                    root.button_press(self.text)
+                    root.manager.transition.direction = 'left'
+            CheckBox:
+                group:"1"
 
     D3Button:
         text: "Exit"

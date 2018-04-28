@@ -7,10 +7,6 @@ from kivy.uix.screenmanager import ScreenManager
 from States import State as states
 import sys
 import os
-import psutil
-process = psutil.Process(os.getpid())
-
-
 
 class MainApp(App):
     """
@@ -125,9 +121,9 @@ class MainApp(App):
     def on_stop(self, *largs):
         self.root_window.close()
 
-        stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
-        stupid_camera_object._camera.stop()
         try:
+            stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
+            stupid_camera_object._camera.stop()
             stupid_camera_object._camera._device.release()
         except:
             print("Camera device not detected. Release successful.")

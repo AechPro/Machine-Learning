@@ -2,7 +2,6 @@ from kivy.uix.screenmanager import ScreenManager
 from States import Change_Patient, Browse_Patients, Create_Patient, Idle, Sample_View, Continue, Login
 from States import Clean_CCD
 from Patients import Patient_Profile
-from Util import D3_Camera_Image_Canvas as cam
 import os
 
 
@@ -38,5 +37,10 @@ def init(first_state):
     return state_dict, sm
 
 def setup_directory_structure():
-    if not os.path.exists("data/patients"):
-        os.makedirs("data/patients")
+    dirs = ["data/patients","data/img","data"]
+    for d in dirs:
+        check_and_make_dir(d)
+
+def check_and_make_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
