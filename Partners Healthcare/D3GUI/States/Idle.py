@@ -1,9 +1,9 @@
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
-#LED_PIN = 19 # Broadcom Pin 4
+LED_PIN = 19 # Broadcom Pin 4
 
 class Idle_State(State.State):
     """
@@ -12,10 +12,10 @@ class Idle_State(State.State):
     """
     def __init__(self,patient):
         super(Idle_State,self).__init__(patient)
-        #self._LED_state = GPIO.HIGH
-        #GPIO.setmode(GPIO.BCM)
-        #GPIO.setup(LED_PIN, GPIO.OUT)
-        #GPIO.output(LED_PIN,self._LED_state)
+        self._LED_state = GPIO.HIGH
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(LED_PIN, GPIO.OUT)
+        GPIO.output(LED_PIN,self._LED_state)
         self._hist_update_tick = 0
 
     def execute(self):
@@ -25,6 +25,8 @@ class Idle_State(State.State):
                 self._hist_update_tick = 0
                 frame = self._display.ids['camera'].get_current_frame()
                 if frame is not None:
+                    self._display.ids["ref_taken_radio_button"].active = not self._display.ids[
+                        "ref_taken_radio_button"].active
                     self._display.ids['hist'].set_data(frame)
             self._hist_update_tick+=1
         except:

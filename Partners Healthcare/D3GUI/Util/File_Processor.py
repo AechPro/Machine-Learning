@@ -1,73 +1,118 @@
-import os
+
 import dropbox
 from kivy.logger import Logger
-import sys
 from dropbox.files import WriteMode
+import datetime
+import os
+import six
+import sys
+import time
+import unicodedata
 
 class File_Processor():
     def __init__(self, **kwargs):
         self._uploading = False
         self._downloading = False
         self._dropbox = dropbox.Dropbox(kwargs['id'])
-        self._remote_path = kwargs['remote_path']
+        self.remote_paths = kwargs['remote_paths']
         self._max_size = 1024*150
-        self.local_path = kwargs['local_path']
+        self.local_paths = kwargs['local_paths']
 
-    def upload(self, file, name):
+    def list_folder(self, dbx, folder):
+        """List a folder.
+
+        Return a dict mapping unicode filenames to
+        FileMetadata|FolderMetadata entries.
+        """
+        path = '/%s' % (folder)
+        while '//' in path:
+            path = path.replace('//', '/')
+        path = path.rstrip('/')
         try:
-            total_upload_size = os.path.getsize(file)
-            remote_path = self.local_path + name
+            res = dbx.files_list_folder(path)
+        except dropbox.exceptions.ApiError as err:
+            print('Folder listing failed for', path, '-- assumed empty:', err)
+            return {}
+        else:
+            rv = {}
+            for entry in res.entries:
+                rv[entry.name] = entry
+            return rv
 
-            with open(file, 'rb') as f:
-                if total_upload_size <= self._max_size:
-                    self._dropbox.files_upload(f.read(), path=remote_path, mode=WriteMode('overwrite'), mute=True)
-                else:
-                    try:
-                        upload_session_start_result = self._dropbox.files_upload_session_start(f.read(self._max_size))
-                        cursor = dropbox.files.UploadSessionCursor(session_id=upload_session_start_result.session_id,
-                                               offset=f.tell())
-                        commit = dropbox.files.CommitInfo(path=remote_path)
+    def download(self, dbx, folder, name):
+        """Download a file.
 
-                        while f.tell() < total_upload_size:
-                            if (total_upload_size - f.tell()) <= self._max_size:
-                                self._dropbox.files_upload_session_finish(f.read(self._max_size), cursor, commit)
-                            else:
-                                self._dropbox.files_upload_session_append(f.read(self._max_size), cursor.session_id,  cursor.offset)
-                    except dropbox.exceptions.ApiError as err:
-                        print('*** API error', err)
-
-        except os.error:
-            e = sys.exc_info()[0]
-            Logger.exception('Exception! %s', e)
-        finally:
-            self._uploading = False
-
-    def download(self):
+        Return the bytes of the file, or None if it doesn't exist.
+        """
+        self._downloading = True
+        path = '/%s/%s/%s' % (folder, name)
+        while '//' in path:
+            path = path.replace('//', '/')
         try:
-            self._downloading = True
+            md, res = dbx.files_download(path)
+        except dropbox.exceptions.HttpError as err:
+            print('*** HTTP error', err)
+            return None
+        data = res.content
+        print(len(data), 'bytes; md:', md)
+        self._downloading = False
+        return data
 
-            if not os.path.exists(self.local_path):
-                os.makedirs(self.local_path)
+    def upload(self, dbx, fullname, folder, name, overwrite=False):
+        """Upload a file.
 
-            # list the folder contents
-            try:
-                res = self._dropbox.files_list_folder(self._remote_path)
-                for entry in res.entries:
-                    local_file = os.path.join(self.local_path, entry.name)
-                    if not os.path.exists(local_file):
-                        # download and overwrite it
-                        md, dl_res = self._dropbox.files_download(entry.path_lower)
-                        file = open(local_file, 'w')
-                        file.write(dl_res.content)
-                        file.close
-            except dropbox.exceptions.ApiError as err:
-                print('*** API error', err)
-                return None
-        except os.error:
-            e = sys.exc_info()[0]
-            Logger.exception('Exception! %s', e)
-        finally:
-            self._downloading = False
+        Return the request response, or None in case of error.
+        """
+        self._uploading = True
+        path = '/%s/%s' % (folder, name)
+        while '//' in path:
+            path = path.replace('//', '/')
+        mode = (dropbox.files.WriteMode.overwrite
+                if overwrite
+                else dropbox.files.WriteMode.add)
+        mtime = os.path.getmtime(fullname)
+        with open(fullname, 'rb') as f:
+            data = f.read()
+        try:
+            res = dbx.files_upload( data, path, mode, client_modified=datetime.datetime(*time.gmtime(mtime)[:6]), mute=True)
+        except dropbox.exceptions.ApiError as err:
+            print('*** API error', err)
+            return None
+        print('uploaded as', res.name.encode('utf8'))
+        self._uploading = False
+        return res
 
-
-File_Processor(id="Yk7MLEza3NAAAAAAAAABGyzVVQi_3q7CkUoPjSjO6tWId31ogOM0KiBcdowZoB0b", remote_path="/input/D3RaspberryPi/", local_path='/home/pi/recon')
+    def sync(self):
+        """
+        Sync
+        local and remote
+        """
+        for dn, dirs, files in os.walk(self.local_paths['samples']):
+            listing = self.list_folder(self._dropbox, self.remote_paths['samples'])
+            print(files)
+            for name in files:
+                print(name)
+                fullname = os.path.join(dn, name)
+                if not isinstance(name, six.text_type):
+                    name = name.decode('utf-8')
+                nname = unicodedata.normalize('NFC', name)
+                if nname in listing:
+                    md = listing[nname]
+                    mtime = os.path.getmtime(fullname)
+                    mtime_dt = datetime.datetime(*time.gmtime(mtime)[:6])
+                    size = os.path.getsize(fullname)
+                    if (isinstance(md, dropbox.files.FileMetadata) and
+                            mtime_dt == md.client_modified and size == md.size):
+                        print(name, 'is already synced [stats match]')
+                    else:
+                        print(name, 'exists with different stats, downloading')
+                        res = self.download(self._dropbox, self.remote_paths['samples'], name)
+                        with open(fullname) as f:
+                            data = f.read()
+                        if res == data:
+                            print(name, 'is already synced [content match]')
+                        else:
+                            print(name, 'has changed since last sync')
+                            self.upload(self._dropbox, fullname, self.remote_paths['samples'], name,
+                                       overwrite=True)
+                self.upload(self._dropbox, fullname, self.remote_paths['samples'], name)
