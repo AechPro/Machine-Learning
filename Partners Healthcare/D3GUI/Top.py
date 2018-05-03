@@ -88,6 +88,10 @@ class MainApp(App):
         #Set the content pane of our screen manager to the screen associated with our new state.
         self.manager.current = self.states[self.current_state].get_display_panel().get_name()
 
+        #Call the on_enter() function for our new state.
+        state = self.states.get(self.current_state, None)
+        if state:
+            state.on_enter()
 
     def ping(self):
         """

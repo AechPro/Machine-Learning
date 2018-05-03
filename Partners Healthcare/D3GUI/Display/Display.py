@@ -68,8 +68,38 @@ class Create_New_Patient_Screen(Display_Object):
     pass
 
 class Idle_Screen(Display_Object):
-    pass
+    def __init__(self,commands, name=None):
+        super(Idle_Screen,self).__init__(commands,name=name)
+        self._current_radio_button = "kappa"
 
+    def advance_radio_button_color(self):
+        button_name = ''.join([self._current_radio_button, "_radio_button"])
+        color = self.ids[button_name].color
+        active = self.ids[button_name].active
+        if not active:
+            self.ids[button_name].active = True
+
+        if color == [3,1,0,2]:
+            color = [0,1,0,2]
+
+        if self._current_radio_button == 'ki67':
+            if self.ids['next_marker_button'].text == "Next Marker":
+                self.ids['next_marker_button'].text = "Next Patient"
+
+        self.ids[button_name].color = color
+
+    def next_radio_button(self):
+        b = self._current_radio_button
+        if b == 'kappa':
+            b = 'lambda'
+
+        elif b == 'lambda':
+            b = 'ki67'
+
+        button_name = ''.join([b, "_radio_button"])
+        self.ids[button_name].color = [3,1,0,2]
+        self.ids[button_name].active = True
+        self._current_radio_button = b
 class Sample_View_Screen(Display_Object):
     pass
 

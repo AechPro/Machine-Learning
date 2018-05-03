@@ -4,6 +4,8 @@ from Commands import Command as coms
 
 
 class Clean_CCD_State(State.State):
+    def on_enter(self):
+        pass
     def execute(self):
         super(Clean_CCD_State,self).execute()
     def _init_paths(self):

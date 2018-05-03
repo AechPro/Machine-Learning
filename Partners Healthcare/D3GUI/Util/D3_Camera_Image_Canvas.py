@@ -2,6 +2,7 @@ from kivy.uix.image import Image
 from Util import D3_Camera_TIS as CoreCamera
 from kivy.properties import NumericProperty, ListProperty, \
     BooleanProperty, StringProperty
+import os
 import cv2
 class Camera_Canvas(Image):
     '''Camera class. See module documentation for more information.
@@ -94,4 +95,6 @@ class Camera_Canvas(Image):
     def capture(self,name):
         frame = self._camera.get_current_frame()
         if frame is not None:
-            cv2.imwrite(''.join(['data/img/', name]), frame)
+            path = ''.join(['data/img/', name])
+            frame = cv2.resize(frame,(640,480),interpolation=cv2.INTER_CUBIC)
+            cv2.imwrite(path, frame)

@@ -2,31 +2,37 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 from Util import File_Processor as fp
+from kivy.graphics.texture import Texture
 import os
 import time
-
 
 class Sample_View_State(State.State):
     def __init__(self, patient):
         super(Sample_View_State, self).__init__(patient)
-        print(os.getcwd())
-        local_paths = {
-            'samples': '/Users/davidmv74/PycharmProjects/Machine-Learning/Partners Healthcare/D3GUI/data/img/Samples',
-            'reconstructed': '/Users/davidmv74/PycharmProjects/Machine-Learning/Partners Healthcare/D3GUI/data/img/Reconstructed'}
-        remote_paths = {'samples': "/Unprocessed", 'reconstructed': "/Reconstructed"}
-        self.file_processor = fp.File_Processor(
-            id="wUn7ipvWMdAAAAAAAAABzsThrL9GONrFVbP80dhCXKg39xQXrx78iBS5--pnMfU0", remote_paths=remote_paths,
-            local_paths=local_paths)
+        self.file_processor = None
+        self.setup_dropbox()
+        
+    def on_enter(self):
+        pass
+
     def execute(self):
         super(Sample_View_State, self).execute()
-        self._display.ids['sample_image'].source = 'TEMP_'+str(self._current_patient._ID)+".png"
 
     def delete_temp_image(self):
         try:
             os.remove(self._display.ids['sample_image'].source)
-        except OSError as oe:
+        except Exception as e:
             #log stuff
-            print(oe)
+            print(e)
+
+    def setup_dropbox(self):
+        local_paths = {
+            'samples': 'data/img/Samples',
+            'reconstructed': 'data/img/Reconstructed'}
+        remote_paths = {'samples': "/Unprocessed", 'reconstructed': "/Reconstructed"}
+        self.file_processor = fp.File_Processor(
+            id="sGDRqJ6j3gkAAAAAAABEJtN4aZshf-Uzo1JLekCjKAt_FPkAOsJsTUuXPcUenH33", remote_paths=remote_paths,
+            local_paths=local_paths)
 
     def save_sample(self):
         try:
@@ -37,6 +43,11 @@ class Sample_View_State(State.State):
             #log stuff
             print(oe)
 
+    def set_image(self,img):
+        simg = self._display.ids["sample_image"]
+        simg.texture = Texture.create(size=(img.shape[1],img.shape[0]),colorfmt='rgb')
+        simg.texture.blit_buffer(img.tostring(),colorfmt='rgb',bufferfmt='ubyte')
+        self._display.ids['hist'].set_data(img)
 
     #Refer to superclass documentation.
     def _init_paths(self):

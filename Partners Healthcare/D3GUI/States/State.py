@@ -13,6 +13,12 @@ class State(object):
         self._init_paths()
         self._init_commands()
         self._build_display()
+    def on_enter(self):
+        """
+        This function should be called every time this state becomes the active state.
+        :return: void
+        """
+        raise NotImplementedError
 
     def execute(self):
         """
@@ -59,7 +65,8 @@ class State(object):
 
     def set_next_state(self,state):
         self._next_state = state
-
+    def add_command(self,key,com):
+        self._commands[key] = com
     def __call__(self, *args, **kwargs):
         """
         This makes a State object callable with the same effect as State.execute().

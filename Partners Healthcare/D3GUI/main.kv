@@ -2,7 +2,6 @@
 #:import kivy kivy
 #:import win kivy.core.window
 #:import Histogram Util.Camera_Histogram
-#:import Camera_Canvas Util.D3_Camera_Image_Canvas
 <D3Button@Button>:
     size_hint: .3, .2
     color: 0, 0, 0, 1
@@ -154,28 +153,69 @@
             root.manager.transition.direction = 'left'
 
 <Sample_View_Screen@Display_Object>:
-    D3Image:
-        id: sample_image
-        source:
+
+    StackLayout:
+        orientation:"bt-rl"
+
+        D3Button:
+            size_hint: .2, .2
+            pos_hint:{"right":1,"bottom":1}
+            text: "Save\nSample"
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'left'
+
+        D3Button:
+            text: "Retry"
+            size_hint: 0.2,0.1
+            font_size: 20
+            on_press:
+                root.button_press(self.text)
+                root.manager.transition.direction = 'right'
+        Histogram:
+            id: hist
+            size_hint: .2, .25
+            pos_hint: {'right':1, 'y':.5}
 
     D3Button:
-        text: "Retry"
-        pos_hint: {'x': 0.1, 'y':0.1}
+        text: "Home"
+        font_size: 24
+        size_hint: .1, .1
+        pos_hint: {'right':1, 'top':1}
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'right'
 
-    D3Button:
-        text: "Save"
-        pos_hint: {'x': 0.6, 'y':0.1}
-        on_press:
-            root.button_press(self.text)
-            root.manager.transition.direction = 'left'
+    StackLayout:
+        orientation: 'lr-tb'
+        pos_hint:{"x":0.04}
+        spacing:[5,0]
 
+        D3Button:
+            text: "Cell Detection on/off"
+            size_hint: 0.25,0.1
+            font_size: 20
+            on_press:
+                root.button_press(self.text)
+        D3Button:
+            text: "Cell Count"
+            size_hint: 0.15,0.1
+            font_size: 20
+            on_press:
+                root.button_press(self.text)
+    Scatter:
+        id: image_scatter_object
+        size_hint: 0.5,0.5
+        scale: 1.575
+        pos_hint:{"x":0.005,"y":0}
+        D3Image:
+            size_hint: 1.0,1.0
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+            id: sample_image
+            source:
 <Idle_Screen@Display_Object>:
     StackLayout:
         orientation: 'tb-rl'
-        pos_hint:{"x":-0.005,"y":-0.1}
+        pos_hint:{"x":-0.005,"y":-0.107}
         spacing: [0,5]
         D3Button:
             size_hint: .2, .15
@@ -205,7 +245,6 @@
                 color: 0,1,0,1
                 size_hint: 0.5, 1.0
                 group:"1"
-
         Histogram:
             id: hist
             size_hint: .2, .25
@@ -220,7 +259,7 @@
         StackLayout:
             orientation: 'tb-rl'
             size_hint: .2,.2
-            
+
             canvas.before:
                 Color:
                     rgba: 1, 1, 1, .1
@@ -250,66 +289,42 @@
                 CheckBox:
                     id: kappa_radio_button
                     active: True
-                    color: 1,0,0,2
+                    color: 3,1,0,2
                     size_hint: 1.0, 1.0
                     group:"1"
 
                 CheckBox:
                     id: lambda_radio_button
-                    active: True
-                    color: 1,0,0,2
+                    active: False
+                    color: 1,1,1,2
                     size_hint: 1.0, 1.0
                     group:"2"
 
                 CheckBox:
                     id: ki67_radio_button
-                    active: True
-                    color: 1,0,0,2
+                    active: False
+                    color: 1,1,1,2
                     size_hint: 1.0, 1.0
                     group:"3"
-
-    Camera_Canvas:
-        size_hint: 1.0,0.885
-        pos_hint: {'x':-0.1, 'y':0.005}
-        id: camera
-        resolution: (640, 480)
-        play: True
-
     D3Button:
-        text: "Exit"
+        text: "Home"
         font_size: 24
         size_hint: .1, .1
-        pos_hint: {'right':1, 'top':1}
+        pos_hint: {'left':1, 'top':1}
         on_press:
             root.button_press(self.text)
 
     StackLayout:
-        orientation: 'lr-tb'
-        pos_hint:{"x":0.04}
-        spacing:[5,0]
-
-        D3Button:
-            text: "Cell Detection on/off"
-            size_hint: 0.25,0.1
-            font_size: 20
-        D3Button:
-            text: "Cell Count"
-            size_hint: 0.15,0.1
-            font_size: 20
-
-
-    StackLayout:
         orientation: 'rl-tb'
-        pos_hint:{"x":-0.1}
         spacing:[5,0]
+        pos_hint:{"x":-0.005}
         D3Button:
+            id: next_marker_button
             text: "Next Marker"
-            size_hint: 0.17,0.1
+            size_hint: 0.2,0.1
             font_size: 20
-        D3Button:
-            text: "Retake"
-            size_hint: 0.12,0.1
-            font_size: 20
+            on_press:
+                root.button_press(self.text)
 
 
 

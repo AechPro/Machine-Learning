@@ -87,6 +87,7 @@ class File_Processor():
         Sync
         local and remote
         """
+        print(self.local_paths['samples'])
         for dn, dirs, files in os.walk(self.local_paths['samples']):
             listing = self.list_folder(self._dropbox, self.remote_paths['samples'])
             print(files)
@@ -116,3 +117,4 @@ class File_Processor():
                             self.upload(self._dropbox, fullname, self.remote_paths['samples'], name,
                                        overwrite=True)
                 self.upload(self._dropbox, fullname, self.remote_paths['samples'], name)
+                print("UPLOADING TO DROPBOX")

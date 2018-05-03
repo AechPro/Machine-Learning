@@ -4,6 +4,10 @@ from Commands import Command as coms
 
 
 class Browse_Patients_State(State.State):
+
+    def on_enter(self):
+        self._display.ids["filechooser"]._update_files()
+
     def execute(self):
         super(Browse_Patients_State, self).execute()
 

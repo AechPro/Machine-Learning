@@ -32,12 +32,13 @@ class D3_Camera(CameraBase):
         self._fps = 0
         self._pipeline = None
         self._loop = None
-        self._capture_width, self._capture_height = kwargs.get('resolution')
+        self._capture_width, self._capture_height = 3872, 2764
         self._num_frames_to_buffer = 1
         self._frame_buffer = [None for _ in range(self._num_frames_to_buffer)]
         self._frame_ptr = 0
         self.display_pipeline = None
         self._resolution = kwargs.get('resolution')
+        print("RES: ",self._resolution)
         super(D3_Camera, self).__init__(**kwargs)
 
     def init_camera(self):
@@ -66,7 +67,7 @@ class D3_Camera(CameraBase):
             if n / d > numerator / denominator:
                 numerator = n
                 denominator = d
-        numerator = 15
+        numerator = 1
         fmt.set_value("framerate", Gst.Fraction(int(numerator), int(denominator)))
         print("----VIDEO FORMAT SPECIFICATIONS----\nWidth: {}\nHeight: {}\nFPS: {}\nFormat: {}"
               .format(fmt.get_value("width"), fmt.get_value("height"), fmt.get_value("framerate"),
@@ -113,7 +114,7 @@ class D3_Camera(CameraBase):
         output.connect("new-sample", self.camera_callback)
         self._pipeline.set_state(Gst.State.PLAYING)
         self._loop = GLib.MainLoop()
-
+        #source.set_property("gain",1)
         """tbin = source
         if tbin is None:
             print("No property source available.")
@@ -156,7 +157,9 @@ class D3_Camera(CameraBase):
                 if self._frame_ptr >= self._num_frames_to_buffer:
                     self._frame_ptr = 0
 
-                self._buffer = self._frame_buffer[-1].tostring()
+                if self._frame_buffer[-1] is not None:
+                    self._buffer = cv2.resize(self._frame_buffer[-1], (self._resolution[0], self._resolution[1]),
+                                              interpolation=cv2.INTER_CUBIC)
                 Clock.schedule_once(self._update)
             finally:
                 buf.unmap(mapinfo)
@@ -182,7 +185,7 @@ class D3_Camera(CameraBase):
         if self._texture is None:
             Logger.debug('Camera: copy_to_gpu() failed, _texture is None !')
             return
-        self._texture.blit_buffer(self._buffer, colorfmt='rgb', bufferfmt='ubyte')
+        self._texture.blit_buffer(self._buffer.tostring(), colorfmt='rgb', bufferfmt='ubyte')
         self._buffer = None
         self.dispatch('on_texture')
 

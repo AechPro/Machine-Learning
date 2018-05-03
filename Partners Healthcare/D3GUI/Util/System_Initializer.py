@@ -2,6 +2,7 @@ from kivy.uix.screenmanager import ScreenManager
 from States import Change_Patient, Browse_Patients, Create_Patient, Idle, Sample_View, Continue, Login
 from States import Clean_CCD
 from Patients import Patient_Profile
+from Commands import Command as coms
 import os
 
 
@@ -26,6 +27,8 @@ def init(first_state):
                   "IDLE": idle_state, "CLEAN CCD": clean_ccd_state, "CONTINUE": continue_state,
                   "CHANGE PATIENT": change_patient_state, "SAMPLE VIEW":sample_view_state, "LOGIN":login_state}
 
+    setup_state_commands(state_dict)
+
     #Set up our Kivy screen manager.
     sm = ScreenManager()
     state_to_display_first = state_dict[first_state]
@@ -35,6 +38,10 @@ def init(first_state):
         sm.add_widget(state[1].get_display_panel())
     state_dict[first_state] = state_to_display_first
     return state_dict, sm
+
+def setup_state_commands(states):
+    transfer_image = coms.Transfer_Image_Command(states["SAMPLE VIEW"])
+    states["IDLE"].add_command("TRANSFER IMAGE",transfer_image)
 
 def setup_directory_structure():
     dirs = ["data/patients","data/img","data"]

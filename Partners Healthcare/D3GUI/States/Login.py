@@ -11,6 +11,8 @@ class Login_State(State.State):
         The Idle State should contain the idle screen Display object, handle the camera feed, and handle swapping
         states based on user interaction.
     """
+    def on_enter(self):
+        pass
 
     def execute(self):
         super(Login_State, self).execute()

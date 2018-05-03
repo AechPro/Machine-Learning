@@ -2,16 +2,10 @@ from kivy.uix.image import Image
 from kivy.properties import NumericProperty
 from kivy.clock import Clock
 import cv2
-from cv2 import cv
 import numpy as np
 from kivy.logger import Logger
 from kivy.garden.graph import Graph, MeshLinePlot, MeshStemPlot
 
-# import matplotlib
-# matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
-# from matplotlib import pyplot as plt
-# from matplotlib.figure import Figure
-# from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 import sys
 
 

@@ -4,6 +4,9 @@ from Commands import Command as coms
 
 
 class Change_Patient_State(State.State):
+    def on_enter(self):
+        pass
+
     def execute(self):
         super(Change_Patient_State, self).execute()
 

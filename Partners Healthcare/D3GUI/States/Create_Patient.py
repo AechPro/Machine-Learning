@@ -7,6 +7,8 @@ from kivy.properties import StringProperty, ObjectProperty
 
 
 class Create_New_Patient_State(State.State):
+    def on_enter(self):
+        pass
 
     def execute(self):
         super(Create_New_Patient_State, self).execute()

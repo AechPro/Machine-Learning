@@ -49,7 +49,7 @@ class Save_Patient_Idle_State_Button_Command(Command):
 class Save_Sample_Button_Command(Command):
     def execute(self,data=None):
         self._object.save_sample()
-        self._object.set_next_state("CONTINUE")
+        self._object.set_next_state("IDLE")
 
 class Back_Button_Command(Command):
     def execute(self,data=None):
@@ -70,9 +70,9 @@ class Clean_CCD_Ok_Button_Command(Command):
 
 class Camera_Capture_Command(Command):
     def execute(self, data=None):
-        self._object.set_next_state("SAMPLE VIEW")
         if not self._object.capture():
             self._object.set_next_state(None)
+        self._object.set_next_state("SAMPLE VIEW")
 
 class Continue_With_Same_Patient_Command(Command):
     def execute(self, data=None):
@@ -82,12 +82,20 @@ class Continue_With_Different_Patient_Command(Command):
     def execute(self, data=None):
         self._object.set_next_state("CHANGE PATIENT")
 
+class Next_Marker_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.advance_marker()
+
 class Toggle_LED_Button_Command(Command):
     def execute(self, data=None):
         try:
             self._object.toggle_LED()
         except:
             print("UNABLE TO TOGGLE LED")
+
+class Transfer_Image_Command(Command):
+    def execute(self,data=None):
+        self._object.set_image(data)
 
 class Login_Command(Command):
     def execute(self, data=None):
