@@ -31,10 +31,17 @@ class Create_New_Patient_Button_Command(Command):
 
 class Select_Patient_Button_Command(Command):
     def execute(self, data=None):
-        self._object.set_next_state("CLEAN CCD")
+        self._object.set_next_state("BROWSE IMAGES")
         if data is not None:
             if not self._object.get_patient().load(data):
-                self._object.set_next_state("BROWSE PATIENTS")
+                self._object.set_next_state(None)
+
+class Select_Image_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.set_next_state("SAMPLE VIEW")
+        if data is None:
+            if not self._object.load_image(data):
+                self._object.set_next_state(None)
 
 class Save_Patient_Button_Command(Command):
     def execute(self, data=None):

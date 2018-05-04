@@ -1,6 +1,6 @@
 from kivy.uix.screenmanager import ScreenManager
 from States import Change_Patient, Browse_Patients, Create_Patient, Idle, Sample_View, Continue, Login
-from States import Clean_CCD
+from States import Clean_CCD, Browse_Images
 from Patients import Patient_Profile
 from Commands import Command as coms
 import os
@@ -23,9 +23,12 @@ def init(first_state):
     clean_ccd_state = Clean_CCD.Clean_CCD_State(patient)
     continue_state = Continue.Continue_State(patient)
     login_state = Login.Login_State(patient)
+    browse_images_state = Browse_Images.Browse_Images_State(patient)
+
     state_dict = {"BROWSE PATIENTS": browse_patient_state, "NEW PATIENT": create_new_patient_state,
                   "IDLE": idle_state, "CLEAN CCD": clean_ccd_state, "CONTINUE": continue_state,
-                  "CHANGE PATIENT": change_patient_state, "SAMPLE VIEW":sample_view_state, "LOGIN":login_state}
+                  "CHANGE PATIENT": change_patient_state, "SAMPLE VIEW":sample_view_state,
+                  "LOGIN":login_state, "BROWSE IMAGES":browse_images_state}
 
     setup_state_commands(state_dict)
 
@@ -42,12 +45,10 @@ def init(first_state):
 def setup_state_commands(states):
     transfer_image = coms.Transfer_Image_Command(states["SAMPLE VIEW"])
     states["IDLE"].add_command("TRANSFER IMAGE",transfer_image)
+    states["BROWSE IMAGES"].add_command("TRANSFER IMAGE",transfer_image)
 
 def setup_directory_structure():
     dirs = ["data/patients","data/img","data"]
     for d in dirs:
-        check_and_make_dir(d)
-
-def check_and_make_dir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+        if not os.path.exists(d):
+            os.makedirs(d)

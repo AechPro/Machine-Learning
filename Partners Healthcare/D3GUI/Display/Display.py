@@ -57,16 +57,6 @@ class Display_Object(Screen):
 
 
 # Declare screens
-class Change_Patient_Screen(Display_Object):
-    pass
-
-class Browse_Patients_Screen(Display_Object):
-    pass
-    #TODO: make sure to filter the user files shown live
-
-class Create_New_Patient_Screen(Display_Object):
-    pass
-
 class Idle_Screen(Display_Object):
     def __init__(self,commands, name=None):
         super(Idle_Screen,self).__init__(commands,name=name)
@@ -100,6 +90,16 @@ class Idle_Screen(Display_Object):
         self.ids[button_name].color = [3,1,0,2]
         self.ids[button_name].active = True
         self._current_radio_button = b
+
+class Change_Patient_Screen(Display_Object):
+    pass
+
+class Browse_Patients_Screen(Display_Object):
+    pass
+
+class Create_New_Patient_Screen(Display_Object):
+    pass
+
 class Sample_View_Screen(Display_Object):
     pass
 
@@ -110,4 +110,7 @@ class Continue_Screen(Display_Object):
     pass
 
 class Login_Screen(Display_Object):
+    pass
+
+class Browse_Images_Screen(Display_Object):
     pass

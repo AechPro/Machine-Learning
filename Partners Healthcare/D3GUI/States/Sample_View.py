@@ -17,7 +17,6 @@ class Sample_View_State(State.State):
 
     def execute(self):
         super(Sample_View_State, self).execute()
-
     def delete_temp_image(self):
         try:
             os.remove(self._display.ids['sample_image'].source)
@@ -47,7 +46,7 @@ class Sample_View_State(State.State):
         simg = self._display.ids["sample_image"]
         simg.texture = Texture.create(size=(img.shape[1],img.shape[0]),colorfmt='rgb')
         simg.texture.blit_buffer(img.tostring(),colorfmt='rgb',bufferfmt='ubyte')
-        self._display.ids['hist'].set_data(img)
+        self._display.ids['sample_histogram'].set_data(img)
 
     #Refer to superclass documentation.
     def _init_paths(self):

@@ -19,7 +19,7 @@ class MainApp(App):
         print("MAIN INIT")
         
         #Set up instance variables only.
-        self.current_state = "IDLE"
+        self.current_state = "LOGIN"
         self.states = None
         self.manager = None
         self.state_history = [self.current_state]
@@ -147,15 +147,11 @@ class MainApp(App):
 
 
 if __name__ == "__main__":
-    print("BEFORE APP START")
     
     app = MainApp()
-    print("AFTER APP INSTANTIATION")
     
     app.start()
-    print("AFTER APP START")
     
     app.run()
-    print("AFTER APP RUN")
     
     #app.exit()

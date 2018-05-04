@@ -70,7 +70,6 @@ class Histogram(Graph):
             self.centroid = centroid_bin
             self._centroid_plot.points = [(x, hist_max if x == centroid_bin else 0) for x in range(0, 255)]
 
-
         except:
             e = sys.exc_info()[0]
             Logger.exception('Exception! %s', e)
