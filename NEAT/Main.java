@@ -39,7 +39,7 @@ public class Main
 		table = new InnovationTable();
 		testUnit = new XORTester(rng);
 		sorter = new SortingUnit();
-		Genome minimalStructure = testUnit.buildMinimalStructure(table);
+		Genome minimalStructure = testUnit.buildMinimalSolution(table);
 		for(int i=0;i<Config.POPULATION_SIZE;i++)
 		{
 			Organism org = new Organism(table.getNextOrganismID());
@@ -67,14 +67,17 @@ public class Main
 		speciate();
 		tick();
 		repopulate();
-		printOutput();
 		testPhenotypes(generation%20==0);
+		printOutput();
 	}
 	public void printOutput()
 	{
 		System.out.println("\nGENERATION: "+generation);
 		System.out.println("POP SIZE: "+population.size());
 		System.out.println("SPECIES: "+species.size());
+		System.out.println("AVERAGE FITNESS: "+calculateAverageFitness());
+		System.out.println("AVERAGE SPECIES AGE: "+calculateAverageSpeciesAge());
+		System.out.println("AVERAGE SPECIES TSLI: "+calculateAverageSpeciesTSLI());
 		System.out.println("BEST FITNESS: "+bestFitness);
 		//System.out.println("--INNOVATION TABLE--\n"+table);
 	}
@@ -82,19 +85,25 @@ public class Main
 	{
 		ArrayList<Organism> newPop = new ArrayList<Organism>();
 		for(Species s : species)
-		{
+		{ 
 			s.reproduce(table);
 			for(Organism org : s.getMembers())
 			{
-				
 				newPop.add(org);
 			}
 		}
+		if(newPop.size()>Config.POPULATION_SIZE)
+		{
+			newPop = new SelectionUnit().eliteSelect(Config.POPULATION_SIZE, newPop);
+		}
 		population = newPop;
+		
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
 	public void speciate()
 	{
+		ArrayList<Species> activeSpecies = new ArrayList<Species>();
+		
 		for(Organism org : population)
 		{
 			boolean found = false;
@@ -113,6 +122,14 @@ public class Main
 				species.add(newSpecies);
 			}
 		}
+		for(Species s : species) 
+		{
+			if(s.getMembers().size() > 0)
+			{
+				activeSpecies.add(s);
+			}
+		}
+		species = activeSpecies;
 		sorter.sortSpecies(species,0,species.size()-1);
 	}
 	public void tick()
@@ -122,19 +139,29 @@ public class Main
 		for(Species s : species)
 		{
 			s.tick();
-			s.adjustFitnessValues();
 			s.calculateSpawnAmounts(avg);
-			System.out.println(s);
+			s.adjustFitnessValues();
+			//System.out.println(s);
 		}
-		if(timeSinceLastImprovement>Config.ALLOWED_POPULATION_STAGNATION_TIME)
+		if(timeSinceLastImprovement > Config.MAX_TIME_SPECIES_STAGNATION + 5)
 		{
-			Species s1 = species.get(species.size()-1);
-			if(species.size()>=2)
+			Species survivor1 = species.get(species.size()-1);
+			Species survivor2 = null;
+			int side1 = Config.POPULATION_SIZE/2;
+			int side2 = Config.POPULATION_SIZE - side1;
+			survivor1.setSpawnAmount(0);
+			survivor1.setChampSpawns(side1);
+			if(species.size()>=2) 
 			{
-				
+				survivor2 = species.get(species.size()-2);
+				survivor2.setSpawnAmount(side2);
 			}
+			else
+			{
+				survivor1.setChampSpawns(side1+side2);
+			}
+			
 		}
-		//for(Organism org : population) {System.out.println(org);}
 	}
 	public void reset()
 	{
@@ -192,6 +219,26 @@ public class Main
 			avg+=org.getFitness();
 		}
 		return avg/population.size();
+	}
+	public double calculateAverageSpeciesAge()
+	{
+		if(species.size() == 0) {return 0d;}
+		double avg = 0d;
+		for(Species s : species)
+		{
+			avg+=s.getAge();
+		}
+		return avg/species.size();
+	}
+	public double calculateAverageSpeciesTSLI()
+	{
+		if(species.size() == 0) {return 0d;}
+		double avg = 0d;
+		for(Species s : species)
+		{
+			avg+=s.getTimeSinceLastImprovement();
+		}
+		return avg/species.size();
 	}
 	public void setupWindow()
 	{

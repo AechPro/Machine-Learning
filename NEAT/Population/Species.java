@@ -13,6 +13,7 @@ public class Species
 	private int ID;
 	private int age;
 	private int timeSinceLastImprovement;
+	private int champSpawnAmount;
 	private Organism representative;
 	private ArrayList<Organism> members;
 	private Random rand;
@@ -27,6 +28,10 @@ public class Species
 		representative = first;
 		sorter = new SortingUnit();
 		selector = new SelectionUnit();
+		age=0;
+		bestFitness=0;
+		timeSinceLastImprovement=0;
+		champSpawnAmount = 0;
 	}
 	public void reproduce(InnovationTable table)
 	{	
@@ -35,33 +40,18 @@ public class Species
 		int numToSpawn = (int)(Math.round(spawnAmount));
 		Organism child = null;
 		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
-		
-		if(popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING)
+		culledMembers = members;
+		if(popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || champSpawnAmount>0)
 		{
-			if(getBestMember().getAge()<Config.MAX_ALLOWED_ORGANISM_AGE)
+			for(int i=0;i<champSpawnAmount;i++)
 			{
-				if(getBestMember().getTimeSinceLastImprovement()<Config.MAX_TIME_ORGANISM_STAGNATION)
-				{
-					child = new Organism(getBestMember());
-					newPop.add(child);
-				}
+				child = new Organism(getBestMember());
+				newPop.add(child);
 			}
-			int cutoff = (int)(Math.round(members.size()*Config.WORST_PERCENT_REMOVED));
-			for(int i=0;i<cutoff;i++)
-			{
-				if(members.get(i).getTimeSinceLastImprovement()>Config.MAX_TIME_ORGANISM_STAGNATION)
-				{continue;}
-				if(members.get(i).getAge()>Config.MAX_ALLOWED_ORGANISM_AGE)
-				{continue;}
-				culledMembers.add(members.get(i));
-			}
-			for(int i=cutoff;i<members.size();i++)
-			{
-				culledMembers.add(members.get(i));
-			}
+			
 		}
-		else {culledMembers = members;}
-		for(int i=0;i<numToSpawn && newPop.size()<popSize;i++)
+		numToSpawn-=newPop.size();
+		for(int i=0;i<numToSpawn;i++)
 		{
 			child = null;
 			if(culledMembers.size()==1 || Math.random()>Config.CROSSOVER_RATE)
@@ -73,23 +63,14 @@ public class Species
 			{
 				ArrayList<Organism> parents = selector.randomSelect(2, culledMembers);
 				child = crossover(parents.get(0),parents.get(1),table);
-				if(Math.random()<Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+				if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 				{
 					child.mutateGenotype(table);
 				}
 			}
 			newPop.add(child);
 		}
-		if(newPop.size()<popSize)
-		{
-			ArrayList<Organism> newSelection = selector.tournamentSelect(popSize-newPop.size(),culledMembers.size(),true,culledMembers);
-			for(Organism org : newSelection)
-			{
-				child = new Organism(org);
-				child.mutateGenotype(table);
-				newPop.add(child);
-			}
-		}
+		System.out.println("REPRODUCTION SPAWNED "+newPop.size()+" CHILDREN");
 		members = newPop;
 	}
 	public Organism crossover(Organism p1, Organism p2, InnovationTable table)
@@ -168,6 +149,7 @@ public class Species
 			if(org.getFitness() > bestFitness)
 			{
 				bestFitness = org.getFitness();
+				timeSinceLastImprovement = 0;
 			}
 			org.tick();
 		}
@@ -192,26 +174,47 @@ public class Species
 	}
 	public void adjustFitnessValues()
 	{
+		ArrayList<Organism> survivingMembers = new ArrayList<Organism>();
+		int cutoff = (int)Math.round(Config.WORST_PERCENT_REMOVED*(double)members.size());
 		for(Organism org : members)
 		{
 			double fitness = org.getFitness();
 			if(age < Config.SPECIES_YOUNG_THRESHOLD) {fitness*= 1.0 + Config.SPECIES_AGE_FITNESS_MODIFIER;}
 			else if(age > Config.SPECIES_OLD_THRESHOLD) {fitness*= 1.0 - Config.SPECIES_AGE_FITNESS_MODIFIER;}
+			if(timeSinceLastImprovement > Config.MAX_TIME_SPECIES_STAGNATION)
+			{
+				fitness *= 0.001; //Extreme penalty for stagnated species.
+			}
 			fitness/=members.size();
 			org.setAdjustedFitness(fitness);
 		}
+		sorter.sortOrganismsAdjustedFitness(members, 0, members.size()-1);
+		for(int i=cutoff;i<members.size();i++)
+		{
+			survivingMembers.add(members.get(i));
+		}
+		members = survivingMembers;
 	}
 	public void calculateSpawnAmounts(double globalAverage)
 	{
+		double fractionComponent = 0d;
+		int intComponent = 0;
 		spawnAmount = 0.0d;
 		double spawns = 0;
 		for(Organism org : members)
 		{
 			spawns = org.getFitness()/globalAverage;
-			spawnAmount+=spawns;
+			fractionComponent+=spawns-(int)spawns;
+			intComponent+=(int)spawns;
+			if(fractionComponent>=1.0d)
+			{
+				intComponent+=(int)fractionComponent;
+				fractionComponent -= (int)fractionComponent;
+			}
 			org.setSpawnAmount(spawns);
 		}
-		spawnAmount = Math.round(spawnAmount);
+		spawnAmount = intComponent+fractionComponent;
+		spawnAmount = (int)Math.round(spawnAmount);
 	}
 	@Override
 	public String toString()
@@ -230,6 +233,7 @@ public class Species
 		if(members.size()>0){output+="\nBest member for this species:"+getBestMember();}
 		return output;
 	}
+	public void setChampSpawns(int num) {champSpawnAmount=num;}
 	public double getBestFitness() {return bestFitness;}
 	public void setBestFitness(double bestFitness) {this.bestFitness = bestFitness;}
 	public double getSpawnAmount() {return spawnAmount;}

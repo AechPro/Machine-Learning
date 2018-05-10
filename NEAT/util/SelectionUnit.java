@@ -10,7 +10,7 @@ public class SelectionUnit
 	public ArrayList<Organism> eliteSelect(int num, ArrayList<Organism> pop)
 	{
 		ArrayList<Organism> winners = new ArrayList<Organism>();
-		for(int i=pop.size()-1;i<=0;i--)
+		for(int i=pop.size()-1;i>0 && winners.size() < num;i--)
 		{
 			winners.add(pop.get(i));
 		}
@@ -19,6 +19,7 @@ public class SelectionUnit
 	public ArrayList<Organism> randomSelect(int num, ArrayList<Organism> pop)
 	{
 		ArrayList<Organism> winners = new ArrayList<Organism>();
+		if(pop.size() == 0) {return winners;}
 		for(int i=0;i<num;i++)
 		{
 			winners.add(pop.get((int)(Math.round((pop.size()-1)*Math.random()))));

@@ -44,12 +44,20 @@ public class Organism
 	public void tick()
 	{
 		age++;
-		timeSinceLastImprovement = 0;
+		timeSinceLastImprovement++;
 	}
 	public void mutateGenotype(InnovationTable table)
 	{
-		if(genotype.getNodes().size()<Config.MAX_ALLOWED_NODES) {genotype.addNode(table);}
 		genotype.addConnection(table);
+		if(genotype.getNodes().size()<Config.MAX_ALLOWED_NODES) {genotype.addNode(table);}
+		genotype.mutateNode();
+		genotype.mutateWeights();
+		genotype.setID(table.getNextGenomeID());
+		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
+		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
+	}
+	public void mutateGenotypeNonStructural(InnovationTable table)
+	{
 		genotype.mutateNode();
 		genotype.mutateWeights();
 		genotype.setID(table.getNextGenomeID());
@@ -94,8 +102,8 @@ public class Organism
 
 				n2.setX((int)(n2.getSplitX()*pixelSeperator));
 				n2.setY((int)(-n2.getSplitY()*pixelSeperator));
-				if(n1.getType() == Node.HIDDEN_NODE){n1.setX((int)(n1.getSplitX()*pixelSeperator/2));}
-				if(n2.getType() == Node.HIDDEN_NODE){n2.setX((int)(n2.getSplitX()*pixelSeperator/2));}
+				if(n1.getType() == Node.HIDDEN_NODE){n1.setX((int)(n1.getSplitX()*pixelSeperator/1.3));}
+				if(n2.getType() == Node.HIDDEN_NODE){n2.setX((int)(n2.getSplitX()*pixelSeperator/1.3));}
 				boolean found = false;
 				for(int i=0;i<phenotypeNodes.size();i++)
 				{

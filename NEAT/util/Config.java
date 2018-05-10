@@ -2,11 +2,11 @@ package NEAT.util;
 
 public interface Config
 {
-	public final double CONNECTION_ADD_CHANCE = 0.05;
-	public final double NODE_ADD_CHANCE = 0.03;
+	public final double CONNECTION_ADD_CHANCE = 0.0;
+	public final double NODE_ADD_CHANCE = 0.0;
 	public final double CROSSOVER_RATE = 0.75;
 	public final double WEIGHT_MUTATION_RATE = 0.9;
-	public final double MAX_MUTATION_PERTURBATION = 0.5;
+	public final double MAX_MUTATION_PERTURBATION = 2.5;
 	public final double WEIGHT_REPLACEMENT_RATE = 0.1;
 	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.1;
 	public final double INHERITED_CONNECTION_ENABLE_RATE = 0.25;
@@ -17,8 +17,8 @@ public interface Config
 	public final int SPECIES_YOUNG_THRESHOLD = 5;
 	public final int SPECIES_SIZE_FOR_CHAMP_CLONING = 5;
 	public final int MAX_ALLOWED_NODES = 100;
-	public final int MAX_ATTEMPTS_ADD_CONNECTION = 30;
-	public final int MAX_ATTEMPTS_ADD_NODE = 30;
+	public final int MAX_ATTEMPTS_ADD_CONNECTION = 20;
+	public final int MAX_ATTEMPTS_ADD_NODE = 300;
 	public final int MAX_ATTEMPTS_FIND_PARENT = 90;
 	public final double COMPAT_EXCESS_COEF = 1.0;
 	public final double COMPAT_DISJOINT_COEF = 1.0;
