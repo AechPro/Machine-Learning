@@ -127,7 +127,7 @@ def extract_regions(sourceImg, reference, params, imName, cellName="a0", flter=N
 """Wrapper function for extract_regions that uses a pre-determined parameter set for the MSER algorithm."""
 
 
-def get_regions(sourceImage, reference, cellName="a0", imName="test.png", flter=None, show=False, classify=False):
+def get_regions(sourceImage, reference, cellName="a0", imName="test.png", flter=None, show=False, classify=True):
     # Parameter set for MSER algorithm. These parameters were found via numerical optimization.
     params = [11, 68, 236, 0.46394341374428594, 0.20434550448034017, 200, 1, 0.32948156997486944, 5]
     regions, cells, calcTime = extract_regions(sourceImage, reference, params, imName, cellName=cellName, flter=flter, show=show,

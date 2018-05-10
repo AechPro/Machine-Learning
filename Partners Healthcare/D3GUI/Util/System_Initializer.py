@@ -1,3 +1,18 @@
+"""
+Copyright 2017 Matthew W. Allen & David Pacheco
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from kivy.uix.screenmanager import ScreenManager
 from States import Change_Patient, Browse_Patients, Create_Patient, Idle, Sample_View, Continue, Login
 from States import Clean_CCD, Browse_Images
@@ -20,13 +35,12 @@ def init(first_state):
     create_new_patient_state = Create_Patient.Create_New_Patient_State(patient)
     idle_state = Idle.Idle_State(patient)
     sample_view_state = Sample_View.Sample_View_State(patient)
-    clean_ccd_state = Clean_CCD.Clean_CCD_State(patient)
     continue_state = Continue.Continue_State(patient)
     login_state = Login.Login_State(patient)
     browse_images_state = Browse_Images.Browse_Images_State(patient)
 
     state_dict = {"BROWSE PATIENTS": browse_patient_state, "NEW PATIENT": create_new_patient_state,
-                  "IDLE": idle_state, "CLEAN CCD": clean_ccd_state, "CONTINUE": continue_state,
+                  "IDLE": idle_state, "CONTINUE": continue_state,
                   "CHANGE PATIENT": change_patient_state, "SAMPLE VIEW":sample_view_state,
                   "LOGIN":login_state, "BROWSE IMAGES":browse_images_state}
 

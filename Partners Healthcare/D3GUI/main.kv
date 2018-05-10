@@ -65,19 +65,13 @@
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
-
-<Clean_CCD_Screen>:
-    Label:
-        text: "CLEAN CCD"
-        color: 1,0,0,1
-        pos_hint:{'center_x':0.5,'center_y':0.5}
-        font_size: 64
     D3Button:
-        text: "OK"
-        pos_hint: {'center_x': 0.5, 'y':0.1}
+        text: "EXIT"
+        size_hint: .13,.07
+        pos_hint:{"left":1,"top":1}
+        font_size: 24
         on_press:
             root.button_press(self.text)
-            root.manager.transition.direction = 'left'
 
 <Change_Patient_Screen>:
     Label:
@@ -99,6 +93,14 @@
         on_press:
             root.button_press(self.text)
             root.manager.transition.direction = 'left'
+    D3Button:
+        text: "Logout"
+        font_size: 20
+        size_hint: .13,.07
+        pos_hint: {'left':1, 'top':1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'right'
 
 
 <Create_New_Patient_Screen>:
@@ -136,11 +138,18 @@
         pos_hint: {'x':0.4, 'y':0.6}
         text:""
         height:80
+    D3Button:
+        text: "Home"
+        font_size: 20
+        size_hint: .13,.07
+        pos_hint: {'left':1, 'top':1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
 
 <Browse_Images_Screen>:
     FileChooserListView:
-        id: filechooser2
-
+        id: filechooser
 
     D3Button:
         text: "Cancel"
@@ -153,7 +162,15 @@
         text: "Select"
         pos_hint: {'x': 0.6, 'y':0.1}
         on_press:
-            root.button_press(self.text, data=filechooser2.selection)
+            root.button_press(self.text, data=filechooser.selection)
+            root.manager.transition.direction = 'left'
+    D3Button:
+        text: "Home"
+        font_size: 20
+        size_hint: .13,.07
+        pos_hint: {'left':1, 'top':1}
+        on_press:
+            root.button_press(self.text)
             root.manager.transition.direction = 'left'
 
 <Browse_Patients_Screen>:
@@ -175,15 +192,24 @@
             root.button_press(self.text, data=filechooser.selection)
             root.manager.transition.direction = 'left'
 
-<Sample_View_Screen>:
+    D3Button:
+        text: "Home"
+        size_hint: .13,.07
+        font_size: 20
+        pos_hint: {'left':1, 'top':1}
+        on_press:
+            root.button_press(self.text)
+            root.manager.transition.direction = 'left'
 
+<Sample_View_Screen>:
     StackLayout:
-        orientation:"bt-rl"
+        orientation:"rl-bt"
 
         D3Button:
-            size_hint: .2, .2
+            size_hint: .2, .1
             pos_hint:{"right":1,"bottom":1}
-            text: "Save\nSample"
+            text: "Save"
+            font_size: 20
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
@@ -195,14 +221,10 @@
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'right'
-        Histogram:
-            id: sample_histogram
-            size_hint: .2, .25
-            pos_hint: {'right':1, 'y':.5}
 
     D3Button:
         text: "Home"
-        font_size: 24
+        font_size: 20
         size_hint: .1, .1
         pos_hint: {'right':1, 'top':1}
         on_press:
@@ -210,7 +232,6 @@
 
     StackLayout:
         orientation: 'lr-tb'
-        pos_hint:{"x":0.04}
         spacing:[5,0]
 
         D3Button:
@@ -219,15 +240,9 @@
             font_size: 20
             on_press:
                 root.button_press(self.text)
-        D3Button:
-            text: "Cell Count"
-            size_hint: 0.15,0.1
-            font_size: 20
-            on_press:
-                root.button_press(self.text)
     D3Image:
-        size_hint: .77,.8
-        pos: 10,0
+        size_hint: 0.9,0.9
+        pos_hint: {"center_x":0.5,"center_y":0.5}
         id: sample_image
         source:
 
@@ -238,6 +253,7 @@
         spacing: [0,5]
         D3Button:
             size_hint: .2, .15
+            font_size: 20
             text: "Toggle\nLED"
             on_press:
                 root.button_press(self.text)
@@ -253,7 +269,7 @@
                     size: (self.size[0]/3,self.size[1]-1)
             D3Button:
                 text: "Reference\nImage"
-                font_size: 16
+                font_size: 19
                 size_hint: 1.0, 1.0
                 on_press:
                     root.button_press(self.text)
@@ -264,10 +280,15 @@
                 color: 0,1,0,1
                 size_hint: 0.5, 1.0
                 group:"1"
+        Histogram:
+            id: sample_histogram
+            size_hint: .2, .25
+            pos_hint: {'right':1, 'y':.5}
 
         D3Button:
             size_hint: .2, .2
             text: 'Capture'
+            font_size: 20
             on_press:
                 root.button_press(self.text)
                 root.manager.transition.direction = 'left'
@@ -343,6 +364,13 @@
         D3Button:
             id: next_marker_button
             text: "Next Marker"
+            size_hint: 0.2,0.1
+            font_size: 20
+            on_press:
+                root.button_press(self.text)
+        D3Button:
+            id: prev_marker_button
+            text: "Previous Marker"
             size_hint: 0.2,0.1
             font_size: 20
             on_press:
