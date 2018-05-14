@@ -18,8 +18,8 @@ from Display import Display as displays
 from Commands import Command as coms
 from Util import File_Processor as fp
 from kivy.graphics.texture import Texture
-from Machine_Learning.Lymphoma import Region_Detector as detector
-from Machine_Learning.Lymphoma import Region_Filter as rFilter
+#from Machine_Learning.Lymphoma import Region_Detector as detector
+#from Machine_Learning.Lymphoma import Region_Filter as rFilter
 import os
 import time
 import cv2
@@ -29,10 +29,10 @@ class Sample_View_State(State.State):
     def __init__(self, patient):
         super(Sample_View_State, self).__init__(patient)
         self._img = None
-        self._ref = cv2.imread("data/img/reference_image.png", cv2.IMREAD_ANYDEPTH)
-        self._camera_center = (self._ref.shape[0] / 2., self._ref.shape[1] / 2)
-        self._display_area = (self._ref.shape[1], self._ref.shape[0])
-        self._filter = rFilter.filter_CNN()
+        #self._ref = cv2.imread("data/img/reference_image.png", cv2.IMREAD_ANYDEPTH)
+        self._camera_center = (1080 / 2., 1920 / 2)
+        self._display_area = (1920, 1080)
+        #self._filter = rFilter.filter_CNN()
         self._cell_count = 0
         self.file_processor = None
         self.setup_dropbox()
@@ -110,11 +110,38 @@ class Sample_View_State(State.State):
         x1 = x - w // 2
         x2 = x + w // 2
         box = [x1, y1, x2, y2]
-        x1, y1, x2, y2, cx, cy = detector.reshapeBox(box, (w, h), (img.shape[1],img.shape[0]))
+        x1, y1, x2, y2, cx, cy = self.reshapeBox(box, (w, h), (img.shape[1],img.shape[0]))
         if len(img.shape) == 3:
             return img[y1:y2,x1:x2,:]
         return img[y1:y2,x1:x2]
 
+    def reshapeBox(self, box, shape, boundaryShape):
+        # Unpack the box.
+        x1, y1, x2, y2 = box
+        # h & w are the maximum x,y coordinates that the box is allowed to attain.
+        h, w = boundaryShape
+        # dw & dh are the desired width and height of the box.
+        dw, dh = shape
+
+        # Calculated the amount that the dimensions of the box will need to be changed
+        heightExpansion = dh - abs(y1 - y2)
+        widthExpansion = dw - abs(x1 - x2)
+
+        # Force y1 to be the smallest of the y values. Shift y1 by half of the necessary expansion. Bound y1 to a minimum of 0.
+        y1 = max(int(round(min(y1, y2) - heightExpansion / 2.)), 0)
+
+        # Force y2 to be the largest of the y values. Shift y2 by half the necessary expansion. Bound y2 to a maximum of h.
+        y2 = min(int(round(max(y1, y2) + heightExpansion / 2.)), h)
+
+        # These two lines are a repeat of the above y1,y2 calculations but with x and w instead of y and h.
+        x1 = max(int(round(min(x1, x2) - widthExpansion / 2.)), 0)
+        x2 = min(int(round(max(x1, x2) + widthExpansion / 2.)), w)
+
+        # Calculate the center point of the newly reshaped box, truncated.
+        cx = x1 + abs(x1 - x2) // 2
+        cy = y1 + abs(y1 - y2) // 2
+
+        return x1, y1, x2, y2, cx, cy
     #Refer to superclass documentation.
     def _init_paths(self):
         return
