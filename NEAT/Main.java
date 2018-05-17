@@ -20,9 +20,14 @@ public class Main
 	private ArrayList<DisplayObject> displayObjects;
 	private SortingUnit sorter;
 	private XORTester testUnit;
+	private Genome minimalStructure;
 	private int timeSinceLastImprovement;
+	private int age;
 	private int generation;
 	private boolean running;
+	private int stagnationTime;
+	private boolean success;
+	private int numTests;
 	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	public Main()
@@ -35,31 +40,45 @@ public class Main
 		phenotypes = new ArrayList<Phenotype>();
 		species = new ArrayList<Species>();
 		displayObjects = new ArrayList<DisplayObject>();
+		numTests = 1000;
 		generation = 0;
+		bestFitness = 0;
+		success = false;
+		age = 0;
 		table = new InnovationTable();
 		testUnit = new XORTester(rng);
 		sorter = new SortingUnit();
-		Genome minimalStructure = testUnit.buildMinimalSolution(table);
+		minimalStructure = testUnit.buildMinimalStructure(table);
+		stagnationTime = Config.MAX_TIME_SPECIES_STAGNATION + 5;
+		
 		for(int i=0;i<Config.POPULATION_SIZE;i++)
 		{
 			Organism org = new Organism(table.getNextOrganismID());
 			org.createMinimalGenotype(minimalStructure,table);
 			population.add(org);
 		}
+		testPhenotypes(false);
 		timeSinceLastImprovement = 0;
 		//setupWindow();
 		running = true;
-		run();
 	}
 	public void run()
 	{
-		while(running)
+		int numVictories = 0;
+		for(int i=0;i<numTests;i++)
 		{
-			epoch();
-			generation++;
-			try{Thread.sleep(250);}
-			catch(Exception e) {e.printStackTrace();}
+			init();
+			while(running && generation < 100)
+			{
+				epoch();
+				generation++;
+				//try{Thread.sleep(250);}
+				//catch(Exception e) {e.printStackTrace();}
+			}
+			if(success) {numVictories++;}
 		}
+		System.out.println("Successfully completed "+numVictories+" out of "+numTests+" tests");
+		
 	}
 	public void epoch()
 	{
@@ -67,15 +86,15 @@ public class Main
 		speciate();
 		tick();
 		repopulate();
-		testPhenotypes(generation%20==0);
-		printOutput();
+		testPhenotypes(false);
+		//printOutput();
 	}
 	public void printOutput()
 	{
 		System.out.println("\nGENERATION: "+generation);
 		System.out.println("POP SIZE: "+population.size());
 		System.out.println("SPECIES: "+species.size());
-		System.out.println("AVERAGE FITNESS: "+calculateAverageFitness());
+		System.out.println("AVERAGE FITNESS: "+calculateAverageAdjustedFitness());
 		System.out.println("AVERAGE SPECIES AGE: "+calculateAverageSpeciesAge());
 		System.out.println("AVERAGE SPECIES TSLI: "+calculateAverageSpeciesTSLI());
 		System.out.println("BEST FITNESS: "+bestFitness);
@@ -92,12 +111,7 @@ public class Main
 				newPop.add(org);
 			}
 		}
-		if(newPop.size()>Config.POPULATION_SIZE)
-		{
-			newPop = new SelectionUnit().eliteSelect(Config.POPULATION_SIZE, newPop);
-		}
 		population = newPop;
-		
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
 	public void speciate()
@@ -134,34 +148,29 @@ public class Main
 	}
 	public void tick()
 	{
+		age++;
 		timeSinceLastImprovement++;
-		double avg = calculateAverageFitness();
+		
 		for(Species s : species)
 		{
 			s.tick();
-			s.calculateSpawnAmounts(avg);
 			s.adjustFitnessValues();
+		}
+		
+		//Note that this is not in the above species loop because the global average adjusted
+		//fitness must be known before spawn amounts can be calculated.
+		double avg = calculateAverageAdjustedFitness();
+		for(Species s : species) 
+		{
+			s.calculateSpawnAmounts(avg);
 			//System.out.println(s);
 		}
-		if(timeSinceLastImprovement > Config.MAX_TIME_SPECIES_STAGNATION + 5)
+		/*if(timeSinceLastImprovement > stagnationTime)
 		{
-			Species survivor1 = species.get(species.size()-1);
-			Species survivor2 = null;
-			int side1 = Config.POPULATION_SIZE/2;
-			int side2 = Config.POPULATION_SIZE - side1;
-			survivor1.setSpawnAmount(0);
-			survivor1.setChampSpawns(side1);
-			if(species.size()>=2) 
-			{
-				survivor2 = species.get(species.size()-2);
-				survivor2.setSpawnAmount(side2);
-			}
-			else
-			{
-				survivor1.setChampSpawns(side1+side2);
-			}
-			
-		}
+			resetPop();
+			stagnationTime = age;
+			age = 0;
+		}*/
 	}
 	public void reset()
 	{
@@ -183,40 +192,78 @@ public class Main
 		displayObjects.clear();
 		double fitness = 0d;
 		int itr = 0;
-		for(Species s : species)
+		for(Organism org : population)
 		{
-			for(Organism org : s.getMembers())
+			org.createPhenotype(width/2,height/2);
+			fitness = testUnit.testPhenotype(org.getPhenotype());
+			if(fitness > bestFitness) 
 			{
-				org.createPhenotype(width/2,height/2);
-				fitness = testUnit.testPhenotype(org.getPhenotype());
-				if(fitness > bestFitness) 
-				{
-					bestFitness = fitness;
-					timeSinceLastImprovement=0;
-				}
-				org.setFitness(fitness);
-				displayObjects.add(org.getPhenotype());
-				if(save)
-				{
-					org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 600,600);
-				}
-				if(testUnit.victor)
-				{
-					System.out.println("FOUND VICTOR!\nFITNESS: "+fitness);
-					System.out.println("GENERATION: "+generation);
-					org.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
-					running = false;
-				}
+				bestFitness = fitness;
+				timeSinceLastImprovement=0;
+			}
+			org.setFitness(fitness);
+			displayObjects.add(org.getPhenotype());
+			if(save)
+			{
+				org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 600,600);
+			}
+			if(testUnit.victor)
+			{
+				System.out.println("\n\n******FOUND VICTOR!******");
+				System.out.println("GENERATION: "+generation+org);
+				org.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
+				running = false;
+				success = true;
 			}
 		}
 	}
-	public double calculateAverageFitness()
+	public void resetPop()
+	{
+		Organism globalChampion = species.get(0).getBestMember();
+		for(Species s : species)
+		{
+			if(s.getBestMember().getFitness() > globalChampion.getFitness())
+			{
+				globalChampion = s.getBestMember();
+			}
+		}
+		species = new ArrayList<Species>();
+		population = new ArrayList<Organism>();
+		for(int i=1;i<Config.POPULATION_SIZE;i++)
+		{
+			Organism org = new Organism(table.getNextOrganismID());
+			org.createMinimalGenotype(minimalStructure,table);
+			population.add(org);
+		}
+		population.add(globalChampion);
+		speciate();
+		timeSinceLastImprovement = 0;
+	}
+	public void deltaCoding()
+	{
+		Species survivor1 = species.get(species.size()-1);
+		Species survivor2 = null;
+		int side1 = Config.POPULATION_SIZE/2;
+		int side2 = Config.POPULATION_SIZE - side1;
+		survivor1.setSpawnAmount(0);
+		survivor1.setChampSpawns(side1);
+		if(species.size()>=2) 
+		{
+			survivor2 = species.get(species.size()-2);
+			survivor2.setSpawnAmount(side2);
+		}
+		else
+		{
+			survivor1.setChampSpawns(side1+side2);
+		}
+	}
+	public double calculateAverageAdjustedFitness()
 	{
 		if(population.size() == 0) {return 0d;}
 		double avg = 0d;
 		for(Organism org : population)
 		{
-			avg+=org.getFitness();
+			avg+=org.getAdjustedFitness();
 		}
 		return avg/population.size();
 	}
@@ -248,5 +295,5 @@ public class Main
 		f.setSize(width,height);
 		f.setVisible(true);
 	}
-	public static void main(String[] args){new Main();}
+	public static void main(String[] args){new Main().run();}
 }

@@ -24,7 +24,7 @@ public class Organism
 		speciesID=-1;
 		age = 0;
 		timeSinceLastImprovement = 0;
-		fitness = Math.random();
+		fitness = 0.0;
 		sorter = new SortingUnit();
 	}
 	public Organism(Organism other)
@@ -32,8 +32,8 @@ public class Organism
 		speciesID = other.getSpeciesID();
 		genotype = new Genome(other.getGenotype());
 		phenotype = null;
-		fitness = Math.random();
-		adjustedFitness = Math.random();
+		fitness = other.getFitness();
+		adjustedFitness = other.getAdjustedFitness();
 		spawnAmount = 0.0;
 		sorter = new SortingUnit();
 		bestFitness = other.getBestFitness();
@@ -192,7 +192,7 @@ public class Organism
 		output+="\nAge: "+age;
 		output+="\nLast improvement: "+timeSinceLastImprovement;
 		output+="\nSpawn amounts: "+spawnAmount;
-		output+="\nGenome: "+genotype;
+		output+=genotype;
 		output+="\nPhenotype: "+phenotype;
 		return output;
 	}

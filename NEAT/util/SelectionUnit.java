@@ -58,6 +58,7 @@ public class SelectionUnit
 		}
 		return winners;
 	}
+	
 	//basic roulette wheel selection
 	public ArrayList<Organism> rouletteSelect(int num, boolean adjusted, ArrayList<Organism> pop)
 	{

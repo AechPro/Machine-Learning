@@ -2,7 +2,7 @@ package NEAT.Genes;
 
 public class Connection 
 {
-	public final double WEIGHT_MAX = 200.0;
+	public final double WEIGHT_MAX = 12.0;
 	public final double WEIGHT_MIN = - WEIGHT_MAX;
 	private Node input;
 	private Node output;
