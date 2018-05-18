@@ -241,6 +241,7 @@ public class Species
 	public int getAge() {return age;}
 	public void setAge(int age) {this.age = age;}
 	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
+	public void setTimeSinceLastImprovement(int i) {timeSinceLastImprovement=i;}
 	public Organism getRepr() {return representative;}
 	public Organism getBestMember() 
 	{

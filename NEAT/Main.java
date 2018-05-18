@@ -40,13 +40,13 @@ public class Main
 		phenotypes = new ArrayList<Phenotype>();
 		species = new ArrayList<Species>();
 		displayObjects = new ArrayList<DisplayObject>();
-		numTests = 1000;
+		numTests = 100;
 		generation = 0;
 		bestFitness = 0;
 		success = false;
 		age = 0;
 		table = new InnovationTable();
-		testUnit = new XORTester(rng);
+		testUnit = new XORTester(rng,width,height);
 		sorter = new SortingUnit();
 		minimalStructure = testUnit.buildMinimalStructure(table);
 		stagnationTime = Config.MAX_TIME_SPECIES_STAGNATION + 5;
@@ -165,12 +165,10 @@ public class Main
 			s.calculateSpawnAmounts(avg);
 			//System.out.println(s);
 		}
-		/*if(timeSinceLastImprovement > stagnationTime)
+		if(timeSinceLastImprovement > Config.MAX_TIME_POPULATION_STAGNATION)
 		{
-			resetPop();
-			stagnationTime = age;
-			age = 0;
-		}*/
+			deltaCoding();
+		}
 	}
 	public void reset()
 	{
@@ -190,31 +188,24 @@ public class Main
 	public void testPhenotypes(boolean save)
 	{
 		displayObjects.clear();
-		double fitness = 0d;
+		Organism victor = testUnit.testPhenotypes(population);
+		
 		int itr = 0;
 		for(Organism org : population)
 		{
-			org.createPhenotype(width/2,height/2);
-			fitness = testUnit.testPhenotype(org.getPhenotype());
-			if(fitness > bestFitness) 
-			{
-				bestFitness = fitness;
-				timeSinceLastImprovement=0;
-			}
-			org.setFitness(fitness);
 			displayObjects.add(org.getPhenotype());
 			if(save)
 			{
 				org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 600,600);
 			}
-			if(testUnit.victor)
-			{
-				System.out.println("\n\n******FOUND VICTOR!******");
-				System.out.println("GENERATION: "+generation+org);
-				org.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
-				running = false;
-				success = true;
-			}
+		}
+		if(victor != null)
+		{
+			System.out.println("\n\n******FOUND VICTOR!******");
+			System.out.println("GENERATION: "+generation+victor);
+			victor.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
+			running = false;
+			success = true;
 		}
 	}
 	public void resetPop()
@@ -247,15 +238,18 @@ public class Main
 		int side2 = Config.POPULATION_SIZE - side1;
 		survivor1.setSpawnAmount(0);
 		survivor1.setChampSpawns(side1);
+		survivor1.setTimeSinceLastImprovement(0);
 		if(species.size()>=2) 
 		{
 			survivor2 = species.get(species.size()-2);
 			survivor2.setSpawnAmount(side2);
+			survivor2.setTimeSinceLastImprovement(0);
 		}
 		else
 		{
 			survivor1.setChampSpawns(side1+side2);
 		}
+		//timeSinceLastImprovement = 0;
 	}
 	public double calculateAverageAdjustedFitness()
 	{

@@ -77,21 +77,24 @@ public class Genome
 	{
 		double mutationRate = Config.CONNECTION_ADD_CHANCE;
 		int maxAttempts = Config.MAX_ATTEMPTS_ADD_CONNECTION;
-		if(Math.random()>mutationRate){return;}
+		if(rand.nextDouble()>mutationRate){return;}
 		Node n1 = null;
 		Node n2 = null;
 		int inpIdx = -1;
 		int outIdx = -1;
+		boolean recursive = false;
 		boolean found = false;
 		while(maxAttempts-->0)
 		{
 			inpIdx = rand.nextInt(nodes.size());
-			outIdx = rand.nextInt(nodes.size()-inputs) + inputs;
-			if(outIdx == inpIdx){continue;}
+			if(rand.nextDouble()<Config.RECURSIVE_CONNECTION_CHANCE){outIdx=inpIdx; recursive=true;}
+			else{outIdx = rand.nextInt(nodes.size()-inputs) + inputs;}
 			n1 = nodes.get(inpIdx);
 			n2 = nodes.get(outIdx);
-			if(n2.getType() == Node.INPUT_NODE || n1.equals(n2) || duplicateConnection(n1.getID(),n2.getID())
-					|| n2.getType() == Node.BIAS_NODE || n1.getType() == Node.OUTPUT_NODE){continue;}
+			if(n2.getType() == Node.INPUT_NODE || duplicateConnection(n1.getID(),n2.getID())
+					|| n2.getType() == Node.BIAS_NODE || n1.getType() == Node.OUTPUT_NODE
+					|| (inpIdx == outIdx && !recursive))
+			{continue;}
 			else
 			{
 				maxAttempts = 0;
@@ -109,10 +112,9 @@ public class Genome
 	{
 		double mutationRate = Config.NODE_ADD_CHANCE;
 		int maxAttempts = Config.MAX_ATTEMPTS_ADD_NODE;
-		if(Math.random()>mutationRate){return;}
+		if(rand.nextDouble()>mutationRate){return;}
 		
 		boolean foundSplit = false;
-		int sizeThresh = inputs+outputs+5;
 		int idx = 0;
 		Node inp;
 		
@@ -121,7 +123,8 @@ public class Genome
 			idx = rand.nextInt(connections.size());
 			inp = connections.get(idx).getInput();
 			
-			if(inp.getType() != Node.BIAS_NODE && connections.get(idx).isEnabled()){foundSplit = true;}
+			if(connections.get(idx).isEnabled())
+			{foundSplit = true;}
 		}
 		
 		if(!foundSplit){return;}
@@ -176,12 +179,12 @@ public class Genome
 		for(Connection con : connections)
 		{
 			if(con.getInput().getType() == Node.BIAS_NODE){continue;}
-			if(Math.random()<mutationRate)
+			if(rand.nextDouble()<mutationRate)
 			{
 				double mutationValue = new Random().nextGaussian();
 				con.setWeight(con.getWeight() + mutationValue*maxPerturb);
 			}
-			else if(Math.random()<replaceProb)
+			else if(rand.nextDouble()<replaceProb)
 			{
 				double mutationValue = new Random().nextGaussian();
 				con.setWeight(mutationValue);
@@ -194,9 +197,9 @@ public class Genome
 		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;
 		for(Node n : nodes)
 		{
-			if(Math.random()<mutationRate)
+			if(rand.nextDouble()<mutationRate)
 			{
-				double mutationValue = new Random().nextGaussian()*maxPerturb;
+				double mutationValue = new Random().nextGaussian()*maxPerturb/3;
 				n.setActivationResponse(n.getActivationResponse()+mutationValue);
 			}
 		}

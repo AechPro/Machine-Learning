@@ -8,6 +8,7 @@ public class Connection
 	private Node output;
 	private double weight;
 	private boolean enable;
+	private boolean recursive;
 	private int innovID;
 	
 	public Connection(Node in, Node out, double w, boolean en, int innov)
@@ -21,13 +22,14 @@ public class Connection
 			setInput(in);
 		}
 		catch(Exception e){e.printStackTrace();}
-		
+		recursive = in.equals(out);
 	}
 	public Connection(Connection other)
 	{
 		weight = other.getWeight();
 		enable = other.isEnabled();
 		innovID = other.getInnovation();
+		recursive = other.isRecursive();
 		try
 		{
 			setOutput(new Node(other.getOutput()));
@@ -51,6 +53,7 @@ public class Connection
 	public double getWeight() {return weight;}
 	public int getInnovation(){return innovID;}
 	public boolean isEnabled() {return enable;}
+	public boolean isRecursive() {return recursive;}
 	
 	public void setOutput(Node output) throws Exception
 	{
@@ -63,6 +66,9 @@ public class Connection
 			throw new Exception("Attempted to set output of connection to a bias node!\n"+input+" "+output+"\n"+toString());
 		}
 		this.output = output;
+		
+		if(input != null && output != null) 
+		{recursive = input.equals(this.output);}
 	}
 	public void setWeight(double weight)
 	{
@@ -70,16 +76,14 @@ public class Connection
 	}
 	public void setEnable(boolean enable) {this.enable = enable;}
 	public void setInnovation(int ID){innovID = ID;}
-	public void setInput(Node input) throws Exception
+	public void setInput(Node input)
 	{
-		if(input.getID() == output.getID())
-		{
-			throw new Exception("A node cannot be connected to itself! "+input+" "+output);
-		}
 		this.input = input;
+		
+		if(this.input != null && output != null) 
+		{recursive = this.input.equals(output);}
 	}
-	
-	
+	public void setRecursive(boolean i) {recursive=i;}
 	public String toString()
 	{
 		String repr = "---Connection Gene---\nInnovation: "+getInnovation()+"\nEnabled: "+enable;

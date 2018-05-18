@@ -6,6 +6,7 @@ import java.util.Random;
 import NEAT.Genes.Connection;
 import NEAT.Genes.Node;
 import NEAT.Population.Genome;
+import NEAT.Population.Organism;
 import NEAT.Population.Phenotype;
 
 public class XORTester 
@@ -16,11 +17,14 @@ public class XORTester
 	public final int minimumHiddenNodes = 1;
 	public int numHiddenNodes = 0;
 	public boolean victor;
-	public Random rand;
-	public XORTester(Random rng)
+	public Random randf;
+	private int width, height;
+	public XORTester(Random rng,int w,int h)
 	{
-		rand = rng;
+		randf = rng;
 		victor = false;
+		width=w;
+		height=h;
 	}
 	public Genome buildMinimalStructure(InnovationTable table)
 	{
@@ -29,7 +33,6 @@ public class XORTester
 		ArrayList<Node> inputNodes = new ArrayList<Node>();
 		ArrayList<Node> outputNodes = new ArrayList<Node>();
 		ArrayList<Node> biasNodes = new ArrayList<Node>();
-		Random randf = new Random((long)(Math.random()*Long.MAX_VALUE));
 		Genome minimalGenome = null;
 		for(int i=0;i<numBiasNodes;i++)
 		{
@@ -70,7 +73,7 @@ public class XORTester
 				cons.add(c);
 			}
 		}
-		minimalGenome = new Genome(cons,nodes,table,rand,numInputs,numOutputs);
+		minimalGenome = new Genome(cons,nodes,table,randf,numInputs,numOutputs);
 		return minimalGenome;
 	}
 	public Genome buildMinimalSolution(InnovationTable table)
@@ -138,11 +141,41 @@ public class XORTester
 			Connection c = new Connection(node,outputNodes.get(i),randf.nextGaussian(),true,id);
 			cons.add(c);
 		}
-		minimalGenome = new Genome(cons,nodes,table,rand,numInputs,numOutputs);
+		minimalGenome = new Genome(cons,nodes,table,randf,numInputs,numOutputs);
 		return minimalGenome;
+	}
+	public Organism testPhenotypes(ArrayList<Organism> population)
+	{
+		double fitness = 0;
+		for(Organism org : population)
+		{
+			org.createPhenotype(width/2,height/2);
+			//System.out.println(org);
+			try
+			{
+				fitness = testPhenotype(org.getPhenotype());
+			}
+			catch(Exception e)
+			{
+				System.out.println("FAILED");
+				System.out.println(org);
+				System.out.println(org.getPhenotype().getDepth());
+				System.out.println(org.getPhenotype().getNodes().size());
+				org.getPhenotype().saveAsImage("resources/NEAT/debug/victor/failure.png", 600,600);
+				e.printStackTrace();
+				System.exit(0);
+			}
+			org.setFitness(fitness);
+			if(victor)
+			{
+				return org;
+			}
+		}
+		return null;
 	}
 	public double testPhenotype(Phenotype phen)
 	{
+		if(!validatePhenotype(phen)) {return Math.random()*0.001;}
 		victor = false;
 		double accuracy = 0.0;
 		double fitness = 0.0;
@@ -168,12 +201,18 @@ public class XORTester
 				if(NNOutputs[i] < 0.5 && outputs[i][0] == 0.0) {accuracy++;}
 				else if(NNOutputs[i] >= 0.5 && outputs[i][0] == 1.0) {accuracy++;}
 			}
-			fitness = Math.pow(4.0 - fitness, 2);
+			fitness = Math.pow(4.0 - fitness, 2) - phen.getNodes().size()/10;
 		}
 		else{fitness = Math.random()*0.001;}
 		accuracy/=outputs.length;
 		victor = accuracy == 1.0;
 		return fitness;
+	}
+	public boolean validatePhenotype(Phenotype phen)
+	{
+		if(phen.getDepth() == -1) {return false;}
+		if(phen.getOutputNodes().size() == 0) {return false;}
+		return true;
 	}
 	public static final double[][] inputs = new double[][]
 	{

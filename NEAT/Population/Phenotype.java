@@ -151,6 +151,8 @@ public class Phenotype extends DisplayObject
 	public int calculateDepth()
 	{
 		ArrayList<Double> uniqueYVals = new ArrayList<Double>();
+		int numRecursiveCons = 0;
+		boolean found = false;
 		for(Node n : nodes)
 		{
 			boolean contained = false;
@@ -163,7 +165,27 @@ public class Phenotype extends DisplayObject
 				uniqueYVals.add(n.getSplitY());
 			}
 		}
-		return uniqueYVals.size()-1;
+		for(double val : uniqueYVals)
+		{
+			for(Node n : nodes)
+			{
+				if(val == n.getSplitY())
+				{
+					found = false;
+					for(Connection c : n.getOutputs())
+					{
+						if(c.isRecursive()) 
+						{
+							numRecursiveCons++;
+							found = true;
+							break;
+						}
+					}
+				}
+				if(found) {break;}
+			}
+		}
+		return uniqueYVals.size() - 1 + numRecursiveCons;
 	}
 	public void reset()
 	{
@@ -193,11 +215,19 @@ public class Phenotype extends DisplayObject
 		{
 			for(Connection c : n.getOutputs())
 			{
-				int x1 = x + n.getX() + r/2;
-				int y1 = y + n.getY() + r/2;
-				int x2 = x + c.getOutput().getX()+r/2;
-				int y2 = y + c.getOutput().getY()+r/2;
-				g.drawLine(x1, y1, x2, y2);
+				if(c.isRecursive())
+				{
+					g.drawOval(x+n.getX()+r/2,y+n.getY(),r,r);
+				}
+				else
+				{
+					int x1 = x + n.getX() + r/2;
+					int y1 = y + n.getY() + r/2;
+					int x2 = x + c.getOutput().getX()+r/2;
+					int y2 = y + c.getOutput().getY()+r/2;
+					g.drawLine(x1, y1, x2, y2);
+				}
+				
 			}
 		}
 		for(Node n : nodes)
