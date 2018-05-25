@@ -1,9 +1,9 @@
-## Cell Localization with Machine Learning and Region-Based Hologram Reconstruction for Lymphoma Diagnosis.
+## Cell Localization with Deep Learning and Region-Based Hologram Reconstruction for Lymphoma Diagnosis.
 
 This project was created by Matthew W. Allen for Partner's Healthcare.
 
 ## Required packages
-This project requires the following packages:
+This project requires the following (or equivalent) packages:
 - Python 3.6.1
 - Numpy 1.13.1
 - Keras 2.0.6
@@ -14,8 +14,8 @@ This project requires the following packages:
 - skimage 0.13.0
 
 
-## USAGE
-This project finds diagnostic data from holographic images of cells. The project is designed to process multiple files at once. There are four directories available, each is meant to contain a unique reference image and as many images as were taken during a test.
+## Usage
+This project leverages Deep Learning to detect cells in holographic images without the need for object reconstruction. These can then be individually reconstructed and used to find diagnostic data. The code is able to process multiple files at once in the event that several images are provided. There are four input directories available, each is meant to contain a unique reference image and any number of hologram images associated with that reference.
 
 1. Download the repository and unpack it anywhere.
 2. Place all of the hologram images that need to be processed in one of the available processing bin directories located in ```resources/holograms```.
