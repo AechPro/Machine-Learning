@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+from kivy.logger import Logger
 import datetime
-
+import time
 class Patient(object):
     def __init__(self, user_ID, user_name):
         super(Patient, self).__init__()
@@ -30,11 +30,14 @@ class Patient(object):
         date_string = "{}{}{}{}{}{}".format(t.year, t.month, t.day, t.hour, t.minute, t.second)
         file_name = "{}_{}_{}.txt".format(self._ID, self._name, date_string)
         file_directory = ''.join([self.file_path, file_name])
-
-        with open(file_directory, 'w') as f:
-            f.write("{}\n{}\n".format(self._ID, self._name))
-            for entry in self._data:
-                f.write("{}\n".format(entry))
+        try:
+            with open(file_directory, 'w') as f:
+                f.write("{}\n{}\n".format(self._ID, self._name))
+                for entry in self._data:
+                    f.write("{}\n".format(entry))
+        except Exception as e:
+            Logger.exception("Exception trying to write patient data!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
 
     def load(self, file_path):
         print(file_path)
@@ -60,7 +63,9 @@ class Patient(object):
             with open(''.join([self.file_path,file_name])) as f:
                 lines = f.readlines()
                 self._data = [line for line in lines]
-        except:
+        except Exception as e:
+            Logger.exception("Exception trying to load patient profile!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
             return False
         print("PATIENT NAME:", self._name)
         print("PATIENT ID:", self._ID)

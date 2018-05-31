@@ -18,7 +18,13 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 import cv2
-import RPi.GPIO as GPIO
+from kivy.logger import Logger
+import time
+try:
+    import RPi.GPIO as GPIO
+except Exception as e:
+    Logger.exception("Exception trying to import RPi GPIO Library!\nTIME: {}\nEXCEPTION: {}".
+                     format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
 
 LED_PIN = 19 # Broadcom Pin 4
 
@@ -29,37 +35,41 @@ class Idle_State(State.State):
     """
     def __init__(self,patient):
         super(Idle_State,self).__init__(patient)
-        self._LED_state = GPIO.HIGH
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(LED_PIN, GPIO.OUT)
-        GPIO.output(LED_PIN,self._LED_state)
+        try:
+            self._LED_state = GPIO.HIGH
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(LED_PIN, GPIO.OUT)
+            GPIO.output(LED_PIN,self._LED_state)
+        except Exception as e:
+            Logger.exception("Exception trying to set up GPIO LED pin!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
         self._hist_update_tick = 0
         self._camera = None
 
 
     def on_enter(self):
-        if self._camera is not None:
-            self._camera.start()
+        pass
+        #if self._camera is not None:
+            #self._camera.start()
 
     def execute(self):
         super(Idle_State, self).execute()
-        if self._hist_update_tick >= 60:
-            self._hist_update_tick = 0
-            self.toggle_LED()
         try:
             if self._camera is None:
                 self._camera = self._display.ids.get('camera',None)
             if self._hist_update_tick >= 60:
-
                 self._hist_update_tick = 0
                 frame = self._camera.get_current_frame()
                 if frame is not None:
-                    self._display.ids["ref_taken_radio_button"].active = not self._display.ids[
-                        "ref_taken_radio_button"].active
-                    self._display.ids['hist'].set_data(frame)
+                    self._display.ids["ref_taken_radio_button"].active = \
+                        not self._display.ids["ref_taken_radio_button"].active
+                    self._display.ids['sample_histogram'].set_data(frame)
             self._hist_update_tick+=1
-        except:
-            print("Unable to execute Idle loop!")
+
+        except Exception as e:
+            Logger.exception("Exception trying to execute IDLE state loop!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"),e))
+
     def toggle_LED(self):
         try:
             if self._LED_state == GPIO.LOW:
@@ -67,25 +77,20 @@ class Idle_State(State.State):
             else:
                 self._LED_state = GPIO.LOW
             GPIO.output(LED_PIN, self._LED_state)
-        except:
-            print("Unable to toggle LED!")
+        except Exception as e:
+            Logger.exception("Exception trying to toggle LED!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"),e))
 
     def capture(self):
-        '''
-        Function to capture the images and give them the names
-        according to their captured time and date.
-        '''
         self._display.advance_radio_button_color()
         try:
-            filename = 'TEMP_'+str(self._current_patient._ID)+".png"
             img = self._camera.get_current_frame()
             self._commands["TRANSFER IMAGE"].execute(data=img)
-            self._camera.stop()
+            #self._camera.stop()
             print("Captured")
-        except:
-            img = cv2.imread("Machine_Learning/Lymphoma/test_hologram.png")
-            self._commands["TRANSFER IMAGE"].execute(data=img)
-            print("Unable to capture!")
+        except Exception as e:
+            Logger.exception("Unable to capture hologram!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
             return False
         return True
 

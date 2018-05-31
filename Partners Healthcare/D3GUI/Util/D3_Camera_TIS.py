@@ -47,14 +47,16 @@ class D3_Camera(CameraBase):
         self._fps = 0
         self._pipeline = None
         self._loop = None
-        self._capture_width, self._capture_height = 3872, 2764
+        self._capture_width, self._capture_height = 2592, 1944
         self._num_frames_to_buffer = 1
         self._frame_buffer = [None for _ in range(self._num_frames_to_buffer)]
         self._frame_ptr = 0
         self.display_pipeline = None
         self._resolution = kwargs.get('resolution')
+
         print("RES: ",self._resolution)
         super(D3_Camera, self).__init__(**kwargs)
+        self.stopped = False
 
     def init_camera(self):
         Gst.init(sys.argv)  # init gstreamer
@@ -70,6 +72,7 @@ class D3_Camera(CameraBase):
                     and int(format.get_value("width")) == self._capture_width \
                     and int(format.get_value("height")) == self._capture_height:
                 fmt = format
+            print(format.get_value("format"), format.get_value("width"), format.get_value("height"))
 
         frame_rates = get_frame_rate_list(fmt)
         numerator, denominator = frame_rates[0].split("/")
@@ -82,7 +85,7 @@ class D3_Camera(CameraBase):
             if n / d > numerator / denominator:
                 numerator = n
                 denominator = d
-        numerator = 1
+
         fmt.set_value("framerate", Gst.Fraction(int(numerator), int(denominator)))
         print("----VIDEO FORMAT SPECIFICATIONS----\nWidth: {}\nHeight: {}\nFPS: {}\nFormat: {}"
               .format(fmt.get_value("width"), fmt.get_value("height"), fmt.get_value("framerate"),
@@ -100,7 +103,7 @@ class D3_Camera(CameraBase):
         # thread.
         queue = Gst.ElementFactory.make("queue")
         queue.set_property("leaky", True)
-        queue.set_property("max-size-buffers", 1)
+        queue.set_property("max-size-buffers", 2)
         # Add a videoconvert and a videoscale element to convert the format of the
         # camera to the target format for opencv
         convert = Gst.ElementFactory.make("videoconvert")
@@ -110,15 +113,15 @@ class D3_Camera(CameraBase):
         output = Gst.ElementFactory.make("appsink")
         output.set_property("caps", Gst.Caps.from_string(TARGET_FORMAT))
         output.set_property("emit-signals", True)
-        self._pipeline = Gst.Pipeline.new()
+        pipeline = Gst.Pipeline.new()
 
         # Add all elements
-        self._pipeline.add(source)
-        self._pipeline.add(capsfilter)
-        self._pipeline.add(queue)
-        self._pipeline.add(convert)
-        self._pipeline.add(scale)
-        self._pipeline.add(output)
+        pipeline.add(source)
+        pipeline.add(capsfilter)
+        pipeline.add(queue)
+        pipeline.add(convert)
+        pipeline.add(scale)
+        pipeline.add(output)
 
         # Link the elements
         source.link(capsfilter)
@@ -126,8 +129,13 @@ class D3_Camera(CameraBase):
         queue.link(convert)
         convert.link(scale)
         scale.link(output)
+
+        # Usually one would use cv2.imgshow(...) to display an image but this is
+        # tends to hang in threaded environments. So we create a small display
+        # pipeline which we could use to display the opencv buffers.
         output.connect("new-sample", self.camera_callback)
-        self._pipeline.set_state(Gst.State.PLAYING)
+        pipeline.set_state(Gst.State.PLAYING)
+
         self._loop = GLib.MainLoop()
         #source.set_property("gain",1)
         """tbin = source
@@ -163,9 +171,9 @@ class D3_Camera(CameraBase):
                 res, mapinfo = buf.map(Gst.MapFlags.READ)
 
                 img_array = np.asarray(bytearray(mapinfo.data), dtype=np.uint8)
-
                 img = img_array.reshape((height, width))
                 img = cv2.cvtColor(img,cv2.COLOR_GRAY2RGB)
+
                 self._frame_buffer[self._frame_ptr] = img
                 self._frame_ptr+=1
 
@@ -212,6 +220,7 @@ class D3_Camera(CameraBase):
     def stop(self):
         self._loop.quit()
         self._pipeline.set_state(Gst.State.NULL)
+        self.stopped = True
         super(D3_Camera, self).stop()
 
     def get_current_frame(self):

@@ -230,16 +230,31 @@
         on_press:
             root.button_press(self.text)
 
+    D3Label:
+        id: cell count label
+        text: "Cell Count: 10000"
+        size_hint:.2,.1
+        font_size: 26
+        pos_hint: {"x":0.645,"y":0.935}
+
     StackLayout:
         orientation: 'lr-tb'
         spacing:[5,0]
 
         D3Button:
-            text: "Cell Detection on/off"
-            size_hint: 0.25,0.1
+            text: "Detect Cells"
+            size_hint: 0.25,0.085
             font_size: 20
             on_press:
                 root.button_press(self.text)
+
+        D3Button:
+            text: "Detect Blobs"
+            size_hint: 0.25,0.085
+            font_size: 20
+            on_press:
+                root.button_press(self.text)
+
     D3Image:
         size_hint: 0.9,0.9
         pos_hint: {"center_x":0.5,"center_y":0.5}
@@ -342,6 +357,7 @@
                     color: 1,1,1,2
                     size_hint: 1.0, 1.0
                     group:"3"
+
     Camera_Canvas:
         size_hint: 1.0,0.885
         pos_hint: {'x':-0.1, 'y':0.005}

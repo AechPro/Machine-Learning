@@ -18,7 +18,9 @@ from copy import copy
 import cv2
 import numpy as np
 import os
-import Region_Filter as rFilter
+import Machine_Learning.Lymphoma.Region_Filter as rFilter
+
+params = [11, 68, 236, 0.46394341374428594, 0.20434550448034017, 200, 1, 0.32948156997486944, 5]
 
 """
     Function to extract cells from a normalized image taken through holographic microscopy.
@@ -105,8 +107,8 @@ def extract_regions(sourceImg, reference, params, imName, cellName="a0", flter=N
                 cellDict["ref"] = reference[y1:y2, x1:x2]
                 cellDict["name"] = name
                 cells.append(cellDict)
-                cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 255, 0), 1)
-                cv2.rectangle(vis, (cx, cy), (cx, cy), (0, 0, 255), 5)
+                #cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                cv2.rectangle(vis, (cx, cy), (cx, cy), (255, 0, 0), 5)
         elif show:
             cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 255, 0), 1)
             cv2.rectangle(vis, (cx, cy), (cx, cy), (0, 0, 255), 5)
@@ -119,9 +121,9 @@ def extract_regions(sourceImg, reference, params, imName, cellName="a0", flter=N
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     # If displaying is not requested, save image with classified regions shown.
-    elif classify:
-        cv2.imwrite(imName, vis)
-    return np.asarray(regions), np.asarray(cells), time.time()-t1
+    #elif classify:
+        #cv2.imwrite(imName, vis)
+    return np.asarray(regions), np.asarray(cells), time.time()-t1, vis
 
 
 """Wrapper function for extract_regions that uses a pre-determined parameter set for the MSER algorithm."""
@@ -129,10 +131,9 @@ def extract_regions(sourceImg, reference, params, imName, cellName="a0", flter=N
 
 def get_regions(sourceImage, reference, cellName="a0", imName="test.png", flter=None, show=False, classify=True):
     # Parameter set for MSER algorithm. These parameters were found via numerical optimization.
-    params = [11, 68, 236, 0.46394341374428594, 0.20434550448034017, 200, 1, 0.32948156997486944, 5]
-    regions, cells, calcTime = extract_regions(sourceImage, reference, params, imName, cellName=cellName, flter=flter, show=show,
+    regions, cells, calcTime,vis = extract_regions(sourceImage, reference, params, imName, cellName=cellName, flter=flter, show=show,
                                      classify=classify)
-    return regions, cells, calcTime
+    return regions, cells, calcTime,vis
 
 
 """
@@ -267,11 +268,13 @@ def MSER_blobs(img, params, mask=None, display=None):
             print("Display image correctly formatted.")
         print(len(hulls))
         cv2.polylines(display, hulls, 1, (0, 65000, 0))
-        cv2.imshow("Display Image with MSER hulls", display)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        cv2.imwrite("MSER Hulls.png", display)
+        #cv2.imshow("Display Image with MSER hulls", display)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        #cv2.imwrite("MSER Hulls.png", display)
     hulls = np.asarray(hulls)
+    if display is not None:
+        return hulls,display
     return hulls
 
 def name_region(name):
@@ -298,7 +301,7 @@ def process_folders(workingDirectory):
             filePath = fullFilePath[:fullFilePath.rfind(".png")]
             print("PROCESSING",fullFilePath)
             img = cv2.imread(fullFilePath,cv2.IMREAD_ANYDEPTH)
-            regions, cells, t = get_regions(img,ref,imName="detected.png",flter=flter,classify=True)
+            regions, cells, t, _ = get_regions(img,ref,imName="detected.png",flter=flter,classify=True)
             processedImages.append([regions,cells,t,filePath])
     return processedImages
 def process_folder(workingDirectory):
@@ -315,7 +318,7 @@ def process_folder(workingDirectory):
             os.makedirs(''.join([filePath,'/docs']))
             os.makedirs(''.join([filePath,'/detected_image']))
         img = cv2.imread(fullFilePath, cv2.IMREAD_ANYDEPTH)
-        regions, cells, t = get_regions(img, ref, imName=''.join([filePath,'/detected_image/img.png']),flter=flter,classify=True)
+        regions, cells, t, _ = get_regions(img, ref, imName=''.join([filePath,'/detected_image/img.png']),flter=flter,classify=True)
         processedImages.append([regions, cells, t, filePath])
     return processedImages
 
@@ -329,19 +332,3 @@ def save_cell_data(workingDirectory, data):
         with open(''.join([filePath,'/docs/cell_coordinates.txt']), 'w') as file:
             for cell in cells:
                 file.write(" ( {} {} )\n".format(cell["coordinates"][0], cell["coordinates"][1]))
-
-"""
-fileName = ''.join([directory, "/6.png"])
-refName = ''.join([directory, '/reference_image.png'])
-img = cv2.imread(fileName,cv2.IMREAD_ANYDEPTH)
-ref = cv2.imread(refName,cv2.IMREAD_ANYDEPTH)
-params = [11, 87, 340, 0.586, 0.638, 537, 6, 0.477, 11]
-# [[0, 11], [1, 87], [2, 349], [3, 0.5863479210136373],
-# [4, 0.6381890160131337], [5, 537, 1], [6, 6], [7, 0.47677183707858417], [8, 11]]
-
-#params = [11, 68, 236, 0.464, 0.204, 200, 1, 0.329, 5]
-
-#sourceImage, reference, cellName="a0", imName="test.png", flter=None, show=False, classify=False):
-regions, cells, t = get_regions(img,ref,imName="normal_test.png",show=False,classify=True)
-regions, cells, t = extract_regions(img, ref, params, imName="genome_test.png", cellName="a0", flter=None, show=True,
-                                     classify=True)"""

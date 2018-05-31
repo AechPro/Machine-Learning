@@ -17,7 +17,10 @@ limitations under the License.
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+from kivy.logger import Logger
+import time
 import cv2
+import numpy as np
 
 class Browse_Images_State(State.State):
 
@@ -35,14 +38,18 @@ class Browse_Images_State(State.State):
             img_name = file_path.split("\\")[-1]
         elif "/" in file_path:
             img_name = file_path.split("/")[-1]
+        ref_name = img_name[:img_name.rfind(".png")]
         try:
-            print(img_name)
             img = cv2.imread(''.join(["data/img/samples/",img_name]),cv2.IMREAD_ANYDEPTH)
-            if img is None:
+            ref = cv2.imread(''.join(["data/img/samples/",ref_name,"_ref.png"]),cv2.IMREAD_ANYDEPTH)
+            print(ref_name)
+            if img is None or ref is None:
                 return False
-            self._commands["TRANSFER IMAGE"].execute(img)
+            self._commands["TRANSFER IMAGE"].execute(np.array([img,ref]))
             return True
-        except:
+        except Exception as e:
+            Logger.exception("Exception trying to load image!\nTIME: {}\nEXCEPTION: {}".format(time.strftime
+                                                                                             ("%m/%d/%Y_%H:%M:%S"), e))
             return False
     def _init_paths(self):
         return

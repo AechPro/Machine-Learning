@@ -16,6 +16,8 @@ limitations under the License.
 from States import State
 from Display import Display as displays
 from Commands import Command as coms
+from kivy.logger import Logger
+from kivy.config import Config
 from kivy.uix.popup import Popup
 import time
 import os
@@ -43,9 +45,9 @@ class Login_State(State.State):
                 if username.strip() == str(tried_username) and password.strip() == str(tried_password):
                     print("Match Found")
                     return True
-        except IOError as ioe:
-            #log error
-            print(ioe)
+        except Exception as e:
+            Logger.exception("Exception trying to validate login data!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
             return False
 
     #Refer to superclass documentation.

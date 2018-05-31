@@ -16,7 +16,10 @@ limitations under the License.
 
 from Util import System_Initializer as sys_init
 from kivy.clock import Clock
+from kivy.config import Config
 from kivy.app import App
+from kivy.logger import Logger
+import time
 import sys
 
 class MainApp(App):
@@ -27,10 +30,9 @@ class MainApp(App):
     """
     def __init__(self):
         super(MainApp,self).__init__()
-        print("MAIN INIT")
         
         #Set up instance variables only.
-        self.current_state = "CHANGE PATIENT"
+        self.current_state = "IDLE"
         self.states = None
         self.manager = None
         self.state_history = [self.current_state]
@@ -60,7 +62,8 @@ class MainApp(App):
             try:
                 self.recover()
             except Exception as e:
-                print("CRITICAL FAILURE")
+                Logger.exception("Unable to recover from system failure!\nTIME: {}\nEXCEPTION: {}".
+                                 format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
                 #log things
 
         elif not self.running:
@@ -131,6 +134,7 @@ class MainApp(App):
         return self.manager
 
     def start(self):
+        Config.set('kivy', 'keyboard_mode', 'dock')
         self.clk = Clock.schedule_interval(lambda f: self.state_machine(), 1. / self.fps)
         
     def on_stop(self, *largs):
@@ -140,8 +144,9 @@ class MainApp(App):
             stupid_camera_object = self.states["IDLE"].get_display_panel().ids["camera"]
             stupid_camera_object._camera.stop()
             stupid_camera_object._camera._device.release()
-        except:
-            print("Camera device not detected. Release successful.")
+        except Exception as e:
+            Logger.exception("Exception trying to release camera!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
         if self.clk is not None:
             self.clk.cancel()
             self.clk = None

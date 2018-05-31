@@ -17,37 +17,70 @@ from States import State
 from Display import Display as displays
 from Commands import Command as coms
 from Util import File_Processor as fp
+from kivy.logger import Logger
 from kivy.graphics.texture import Texture
-#from Machine_Learning.Lymphoma import Region_Detector as detector
-#from Machine_Learning.Lymphoma import Region_Filter as rFilter
 import os
 import time
 import cv2
 import numpy as np
 
+try:
+    from Machine_Learning.Lymphoma import Region_Detector as detector
+    from Machine_Learning.Lymphoma import Region_Filter as rFilter
+except Exception as e:
+    Logger.exception("Exception importing machine learning libs!\nTIME: {}\nEXCEPTION: {}".
+                     format(time.strftime("%m/%d/%Y_%H:%M:%S"),e))
+    detector = None
+    rFilter = None
+
 class Sample_View_State(State.State):
     def __init__(self, patient):
         super(Sample_View_State, self).__init__(patient)
         self._img = None
-        #self._ref = cv2.imread("data/img/reference_image.png", cv2.IMREAD_ANYDEPTH)
-        self._camera_center = (1080 / 2., 1920 / 2)
-        self._display_area = (1920, 1080)
-        #self._filter = rFilter.filter_CNN()
-        self._cell_count = 0
+        self._ref = None
+        self._camera_center = (1920 / 2., 1080 / 2)
+        self._display_area = (640, 480)
         self.file_processor = None
-        self.setup_dropbox()
+        self._cell_count = 0
+        try:
+            self._filter = rFilter.filter_CNN()
+        except Exception as e:
+            Logger.exception("Exception building filter CNN!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
+        try:
+            self.setup_dropbox()
+        except Exception as e:
+            Logger.exception("Exception setting up Dropbox!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
         
     def on_enter(self):
         pass
 
     def execute(self):
         super(Sample_View_State, self).execute()
-    def delete_temp_image(self):
+
+    def detect_cells(self):
         try:
-            os.remove(self._display.ids['sample_image'].source)
+            img = self._get_area_to_show(self._img)
+            ref = self._get_area_to_show(self._ref)
+            regions, cells, t, vis = detector.get_regions(img, ref, flter=self._filter, classify=True)
+            self.show_image(vis)
+            self._cell_count = len(cells)
+            self._display.ids["cell count label"].text = "Cell Count: {}".format(self._cell_count)
         except Exception as e:
-            #log stuff
-            print(e)
+            Logger.exception("Exception detecting cells!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
+
+    def detect_blobs(self):
+        try:
+            img = self._img
+            vis = self._img.copy()
+            hulls,vis = detector.MSER_blobs(img, detector.params, display=vis)
+            # For all contours detected by MSER.
+            self.show_image(vis)
+        except Exception as e:
+            Logger.exception("Exception detecting blobs!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
 
     def setup_dropbox(self):
         local_paths = {
@@ -60,22 +93,34 @@ class Sample_View_State(State.State):
 
     def save_sample(self):
         try:
-            os.rename(self._display.ids['sample_image'].source, 'data/img/'+str(self._current_patient._ID) + "_"+time.strftime("%Y.%m.%d_%H.%M.%S")+".png")
+            os.rename(self._display.ids['sample_image'].source, 'data/img/'+str(self._current_patient._ID) + "_"+
+                      time.strftime("%Y.%m.%d_%H.%M.%S")+".png")
             print("sample saved")
         except Exception as e:
-            #log stuff
-            print(e)
+            Logger.exception("Exception saving sample image!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"),e))
         try:
             self.file_processor.sync()
         except Exception as e:
-            print("ERROR SYNCING TO DROPBOX\n",e)
+            Logger.exception("Exception syncing to Dropbox!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
 
-    def set_image(self,img):
-        self._img = img.copy()
-        self.show_image(img)
+    def set_image(self,img_list):
+        try:
+            if len(img_list.shape) == 2:
+                self._img = img_list.copy()
+                self.show_image(img_list)
+            else:
+                self._img = img_list[0].copy()
+                self._ref = img_list[1].copy()
+                self.show_image(img_list[0])
+        except Exception as e:
+            Logger.exception("Exception in set_image(self,img_list)!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
 
     def show_image(self,img):
         self._cell_count = 0
+        self._display.ids["cell count label"].text = "Cell Count: {}".format(self._cell_count)
         try:
             display_image = self._get_area_to_show(img)
             if display_image.shape != (720, 1280):
@@ -93,18 +138,19 @@ class Sample_View_State(State.State):
             simg.texture = Texture.create(size=(display_image.shape[1], display_image.shape[0]), colorfmt='rgb')
             simg.texture.blit_buffer(display_image.tostring(), colorfmt='rgb', bufferfmt='ubyte')
         except Exception as e:
-            print("Error trying to show image!\n",e)
-
+            Logger.exception("Exception trying to show image!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"),e))
         try:
             self._display.ids['sample_histogram'].set_data(img)
 
-        except:
-            print("Error trying to set sample image histogram!")
+        except Exception as e:
+            Logger.exception("Exception setting sample histogram!\nTIME: {}\nEXCEPTION: {}".
+                             format(time.strftime("%m/%d/%Y_%H:%M:%S"), e))
     def _get_area_to_show(self,img):
-        if (img.shape[0],img.shape[1]) != (self._ref.shape[0],self._ref.shape[1]):
+        if (img.shape[0],img.shape[1]) == (self._display_area[1],self._display_area[0]):
             return img
         w, h = self._display_area
-        y, x = self._camera_center
+        x, y = self._camera_center
         y1 = y - h // 2
         y2 = y + h // 2
         x1 = x - w // 2
@@ -142,6 +188,7 @@ class Sample_View_State(State.State):
         cy = y1 + abs(y1 - y2) // 2
 
         return x1, y1, x2, y2, cx, cy
+
     #Refer to superclass documentation.
     def _init_paths(self):
         return
@@ -150,8 +197,12 @@ class Sample_View_State(State.State):
         retry_command = coms.Retry_Button_Command(self)
         save_command = coms.Save_Sample_Button_Command(self)
         home_command = coms.Home_Button_Command(self)
+        detect_command = coms.Detect_Cells_Button_Command(self)
+        blob_command = coms.Detect_Blobs_Button_Command(self)
         self._commands = {"RETRY": retry_command,
                           "SAVE": save_command,
+                          "DETECT CELLS": detect_command,
+                          "DETECT BLOBS": blob_command,
                           "HOME":home_command}
 
     def _build_display(self):

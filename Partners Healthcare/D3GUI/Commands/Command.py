@@ -58,6 +58,14 @@ class Select_Image_Button_Command(Command):
             if not self._object.load_image(data):
                 self._object.set_next_state(None)
 
+class Detect_Cells_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.detect_cells()
+
+class Detect_Blobs_Button_Command(Command):
+    def execute(self,data=None):
+        self._object.detect_blobs()
+
 class Save_Patient_Button_Command(Command):
     def execute(self, data=None):
         self._object.save_patient()
@@ -79,7 +87,6 @@ class Back_Button_Command(Command):
 
 class Retry_Button_Command(Command):
     def execute(self, data=None):
-        self._object.delete_temp_image()
         self._object.set_next_state("IDLE")
 
 class Exit_Button_Command(Command):

@@ -19,6 +19,7 @@ from Display import Display as displays
 from Commands import Command as coms
 
 
+
 class Change_Patient_State(State.State):
     def on_enter(self):
         pass

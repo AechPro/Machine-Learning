@@ -32,7 +32,6 @@ class Browse_Patients_State(State.State):
 
     def _init_commands(self):
         select_command = coms.Select_Patient_Button_Command(self)
-        back_command = coms.Back_Button_Command(self)
         home_command = coms.Home_Button_Command(self)
         self._commands = {"SELECT": select_command,
                           "CANCEL": home_command,
