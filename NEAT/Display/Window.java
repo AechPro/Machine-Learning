@@ -22,8 +22,10 @@ public class Window extends JPanel implements Runnable
 	private ArrayList<DisplayObject> objects;
 	private double frameDelta;
 	private int fps;
+	private long framesSinceStart;
 	private double frameRate;
 	private Font font;
+	
 	//private int delayPeriod;
 	private double framePeriod;
 	private long frameStart;
@@ -39,7 +41,7 @@ public class Window extends JPanel implements Runnable
 		
 		//Force minimum FPS to 1.
 		if(fps <= 0) {fps = 1;}
-		//delayPeriod = (int)(Math.round(1000.0/(double)fps));
+		
 		framePeriod = 1000.0/(double)fps;
 		
 		//Get render and update priority orders.
@@ -74,15 +76,21 @@ public class Window extends JPanel implements Runnable
 		init();
 		long secondTicker = System.nanoTime();
 		double frameTick = 0;
+		framesSinceStart = 0;
 		while(running)
 		{
-			//Frame start measurement .
+			framesSinceStart++;
+			//Frame start measurement.
 			frameStart = System.nanoTime();
-			update();
-			render();
+			synchronized(objects)
+			{
+				update();
+				render();
+			}
 			draw();
+			
 			//Frame delta = (actual frame time in ms) / (desired frame time in ms)
-			//Multiply frame period by 100,000 to set units of numerator from ns to ms.
+			//Multiply frame period by 10^5 to set units of numerator from ns to ms.
 			frameDelta = (System.nanoTime() - frameStart) / (framePeriod * 1000000);
 			frameTick += frameDelta;
 			if(System.nanoTime() - secondTicker >= 1000000000) 
@@ -93,6 +101,7 @@ public class Window extends JPanel implements Runnable
 			}
 		}
 	}
+	
 	public void update()
 	{
 		int stop = objects.size();
@@ -108,6 +117,7 @@ public class Window extends JPanel implements Runnable
 			}
 		}
 	}
+	
 	public void render()
 	{
 		clearCanvas();
@@ -170,4 +180,10 @@ public class Window extends JPanel implements Runnable
 	}
 	public void removeDisplayObject(int i) {objects.remove(i);}
 	public void removeDisplayObject(DisplayObject obj) {objects.remove(obj);}
+	
+	public boolean isRunning() {return running;}
+	public void setRunning(boolean i) {running=i;}
+	
+	public long getFramesSinceStart() {return framesSinceStart;}
+	public Thread getThread() {return thread;}
 }

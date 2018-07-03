@@ -3,6 +3,7 @@ package NEAT.Population;
 import java.util.ArrayList;
 import java.util.Random;
 
+import NEAT.Configs.Config;
 import NEAT.Genes.*;
 import NEAT.util.*;
 public class Organism 
@@ -11,6 +12,8 @@ public class Organism
 	private int timeSinceLastImprovement;
 	private int age;
 	private int speciesID;
+	private int colorMarker;
+	private boolean deathMark;
 	private double fitness;
 	private double spawnAmount;
 	private double adjustedFitness;
@@ -25,7 +28,10 @@ public class Organism
 		age = 0;
 		timeSinceLastImprovement = 0;
 		fitness = 0.0;
+		colorMarker = 0;
 		sorter = new SortingUnit();
+		//There can be no circumstance under which a new organism is marked for death
+		deathMark = false;
 	}
 	public Organism(Organism other)
 	{
@@ -38,8 +44,11 @@ public class Organism
 		sorter = new SortingUnit();
 		bestFitness = other.getBestFitness();
 		timeSinceLastImprovement = other.getTimeSinceLastImprovement();
+		colorMarker = other.getColorMarker();
 		age = other.getAge();
 		ID = other.getID();
+		//There can be no circumstance under which a new organism is marked for death
+		deathMark = false;
 	}
 	public void tick()
 	{
@@ -50,7 +59,8 @@ public class Organism
 	{
 		genotype.addConnection(table);
 		if(genotype.getNodes().size()<Config.MAX_ALLOWED_NODES) {genotype.addNode(table);}
-		genotype.mutateNode();
+		//genotype.mutateNodes();
+		//genotype.mutateConnections();
 		genotype.mutateWeights();
 		genotype.setID(table.getNextGenomeID());
 		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
@@ -58,7 +68,7 @@ public class Organism
 	}
 	public void mutateGenotypeNonStructural(InnovationTable table)
 	{
-		genotype.mutateNode();
+		//genotype.mutateNodes();
 		genotype.mutateWeights();
 		genotype.setID(table.getNextGenomeID());
 		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
@@ -205,10 +215,14 @@ public class Organism
 		}
 		fitness=i;
 	}
+	public void markForDeath() {deathMark = true;}
+	public boolean markedForDeath() {return deathMark;}
 	public void setSpawnAmount(double i) {spawnAmount = i;}
 	public void setAdjustedFitness(double i) {adjustedFitness=i;}
 	public void setID(int i) {ID=i;}
 	public void setSpeciesID(int i) {speciesID = i;}
+	public void setColorMarker(int i) {colorMarker=i;}
+	public void setPhenotype(Phenotype phen) {phenotype=phen;}
 	public int getSpeciesID(){return speciesID;}
 	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
 	public int getAge() {return age;}
@@ -219,4 +233,5 @@ public class Organism
 	public double getSpawnAmount() {return spawnAmount;}
 	public Phenotype getPhenotype() {return phenotype;}
 	public Genome getGenotype() {return genotype;}
+	public int getColorMarker() {return colorMarker;}
 }

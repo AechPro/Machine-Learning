@@ -2,6 +2,7 @@ package NEAT.Population;
 import java.util.ArrayList;
 import java.util.Random;
 
+import NEAT.Configs.Config;
 import NEAT.Genes.*;
 import NEAT.util.*;
 public class Genome 
@@ -51,8 +52,9 @@ public class Genome
 			else {out = nodes.get(getNodeIndex(c.getOutput()));}
 			if(out == null || inp == null)
 			{
-				System.out.println("ERROR TRYING TO FIND NODES FOR CONNECTION WHEN CREATING NEW GENOME");
+				System.out.println("ERROR TRYING TO FIND NODES FOR CONNECTION WHEN CREATING CHILD GENOME");
 				System.out.println(c);
+				System.out.println("INP: "+inp+"\nOUT: "+out);
 				System.exit(0);
 			}
 			Connection con = new Connection(inp,out,c.getWeight(),c.isEnabled(),c.getInnovation());
@@ -178,7 +180,7 @@ public class Genome
 		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;
 		for(Connection con : connections)
 		{
-			if(con.getInput().getType() == Node.BIAS_NODE){continue;}
+			if(con.getInput().getType() == Node.BIAS_NODE || !con.isEnabled()){continue;}
 			if(rand.nextDouble()<mutationRate)
 			{
 				double mutationValue = new Random().nextGaussian();
@@ -191,7 +193,23 @@ public class Genome
 			}
 		}
 	}
-	public void mutateNode()
+	public void mutateConnections()
+	{
+		double toggleRate = Config.MUTATED_CONNECTION_TOGGLE_RATE;
+		double enableRate = Config.MUTATED_CONNECTION_ENABLE_RATE;
+		for(Connection c : connections)
+		{
+			if(rand.nextDouble()<toggleRate)
+			{
+				c.setEnable(!c.isEnabled());
+			}
+			else if(rand.nextDouble()<enableRate)
+			{
+				c.setEnable(true);
+			}
+		}
+	}
+	public void mutateNodes()
 	{
 		double mutationRate = Config.ACTIVATION_RESPONSE_MUTATION_RATE;
 		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;

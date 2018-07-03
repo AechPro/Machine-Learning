@@ -11,7 +11,6 @@ import javax.imageio.ImageIO;
 import NEAT.Display.DisplayObject;
 import NEAT.Genes.*;
 import NEAT.util.SortingUnit;
-import NEAT.util.XORTester;
 
 public class Phenotype extends DisplayObject
 {
@@ -61,7 +60,7 @@ public class Phenotype extends DisplayObject
 		if(debugging) {System.out.println("Beginning activation on input "+input[0]+" | "+input[1]);}
 		while(inactiveOutputs() || !activatedOnce)
 		{
-			if(attempts++>20) {if(debugging) {System.out.println("Returning false");} return false;}
+			if(attempts++>nodes.size()) {if(debugging) {System.out.println("Returning false");} return false;}
 			for(Node n : nodes)
 			{
 				if(n.getType() == Node.INPUT_NODE || n.getType() == Node.BIAS_NODE){continue;}
@@ -250,40 +249,6 @@ public class Phenotype extends DisplayObject
 			g.fillOval(x+n.getX(),y+n.getY(),r,r);
 		}
 	}
-	public void renderDebug(Graphics2D g)
-	{
-		int r = 15;
-		for(int i=0;i<XORTester.inputs.length;i++)
-		{
-			loadInputs(XORTester.inputs[i]);
-			g.setColor(Color.WHITE);
-			r+=15;
-			for(Node n : inputNodes)
-			{
-				g.drawString(""+n.getActiveOutput(),x+n.getX(),y+n.getY()+r);
-				
-			}
-			for(Node n : biasNodes)
-			{
-				g.drawString(""+n.getActiveOutput(),x+n.getX(),y+n.getY()+r);
-			}
-			for(int count = 0;count<depth+1;count++)
-			{
-				activate(XORTester.inputs[i]);
-			}
-			for(Node n : nodes)
-			{
-				if(n.getType() == Node.HIDDEN_NODE)
-				{
-					g.drawString(""+Math.round(n.getActiveOutput()*100.0)/100.0,x+n.getX()+30,y+n.getY()+r-15);
-				}
-			}
-			for(Node n : outputNodes)
-			{
-				g.drawString(""+Math.round(n.getActiveOutput()*100.0)/100.0,x+n.getX()+30,y+n.getY()+r-15);
-			}
-		}
-	}
 	public void saveAsImage(String dir, int w, int h)
 	{
 		BufferedImage im = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
@@ -295,7 +260,6 @@ public class Phenotype extends DisplayObject
 		x = 100;
 		y = 100+h/2;
 		render(graphics);
-		renderDebug(graphics);
 		graphics.dispose();
 		try{ImageIO.write(im, "png", new File(dir));}
 		catch(Exception e){e.printStackTrace();}
@@ -305,6 +269,7 @@ public class Phenotype extends DisplayObject
 	public double sigmoid(double x, double response)
 	{
 		//System.out.println("CALCULATING SIGMOID OF "+x+" OUTPUT = "+1.0d/(1.0d+(double)(Math.exp(-x/response))));
-		return 1.0d/(1.0d+(double)(Math.exp(-x/response)));
+		//return 1.0d/(1.0d+(double)(Math.exp(-x/response)));
+		return (1 / (1 + Math.exp(-x/response)));
 	}
 }

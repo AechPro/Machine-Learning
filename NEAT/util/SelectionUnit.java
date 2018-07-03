@@ -26,6 +26,17 @@ public class SelectionUnit
 		}
 		return winners;
 	}
+	public ArrayList<Organism> randomSelectFromPool(int num, int poolSize, ArrayList<Organism> pop)
+	{
+		ArrayList<Organism> winners = new ArrayList<Organism>();
+		if(pop.size() == 0) {return winners;}
+		for(int i=0;i<num;i++)
+		{
+			winners.add(pop.get((int)(Math.round((poolSize)*Math.random()))));
+		}
+		return winners;
+	}
+	
 	//basic tournament selection
 	public ArrayList<Organism> tournamentSelect(int num, int tournamentSize, boolean adjusted, ArrayList<Organism> pop)
 	{

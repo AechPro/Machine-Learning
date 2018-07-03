@@ -1,11 +1,13 @@
 package NEAT.Population;
 
 import java.util.*;
+
+import NEAT.Configs.Config;
 import NEAT.Genes.*;
-import NEAT.util.Config;
 import NEAT.util.InnovationTable;
 import NEAT.util.SelectionUnit;
 import NEAT.util.SortingUnit;
+import NEAT.util.SpeciesSorter;
 public class Species 
 {
 	private double bestFitness;
@@ -19,13 +21,16 @@ public class Species
 	private Random rand;
 	private SortingUnit sorter;
 	private SelectionUnit selector;
-	public Species(Organism first, Random rng, int id)
+	private SpeciesSorter speciationUnit;
+	public Species(Organism first, SpeciesSorter sUnit, Random rng, int id)
 	{
 		ID=id;
+		speciationUnit = sUnit;
 		rand = rng;
 		members = new ArrayList<Organism>();
 		members.add(first);
 		representative = first;
+		first.setID(ID);
 		sorter = new SortingUnit();
 		selector = new SelectionUnit();
 		age=0;
@@ -35,46 +40,51 @@ public class Species
 	}
 	public void reproduce(InnovationTable table)
 	{	
+		if(members.size() == 0) {return;}
 		int popSize = members.size();
-		ArrayList<Organism> newPop = new ArrayList<Organism>();
 		int numToSpawn = (int)(Math.round(spawnAmount));
+		//poolSize set here in case we add any children to our member list during
+		//reproduction. The children will be appended to the end of our member list
+		//which means we won't select them if we cap our random selection pool to the
+		//size of our member list
+		int poolSize = members.size()-1;
 		Organism child = null;
-		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
-		int cutoff = (int)Math.round(Config.WORST_PERCENT_REMOVED*(double)members.size());
-		for(int i=cutoff;i<members.size();i++)
-		{
-			culledMembers.add(members.get(i));
-		}
-		if(popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || champSpawnAmount>0)
+		int spawned = 0;
+		if(numToSpawn > 0 && (popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || champSpawnAmount>0))
 		{
 			for(int i=0,stop=Math.max(1, champSpawnAmount);i<stop;i++)
 			{
 				child = new Organism(getBestMember());
-				newPop.add(child);
+				members.add(child);
+				numToSpawn--;
+				spawned++;
 			}
 		}
-		numToSpawn-=newPop.size();
+		//System.out.println("STARTING AT "+members.size()+" MEMBERS");
 		for(int i=0;i<numToSpawn;i++)
 		{
 			child = null;
-			if(culledMembers.size()==1 || Math.random()>Config.CROSSOVER_RATE)
+			if(members.size()==1 || Math.random()>Config.CROSSOVER_RATE)
 			{
-				child = new Organism(selector.rouletteSelect(1, true, culledMembers).get(0));
+				child = new Organism(selector.randomSelectFromPool(1,poolSize,members).get(0));
 				child.mutateGenotype(table);
 			}
 			else
 			{
-				ArrayList<Organism> parents = selector.rouletteSelect(2, true, culledMembers);
+				ArrayList<Organism> parents = selector.randomSelectFromPool(2, poolSize, members);
 				child = crossover(parents.get(0),parents.get(1),table);
 				if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 				{
 					child.mutateGenotype(table);
 				}
 			}
-			newPop.add(child);
+			if(child != null) {spawned++;}
+			child.setSpeciesID(-1);
+			speciationUnit.speciateOrganism(child,false);
+			//System.out.println(members.size());
 		}
-		//System.out.println("REPRODUCTION SPAWNED "+newPop.size()+" CHILDREN");
-		members = newPop;
+		
+		//System.out.println("SPECIES "+ID+" SPAWNED "+spawned+" OF "+spawnAmount+" CHILDREN");
 	}
 	public Organism crossover(Organism p1, Organism p2, InnovationTable table)
 	{
@@ -146,6 +156,7 @@ public class Species
 	}
 	public void tick()
 	{
+		if(members.size() == 0) {return;}
 		sorter.sortOrganismsAdjustedFitness(members,0,members.size()-1);
 		for(Organism org : members)
 		{
@@ -156,6 +167,9 @@ public class Species
 			}
 			org.tick();
 		}
+		representative = new Organism(getBestMember());
+		representative.setFitness(getBestMember().getFitness());
+		representative.setAdjustedFitness(getBestMember().getAdjustedFitness());
 		timeSinceLastImprovement++;
 		age++;
 	}
@@ -164,15 +178,22 @@ public class Species
 		members.add(mem);
 		mem.setSpeciesID(ID);
 	}
+	public void removeOldGeneration()
+	{
+		ArrayList<Organism> newMembers = new ArrayList<Organism>();
+		for(int i=0,stop=members.size();i<stop;i++)
+		{
+			if(!members.get(i).markedForDeath()) {newMembers.add(members.get(i));}
+		}
+		//System.out.println(newMembers.size());
+		members = newMembers;
+	}
 	public void purge()
 	{
 		for(int i=0;i<members.size();i++)
 		{
 			members.get(i).setSpeciesID(-1);
 		}
-		representative = new Organism(getBestMember());
-		representative.setFitness(getBestMember().getFitness());
-		representative.setAdjustedFitness(getBestMember().getAdjustedFitness());
 		members = new ArrayList<Organism>();
 		spawnAmount = 0d;
 	}
@@ -213,8 +234,19 @@ public class Species
 			}
 			org.setSpawnAmount(spawns);
 		}
-		spawnAmount = intComponent+fractionComponent;
-		spawnAmount = (int)Math.round(spawnAmount);
+		spawnAmount = fractionComponent+intComponent;
+		ArrayList<Organism> culledMembers = new ArrayList<Organism>();
+		int cutoff = (int)Math.round(Config.WORST_PERCENT_REMOVED*(double)members.size());
+		for(int i=cutoff;i<members.size();i++)
+		{
+			culledMembers.add(members.get(i));
+		}
+		members = new ArrayList<Organism>();
+		for(Organism org : culledMembers)
+		{
+			members.add(org);
+		}
+		sorter.sortOrganismsAdjustedFitness(members, 0, members.size()-1);
 	}
 	@Override
 	public String toString()
@@ -240,6 +272,7 @@ public class Species
 	public void setSpawnAmount(double spawnAmount) {this.spawnAmount = spawnAmount;}
 	public int getAge() {return age;}
 	public void setAge(int age) {this.age = age;}
+	public int getID() {return ID;}
 	public int getTimeSinceLastImprovement() {return timeSinceLastImprovement;}
 	public void setTimeSinceLastImprovement(int i) {timeSinceLastImprovement=i;}
 	public Organism getRepr() {return representative;}
