@@ -34,6 +34,7 @@ public class XORConfig
 	public final int SPECIES_YOUNG_THRESHOLD = 15;
 	public final int SPECIES_SIZE_FOR_CHAMP_CLONING = 5;
 	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
+	public final double NUM_POP_CHAMP_MUTATIONS = 2;
 	
 	//Compatibility specific parameters.
 	public final double COMPAT_EXCESS_COEF = 1.0;

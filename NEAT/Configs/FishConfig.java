@@ -34,6 +34,7 @@ public class FishConfig
 	public final int SPECIES_YOUNG_THRESHOLD = 15;
 	public final int SPECIES_SIZE_FOR_CHAMP_CLONING = 5;
 	public final double SPECIES_COMPAT_THRESHOLD = 11;
+	public final double NUM_POP_CHAMP_MUTATIONS = 3;
 
 	//Compatibility specific parameters.
 	public final double COMPAT_EXCESS_COEF = 1.0;

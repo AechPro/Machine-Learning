@@ -18,6 +18,7 @@ public class Organism
 	private double spawnAmount;
 	private double adjustedFitness;
 	private double bestFitness;
+	private boolean populationChamp;
 	private Genome genotype;
 	private Phenotype phenotype;
 	private SortingUnit sorter;
@@ -25,6 +26,7 @@ public class Organism
 	{
 		ID = id;
 		speciesID=-1;
+		populationChamp = false;
 		age = 0;
 		timeSinceLastImprovement = 0;
 		fitness = 0.0;
@@ -37,6 +39,7 @@ public class Organism
 	{
 		speciesID = other.getSpeciesID();
 		genotype = new Genome(other.getGenotype());
+		populationChamp = other.isPopChamp();
 		phenotype = null;
 		fitness = other.getFitness();
 		adjustedFitness = other.getAdjustedFitness();
@@ -218,6 +221,7 @@ public class Organism
 	public void markForDeath() {deathMark = true;}
 	public boolean markedForDeath() {return deathMark;}
 	public void setSpawnAmount(double i) {spawnAmount = i;}
+	public void setPopChamp(boolean i) {populationChamp=i;}
 	public void setAdjustedFitness(double i) {adjustedFitness=i;}
 	public void setID(int i) {ID=i;}
 	public void setSpeciesID(int i) {speciesID = i;}
@@ -234,4 +238,5 @@ public class Organism
 	public Phenotype getPhenotype() {return phenotype;}
 	public Genome getGenotype() {return genotype;}
 	public int getColorMarker() {return colorMarker;}
+	public boolean isPopChamp() {return populationChamp;}
 }

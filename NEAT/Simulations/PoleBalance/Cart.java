@@ -19,6 +19,8 @@ public class Cart extends DisplayObject
 	private boolean victory;
 	private int width,height,poleRadius;
 	private int maxSteps;
+	private double prevX;
+	private int timeSinceMovement;
 	private int[] pos, polePos;
 	
 	private double x,	    /* cart position, meters */
@@ -33,12 +35,12 @@ public class Cart extends DisplayObject
 	private double xacc,thetaacc,force,costheta,sintheta,temp;
 
 	private final double GRAVITY=9.8;
-	private final double MASSCART=1.0;
-	private final double MASSPOLE=0.1;
+	private final double MASSCART=1.2;
+	private final double MASSPOLE=0.15;
 	private final double TOTAL_MASS=(MASSPOLE + MASSCART);
-	private final double LENGTH=0.5;	  /* actually half the pole's length */
+	private final double LENGTH=0.9;	  /* actually half the pole's length */
 	private final double POLEMASS_LENGTH=(MASSPOLE * LENGTH);
-	private final double FORCE_MAG=10.0;
+	private final double FORCE_MAG=10.2;
 	private final double TAU=0.02;	  /* seconds between state updates */
 	private final double FOURTHIRDS=1.3333333333333;
 	
@@ -54,7 +56,8 @@ public class Cart extends DisplayObject
 	{
 		done = false;
 		steps = 0;
-		twelve_degrees=0.2094384;
+		timeSinceMovement = 0;
+		twelve_degrees=Math.PI/2;//0.2094384;
 		poleRadius = (int)(Math.round(300*LENGTH));
 		inputs = new double[4];
 		outputs = new double[2];
@@ -63,26 +66,34 @@ public class Cart extends DisplayObject
 		y = 0;
 		x = 0.0;
 		xacc = 0.0;
+		theta = 0.1;
 		thetaacc = 0.0;
 		force = 0.0;
 		costheta = 0.0;
 		sintheta = 0.0;
 		temp = 0.0;
-		if (random_start) {
-			/*set up random start state*/
+		/*if (random_start) {
+			/*set up random start state
 			x = ((Integer.MAX_VALUE*Math.random())%4800)/1000.0 - 2.4;
 			x_dot = ((Integer.MAX_VALUE*Math.random())%2000)/1000.0 - 1;
 			theta = ((Integer.MAX_VALUE*Math.random())%400)/1000.0 - .2;
 			theta_dot = ((Integer.MAX_VALUE*Math.random())%3000)/1000.0 - 1.5;
-		}
+		}*/
+		prevX = x;
 	}
 	
 	@Override
 	public void update(double delta) 
 	{
 		if(phenotype == null) {done=true;}
+		if(timeSinceMovement > 1000)
+		{
+			System.out.println("\n!!!FAILURE TO MOVE DETECTED!!!\n"+timeSinceMovement);
+			done=true;
+		}
 		if(done) {return;}
-		
+		if(x == prevX) {timeSinceMovement++;}
+		else {timeSinceMovement=0;}
 		inputs[0]=(x + 2.4) / 4.8;;
 		inputs[1]=(x_dot + .75) / 1.5;
 		inputs[2]=(theta + twelve_degrees) / .41;
@@ -116,6 +127,7 @@ public class Cart extends DisplayObject
 		polePos[1] = pos[1] - (int)(Math.round(poleRadius*Math.sin(theta + Math.PI/2)));
 		if (x < -2.4 || x > 2.4  || theta < -twelve_degrees 
 				|| theta > twelve_degrees || steps>maxSteps){done=true;}
+		//System.out.println(outputs[0]+" | "+outputs[1]);
 		//System.out.println("("+polePos[0]+","+polePos[1]+")");
 		/*--- Check for exit condition (failure or victory).  If so, return. ---*/
 		steps++;
@@ -124,12 +136,14 @@ public class Cart extends DisplayObject
 	public void render(Graphics2D g) 
 	{
 		if(done) {return;}
-		g.setColor(Color.WHITE);
-		g.fillRect(pos[0],pos[1],width,height);
 		g.setColor(Color.BLUE);
 		g.drawLine(pos[0]+width/2, pos[1]+height/2, polePos[0]+width/2, polePos[1]+height/2);
+		g.setColor(Color.WHITE);
+		g.fillRect(pos[0],pos[1],width,height);
 		g.setColor(Color.RED);
 		g.fillOval(polePos[0]+width/2-10, polePos[1]+height/2-10, 20, 20);
+		g.setColor(Color.BLACK);
+		g.drawString(""+steps, pos[0]+width/2, pos[1]+height/2);
 		phenotype.render(g);
 	}
 	public void setPhenotype(Phenotype phen) 

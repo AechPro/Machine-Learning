@@ -160,15 +160,24 @@ public class Main
 			}
 			s.tick();
 		}
-		for(Organism org : population)
+		int champIndex = -1;
+		for(int i=0,stop=population.size();i<stop;i++)
 		{
-			if(org.getFitness() > bestFitness) 
+			if(population.get(i).getFitness() > bestFitness) 
 			{
-				bestFitness=org.getFitness();
+				bestFitness=population.get(i).getFitness();
 				timeSinceLastImprovement = 0;
+				champIndex=i;
 			}
 		}
-		
+		if(champIndex>-1)
+		{
+			for(int i=0,stop=population.size();i<stop;i++)
+			{
+				population.get(i).setPopChamp(false);
+			}
+			population.get(champIndex).setPopChamp(true);
+		}
 	}
 	public void reset()
 	{

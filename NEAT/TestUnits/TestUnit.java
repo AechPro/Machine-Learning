@@ -26,7 +26,7 @@ public abstract class TestUnit
 	public abstract Organism testPhenotypes(ArrayList<Organism> population);
 	public boolean validatePhenotype(Phenotype phen)
 	{
-		return !(phen.getOutputNodes().size() == 0 || 
+		return !(phen.getOutputNodes().size() != numOutputs || 
 				phen.getDepth() == -1 || phen == null);
 	}
 }

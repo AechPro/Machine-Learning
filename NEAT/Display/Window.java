@@ -90,9 +90,9 @@ public class Window extends JPanel implements Runnable
 			draw();
 			
 			//Frame delta = (actual frame time in ms) / (desired frame time in ms)
-			//Multiply frame period by 10^5 to set units of numerator from ns to ms.
-			frameDelta = (System.nanoTime() - frameStart) / (framePeriod * 1000000);
-			frameTick += frameDelta;
+			//Multiply frame period by 10^6 to set units of numerator from ns to ms.
+			frameDelta = (System.nanoTime() - frameStart) / (framePeriod * 10000000);
+			frameTick += 1;
 			if(System.nanoTime() - secondTicker >= 1000000000) 
 			{
 				frameRate = (int)frameTick;

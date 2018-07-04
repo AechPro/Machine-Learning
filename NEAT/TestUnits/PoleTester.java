@@ -19,7 +19,7 @@ public class PoleTester extends TestUnit
 		super(rng, windowWidth, windowHeight);
 		numInputs = 4;
 		numOutputs = 2;
-		numHiddenNodes = 1;
+		numHiddenNodes = 0;
 		numBiasNodes = 1;
 		gameWorld = new PoleBalanceWorld();
 	}
@@ -65,34 +65,34 @@ public class PoleTester extends TestUnit
 		
 		for(int i=0;i<numInputs;i++)
 		{
-			int id = table.createConnection(inputNodes.get(i).getID(), node.getID());
-			Connection c = new Connection(inputNodes.get(i),node,randf.nextGaussian(),true,id);
-			cons.add(c);
+			//int id = table.createConnection(inputNodes.get(i).getID(), node.getID());
+			//Connection c = new Connection(inputNodes.get(i),node,randf.nextGaussian(),true,id);
+			//cons.add(c);
 			for(int j=0;j<numOutputs;j++)
 			{
-				id = table.createConnection(inputNodes.get(i).getID(), outputNodes.get(j).getID());
-				c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+				int id = table.createConnection(inputNodes.get(i).getID(), outputNodes.get(j).getID());
+				Connection c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
 				cons.add(c);
 			}
 		}
 		for(int i=0;i<numBiasNodes;i++)
 		{
-			int id = table.createConnection(biasNodes.get(i).getID(), node.getID());
-			Connection c = new Connection(biasNodes.get(i),node,randf.nextGaussian(),true,id);
-			cons.add(c);
+			//int id = table.createConnection(biasNodes.get(i).getID(), node.getID());
+			//Connection c = new Connection(biasNodes.get(i),node,randf.nextGaussian(),true,id);
+			//cons.add(c);
 			for(int j=0;j<numOutputs;j++)
 			{
-				id = table.createConnection(biasNodes.get(i).getID(), outputNodes.get(j).getID());
-				c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+				int id = table.createConnection(biasNodes.get(i).getID(), outputNodes.get(j).getID());
+				Connection c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
 				cons.add(c);
 			}
 		}
-		for(int i=0;i<numOutputs;i++)
+		/*for(int i=0;i<numOutputs;i++)
 		{
 			int id = table.createConnection(node.getID(),outputNodes.get(i).getID());
 			Connection c = new Connection(node,outputNodes.get(i),randf.nextGaussian(),true,id);
 			cons.add(c);
-		}
+		}*/
 		
 		minimalGenome = new Genome(cons,nodes,table,randf,numInputs,numOutputs);
 		return minimalGenome;

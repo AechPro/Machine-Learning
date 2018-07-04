@@ -33,4 +33,5 @@ public interface Config
 	public final double WORST_PERCENT_REMOVED = cfg.WORST_PERCENT_REMOVED;
 	public final double MATE_NO_MUTATION_CHANCE = cfg.MATE_NO_MUTATION_CHANCE;
 	public final double RECURSIVE_CONNECTION_CHANCE = cfg.RECURSIVE_CONNECTION_CHANCE;
+	public final double NUM_POP_CHAMP_MUTATIONS = cfg.NUM_POP_CHAMP_MUTATIONS;
 }

@@ -52,19 +52,36 @@ public class Species
 		int spawned = 0;
 		if(numToSpawn > 0 && (popSize>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || champSpawnAmount>0))
 		{
-			for(int i=0,stop=Math.max(1, champSpawnAmount);i<stop;i++)
+			if(!getBestMember().isPopChamp())
 			{
-				child = new Organism(getBestMember());
+				for(int i=0,stop=Math.max(1, champSpawnAmount);i<stop;i++)
+				{
+					child = new Organism(getBestMember());
+					members.add(child);
+					numToSpawn--;
+					spawned++;
+				}
+			}
+		}
+		if(getBestMember().isPopChamp())
+		{
+			Organism best = getBestMember();
+			spawned += Config.NUM_POP_CHAMP_MUTATIONS + 1;
+			numToSpawn -= Config.NUM_POP_CHAMP_MUTATIONS + 1;
+			child = new Organism(best);
+			members.add(child);
+			for(int i=0;i<Config.NUM_POP_CHAMP_MUTATIONS;i++)
+			{
+				child = new Organism(best);
+				child.mutateGenotypeNonStructural(table);
 				members.add(child);
-				numToSpawn--;
-				spawned++;
 			}
 		}
 		//System.out.println("STARTING AT "+members.size()+" MEMBERS");
 		for(int i=0;i<numToSpawn;i++)
 		{
 			child = null;
-			if(members.size()==1 || Math.random()>Config.CROSSOVER_RATE)
+			if(popSize==1 || Math.random()>Config.CROSSOVER_RATE)
 			{
 				child = new Organism(selector.randomSelectFromPool(1,poolSize,members).get(0));
 				child.mutateGenotype(table);
@@ -282,6 +299,7 @@ public class Species
 		Organism bestMember = members.get(0);
 		for(Organism org : members)
 		{
+			if(org.isPopChamp()) {return org;}
 			if(org.getFitness() > bestFitness)
 			{
 				bestMember = org;
