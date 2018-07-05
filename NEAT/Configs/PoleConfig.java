@@ -3,7 +3,7 @@ package NEAT.Configs;
 public class PoleConfig 
 {
 	//Global scope parameters.
-	public final int POPULATION_SIZE = 1000;
+	public final int POPULATION_SIZE = 150;
 	public final double MAX_MUTATION_PERTURBATION = 2.5;
 	public final double WORST_PERCENT_REMOVED = 0.4;
 	

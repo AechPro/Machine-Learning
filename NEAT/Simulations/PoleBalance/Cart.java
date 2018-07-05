@@ -57,7 +57,7 @@ public class Cart extends DisplayObject
 		done = false;
 		steps = 0;
 		timeSinceMovement = 0;
-		twelve_degrees=Math.PI/2;//0.2094384;
+		twelve_degrees = Math.PI/2;//0.2094384;
 		poleRadius = (int)(Math.round(300*LENGTH));
 		inputs = new double[4];
 		outputs = new double[2];
@@ -72,13 +72,13 @@ public class Cart extends DisplayObject
 		costheta = 0.0;
 		sintheta = 0.0;
 		temp = 0.0;
-		/*if (random_start) {
-			/*set up random start state
+		if (random_start) {
+			/*set up random start state*/
 			x = ((Integer.MAX_VALUE*Math.random())%4800)/1000.0 - 2.4;
 			x_dot = ((Integer.MAX_VALUE*Math.random())%2000)/1000.0 - 1;
 			theta = ((Integer.MAX_VALUE*Math.random())%400)/1000.0 - .2;
 			theta_dot = ((Integer.MAX_VALUE*Math.random())%3000)/1000.0 - 1.5;
-		}*/
+		}
 		prevX = x;
 	}
 	
@@ -94,7 +94,7 @@ public class Cart extends DisplayObject
 		if(done) {return;}
 		if(x == prevX) {timeSinceMovement++;}
 		else {timeSinceMovement=0;}
-		inputs[0]=(x + 2.4) / 4.8;;
+		inputs[0]=(x + 2.4) / 4.8;
 		inputs[1]=(x_dot + .75) / 1.5;
 		inputs[2]=(theta + twelve_degrees) / .41;
 		inputs[3]=(theta_dot + 1.0) / 2.0;
@@ -112,26 +112,30 @@ public class Cart extends DisplayObject
 		temp = (force + POLEMASS_LENGTH * theta_dot * theta_dot * sintheta)
 				/ TOTAL_MASS;
 
-		thetaacc = (GRAVITY * sintheta - costheta* temp)
+		thetaacc = (GRAVITY * sintheta - costheta * temp)
 				   / (LENGTH * (FOURTHIRDS - MASSPOLE * costheta * costheta
 				   / TOTAL_MASS));
 
-		xacc  = temp - POLEMASS_LENGTH * thetaacc* costheta / TOTAL_MASS;
+		xacc  = temp - POLEMASS_LENGTH * thetaacc * costheta / TOTAL_MASS;
 		x  += TAU * x_dot;
 		x_dot += TAU * xacc;
 		theta += TAU * theta_dot;
 		theta_dot += TAU * thetaacc;
-		pos[0] = (int)(Math.round(300*(x+2.4)/4.8)) + 720/2;
+		
+		pos[0] = (int)(Math.round((1280-width)*(x+2.4)/4.8));
 		//System.out.println(x+" "+theta);
 		polePos[0] = pos[0] + (int)(Math.round(poleRadius*Math.cos(theta + Math.PI/2)));
 		polePos[1] = pos[1] - (int)(Math.round(poleRadius*Math.sin(theta + Math.PI/2)));
+		
 		if (x < -2.4 || x > 2.4  || theta < -twelve_degrees 
 				|| theta > twelve_degrees || steps>maxSteps){done=true;}
+		
 		//System.out.println(outputs[0]+" | "+outputs[1]);
 		//System.out.println("("+polePos[0]+","+polePos[1]+")");
 		/*--- Check for exit condition (failure or victory).  If so, return. ---*/
 		steps++;
 	}
+	
 	@Override
 	public void render(Graphics2D g) 
 	{
