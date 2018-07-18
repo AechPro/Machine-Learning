@@ -78,12 +78,12 @@ public class Window extends JPanel implements Runnable
 		double frameTick = 0;
 		framesSinceStart = 0;
 		while(running)
-		{
-			framesSinceStart++;
+		{	
 			//Frame start measurement.
 			frameStart = System.nanoTime();
 			synchronized(objects)
 			{
+				framesSinceStart++;
 				update();
 				render();
 			}
@@ -184,6 +184,6 @@ public class Window extends JPanel implements Runnable
 	public boolean isRunning() {return running;}
 	public void setRunning(boolean i) {running=i;}
 	
-	public long getFramesSinceStart() {return framesSinceStart;}
+	public synchronized long getFramesSinceStart() {return framesSinceStart;}
 	public Thread getThread() {return thread;}
 }

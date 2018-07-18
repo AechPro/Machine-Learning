@@ -2,7 +2,7 @@ package NEAT.Configs;
 
 public interface Config
 {
-	static final PoleConfig cfg = new PoleConfig();
+	static final FishConfig cfg = new FishConfig();
 	public final double CONNECTION_ADD_CHANCE = cfg.CONNECTION_ADD_CHANCE;
 	public final double NODE_ADD_CHANCE = cfg.NODE_ADD_CHANCE;
 	public final double CROSSOVER_RATE = cfg.CROSSOVER_RATE;

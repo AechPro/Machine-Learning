@@ -1,3 +1,12 @@
+/*
+ * Neuro-Evolution Through Augmenting Topologies (NEAT)
+ * Implementation for Java 1.8.x
+ * @Author: Matthew Allen
+ * 
+ * This file is the entry point to the program, and contains all code necessary to run the
+ * NEAT algorithm with a given test unit.
+ */
+
 package NEAT;
 
 import java.util.ArrayList;
@@ -25,46 +34,69 @@ public class Main
 	private static InnovationTable table;
 	private static final Random rng = new Random((long)(Math.random()*Long.MAX_VALUE));
 	private static SpeciesSorter speciationUnit;
+	
+	//Constructor doesn't do much because we have an init function.
 	public Main(){numTests = 1;}
+	
+	//Initialize everything.
 	public void init()
 	{
+		//Population of organisms.
 		population = new ArrayList<Organism>();
 		
 		generation = 0;
 		bestFitness = 0;
 		success = false;
 		table = new InnovationTable();
-		testUnit = new PoleTester(rng,width,height);
+		
+		//This is the test unit that will be used to evaluate phenotypes and build the
+		//initial structure.
+		testUnit = new FishTester(rng,width,height);
+		
 		sorter = new SortingUnit();
 		minimalStructure = testUnit.buildMinimalStructure(table);
 		speciationUnit = new SpeciesSorter(sorter,table,rng);
+		
+		//Create our population.
 		for(int i=0;i<Config.POPULATION_SIZE;i++)
 		{
 			Organism org = new Organism(table.getNextOrganismID());
 			org.createMinimalGenotype(minimalStructure,table);
 			population.add(org);
 		}
+		
+		//Initial epoch 0 test to speciate first organisms.
 		testPhenotypes(false);
 		species = speciationUnit.speciatePopulation(population);
+		
 		timeSinceLastImprovement = 0;
 		running = true;
 	}
+	
+	//Method to run the algorithm for n tests each being m generations long.
 	public void run()
 	{
 		int numVictories = 0;
 		double avgGen = 0;
 		double avgFitness = 0;
 		double avgPopSize = 0;
+		
+		//For each complete test to run.
 		for(int i=0;i<numTests;i++)
 		{
+			//Re-initialize everything per complete test.
 			init();
-			while(running && generation < 100)
+			
+			//This is the loop for a single test.
+			while(running && generation < 10000)
 			{
 				epoch();
 				generation++;
 				//try{Thread.sleep(250);}
 				//catch(Exception e) {e.printStackTrace();}
 			}
+			
+			//If we succeeded, add to our stats.
 			if(success) 
 			{
 				numVictories++;
@@ -79,6 +111,8 @@ public class Main
 		System.out.println("\nSuccessfully completed "+numVictories+" out of "+numTests+" tests");
 		System.out.println("Average generation: "+avgGen+"\nAverage pop size: "+avgPopSize+"\nAverage fitness: "+avgFitness);
 	}
+	
+	//Method to perform a single epoch.
 	public void epoch()
 	{
 		repopulate();
@@ -87,6 +121,8 @@ public class Main
 		testPhenotypes(false);
 		printOutput();
 	}
+	
+	//Debug method.
 	public void printOutput()
 	{
 		System.out.println("\nGENERATION: "+generation);
@@ -99,19 +135,36 @@ public class Main
 
 		//System.out.println("--INNOVATION TABLE--\n"+table);
 	}
+	
+	//Method to remove old species and organisms from the previous generation, adjust fitness
+	//values and perform per-species repopulation. Inter-species mating is not implemented at this point.
 	public void repopulate()
 	{
 		double totalExpected = 0.0;
+		
+		//Mark our old organisms for death this generation.
 		for(Organism org : population)
 		{
 			org.markForDeath();
 		}
+		
+		//Every 30 generations, remove all species over age 20.
+		for(int i=0;i<species.size();i++)
+		{
+			if(species.get(i).getAge()>20 && generation%30 == 0)
+			{
+				species.get(i).setObliterate(true);
+			}
+		
+		}
+		
+		//Perform species specific fitness sharing.
 		for(Species s : species)
 		{
 			s.adjustFitnessValues();
 		}
-		//Note that this is not in the above species loop because the global average adjusted
-		//fitness must be known before spawn amounts can be calculated.
+		
+		//Calculate the spawn amounts for each species.
 		double avg = calculateAverageAdjustedFitness();
 		for(Species s : species) 
 		{
@@ -119,6 +172,9 @@ public class Main
 			totalExpected+=Math.round(s.getSpawnAmount());
 			//System.out.println(s);
 		}
+		
+		//If we're off by some amount of spawns, adjust the spawn amounts of each species
+		//weighted by their predicted spawn amount until we have met the config population size.
 		if(totalExpected!=Config.POPULATION_SIZE)
 		{
 			double coeff = (Config.POPULATION_SIZE - totalExpected)/totalExpected;
@@ -127,19 +183,18 @@ public class Main
 				s.setSpawnAmount(s.getSpawnAmount() + s.getSpawnAmount()*coeff);
 			}
 		}
-		if(timeSinceLastImprovement > Config.MAX_TIME_POPULATION_STAGNATION)
-		{
-			//deltaCoding();
-			//resetPop();
-		}
-		//int numSpawned = 0;
-		//int s1 = species.size();
+		
+		//Perform reproduction inside each species. Note that this uses the stop integer instead of species.size()
+		//each loop because children get speciated every reproduction loop, so new species may be created during
+		//this for loop.
 		for(int i=0,stop=species.size();i<stop;i++)
 		{ 
 			//System.out.println(species.get(i));
 			species.get(i).reproduce(table);
 			
 		}
+		
+		//Remove old generation of organisms from population.
 		for(Species s : species)
 		{
 			s.removeOldGeneration();
@@ -148,18 +203,26 @@ public class Main
 		//System.out.println("REPRODUCTION SPAWNED "+numSpawned+" NEW MEMBERS\nEXPECTED TO SPAWN "+totalExpected+" MEMBERS");
 		//System.out.println("REPRODUCTION SPAWNED "+(species.size()-s1)+" NEW SPECIES");
 	}
+	
+	//Function to track population champion and global stagnation.
 	public void tick()
 	{
 		timeSinceLastImprovement++;
 		int itr = 0;
+		
+		//Color marker is for visualization in simulations.
 		for(Species s : species)
 		{
+			itr++;
 			for(Organism org : s.getMembers())
 			{
-				org.setColorMarker(itr++);
+				org.setColorMarker(itr);
 			}
+
 			s.tick();
 		}
+		
+		//Find population champion.
 		int champIndex = -1;
 		for(int i=0,stop=population.size();i<stop;i++)
 		{
@@ -170,6 +233,8 @@ public class Main
 				champIndex=i;
 			}
 		}
+		
+		//Label the population champion as such.
 		if(champIndex>-1)
 		{
 			for(int i=0,stop=population.size();i<stop;i++)
@@ -179,40 +244,52 @@ public class Main
 			population.get(champIndex).setPopChamp(true);
 		}
 	}
+	
+	//Function to reset the population and species list per epoch so we can properly
+	//keep track of the new generation after reproduction.
 	public void reset()
 	{
-		if(species.size()==0)
-		{
-			return;
-		}
+		//Return if we have no population.
+		if(species.size()==0){return;}
 		population = new ArrayList<Organism>();
-		//System.out.println("\nRESETTING POPULATION WITH "+species.size()+" LIVING SPECIES");
+
 		ArrayList<Species> newSpecies = new ArrayList<Species>();
 		for(Species s : species)
 		{
+			//Skip over species that are empty (dead).
 			if(s.getMembers().size()==0) {continue;}
+			
+			//Add each organism inside surviving species to the population list.
 			for(Organism org : s.getMembers())
 			{
 				population.add(org);
 			}
+			
+			//Add surviving species to the species list.
 			newSpecies.add(s);
 		}
 		//System.out.println("FOUND "+population.size()+" NEW MEMBERS\n");
+		
+		//Re-fill global species list. We do this because the species sorter object contains
+		//a reference to this species list so re-initializing it here would reset the
+		//reference and we would be unable to sort species.
 		species.clear();
-		for(Species s : newSpecies)
-		{
-			species.add(s);
-		}
+		for(Species s : newSpecies){species.add(s);}
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
+	
+	//Function to use the test unit to evaluate each organism in the population.
 	public void testPhenotypes(boolean save)
 	{
+		//Test population and store victor if there is one.
 		Organism victor = testUnit.testPhenotypes(population);
+		
 		//System.out.println("RUNNING PHENOTYPE TEST ON "+population.size()+" MEMBERS");
 		int itr = 0;
 		for(Organism org : population)
 		{
 			//System.out.println("ORGANISM "+org.getID()+":  "+org.getFitness());
+			//Optionally save each phenotype in an image to view later.
 			if(save)
 			{
 				if(org.getPhenotype() != null)
@@ -222,6 +299,7 @@ public class Main
 			}
 		}
 		
+		//If we found a victor, print some stuff and save it.
 		if(victor != null)
 		{
 			System.out.println("\n\n******FOUND VICTOR!******");
@@ -235,6 +313,9 @@ public class Main
 		}
 		sorter.sortOrganisms(population, 0, population.size()-1);
 	}
+	
+	//Optional delta-coding implementation for population stagnation.
+	//I have found that this is entirely destructive in all my tests, so do not use it.
 	public void deltaCoding()
 	{
 		if(species.size()==0) {return;}
@@ -247,6 +328,7 @@ public class Main
 		for(Species s : species) {s.setSpawnAmount(0);}
 		survivor1.setChampSpawns(side1);
 		survivor1.setTimeSinceLastImprovement(0);
+		survivor1.setSpawnAmount(side1);
 		if(species.size()>=2) 
 		{
 			survivor2 = species.get(species.size()-2);
@@ -257,7 +339,12 @@ public class Main
 		{
 			survivor1.setChampSpawns(side1+side2);
 		}
+		species.clear();
+		if(survivor2 != null) {species.add(survivor2);}
+		species.add(survivor1);
 	}
+	
+	//Basic average calculation functions.
 	public double calculateAverageAdjustedFitness()
 	{
 		if(population.size() == 0) {return 0d;}
@@ -288,5 +375,7 @@ public class Main
 		}
 		return avg/species.size();
 	}
+	
+	//Actual program entry point.
 	public static void main(String[] args){new Main().run();}
 }

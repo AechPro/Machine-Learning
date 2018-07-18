@@ -75,11 +75,11 @@ public class Genome
 	{
 		duplicate(other);
 	}
-	public void addConnection(InnovationTable table)
+	public boolean addConnection(InnovationTable table)
 	{
 		double mutationRate = Config.CONNECTION_ADD_CHANCE;
 		int maxAttempts = Config.MAX_ATTEMPTS_ADD_CONNECTION;
-		if(rand.nextDouble()>mutationRate){return;}
+		if(rand.nextDouble()>mutationRate){return false;}
 		Node n1 = null;
 		Node n2 = null;
 		int inpIdx = -1;
@@ -104,17 +104,19 @@ public class Genome
 				break;
 			}
 		}
-		if(n1 == null || n2 == null || !found){return;}
+		if(n1 == null || n2 == null || !found){return false;}
 		int id = table.checkInnovation(table.NEW_CONNECTION, n1.getID(),n2.getID());
 		if(id==-1){id = table.createConnection(n1.getID(),n2.getID());}
 		Connection newCon = new Connection(n1, n2, rand.nextGaussian(), true, id);
 		connections.add(newCon);
+		return true;
 	}
-	public void addNode(InnovationTable table)
+	public boolean addNode(InnovationTable table)
 	{
 		double mutationRate = Config.NODE_ADD_CHANCE;
 		int maxAttempts = Config.MAX_ATTEMPTS_ADD_NODE;
-		if(rand.nextDouble()>mutationRate){return;}
+		if(rand.nextDouble()>mutationRate){return false;}
+		if(nodes.size() >= Config.MAX_ALLOWED_NODES) {return false;}
 		
 		boolean foundSplit = false;
 		int idx = 0;
@@ -129,7 +131,7 @@ public class Genome
 			{foundSplit = true;}
 		}
 		
-		if(!foundSplit){return;}
+		if(!foundSplit){return false;}
 		
 		connections.get(idx).setEnable(false);
 		
@@ -172,6 +174,7 @@ public class Genome
 			connections.add(con1);
 			connections.add(con2);
 		}
+		return true;
 	}
 	public void mutateWeights()
 	{

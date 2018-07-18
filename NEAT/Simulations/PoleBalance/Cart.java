@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Random;
 
+import NEAT.Configs.Config;
 import NEAT.Display.DisplayObject;
 import NEAT.Population.Genome;
 import NEAT.Population.Organism;
@@ -22,6 +23,10 @@ public class Cart extends DisplayObject
 	private double prevX;
 	private int timeSinceMovement;
 	private int[] pos, polePos;
+	private int fitness;
+	private int numTrials;
+	private boolean renderPhenotype;
+	private int numResets;
 	
 	private double x,	    /* cart position, meters */
 	x_dot,			/* cart velocity */
@@ -29,18 +34,20 @@ public class Cart extends DisplayObject
 	theta_dot;		/* pole angular velocity */
 	private int steps,y;
 	private Phenotype phenotype;
+	private Random rng;
 	private boolean random_start;
 	private boolean done;
 	private double twelve_degrees;
 	private double xacc,thetaacc,force,costheta,sintheta,temp;
+	private Color color;
 
 	private final double GRAVITY=9.8;
-	private final double MASSCART=1.2;
-	private final double MASSPOLE=0.15;
+	private final double MASSCART=1.0;
+	private final double MASSPOLE=0.1;
 	private final double TOTAL_MASS=(MASSPOLE + MASSCART);
-	private final double LENGTH=0.9;	  /* actually half the pole's length */
+	private final double LENGTH=1.0;	  /* actually half the pole's length */
 	private final double POLEMASS_LENGTH=(MASSPOLE * LENGTH);
-	private final double FORCE_MAG=10.2;
+	private final double FORCE_MAG=10.0;
 	private final double TAU=0.02;	  /* seconds between state updates */
 	private final double FOURTHIRDS=1.3333333333333;
 	
@@ -50,6 +57,8 @@ public class Cart extends DisplayObject
 		height=h;
 		maxSteps = mSteps;
 		random_start = true;
+		numTrials=0;
+		rng = new Random();
 		reset();
 	}
 	public void reset()
@@ -72,7 +81,8 @@ public class Cart extends DisplayObject
 		costheta = 0.0;
 		sintheta = 0.0;
 		temp = 0.0;
-		if (random_start) {
+		if (random_start) 
+		{
 			/*set up random start state*/
 			x = ((Integer.MAX_VALUE*Math.random())%4800)/1000.0 - 2.4;
 			x_dot = ((Integer.MAX_VALUE*Math.random())%2000)/1000.0 - 1;
@@ -86,26 +96,36 @@ public class Cart extends DisplayObject
 	public void update(double delta) 
 	{
 		if(phenotype == null) {done=true;}
-		if(timeSinceMovement > 1000)
+		if(timeSinceMovement > 100)
 		{
 			System.out.println("\n!!!FAILURE TO MOVE DETECTED!!!\n"+timeSinceMovement);
 			done=true;
 		}
-		if(done) {return;}
+		if(done) 
+		{
+			numTrials++;
+			if(numTrials<numResets) {reset();}
+			return;
+		}
 		if(x == prevX) {timeSinceMovement++;}
 		else {timeSinceMovement=0;}
+		
 		inputs[0]=(x + 2.4) / 4.8;
 		inputs[1]=(x_dot + .75) / 1.5;
 		inputs[2]=(theta + twelve_degrees) / .41;
 		inputs[3]=(theta_dot + 1.0) / 2.0;
 
-		if(!phenotype.activate(inputs)) {return;}
+		if(!phenotype.activate(inputs)) {done=true;}
+		pos[0] = (int)(Math.round((1280-width)*(x+2.4)/4.8));
+		//System.out.println(x+" "+theta);
+		
 
 		outputs = phenotype.readOutputVector();
 
 		if(outputs[0] > outputs[1]) {y = 0;}
 		else {y = 1;}
 		force = (y>0)? FORCE_MAG : -FORCE_MAG;
+		
 		costheta = Math.cos(theta);
 		sintheta = Math.sin(theta);
 
@@ -120,40 +140,49 @@ public class Cart extends DisplayObject
 		x  += TAU * x_dot;
 		x_dot += TAU * xacc;
 		theta += TAU * theta_dot;
+		if(Math.random()<0.2 && random_start) {thetaacc+=thetaacc*rng.nextGaussian();}
 		theta_dot += TAU * thetaacc;
 		
-		pos[0] = (int)(Math.round((1280-width)*(x+2.4)/4.8));
-		//System.out.println(x+" "+theta);
 		polePos[0] = pos[0] + (int)(Math.round(poleRadius*Math.cos(theta + Math.PI/2)));
 		polePos[1] = pos[1] - (int)(Math.round(poleRadius*Math.sin(theta + Math.PI/2)));
+		
 		
 		if (x < -2.4 || x > 2.4  || theta < -twelve_degrees 
 				|| theta > twelve_degrees || steps>maxSteps){done=true;}
 		
-		//System.out.println(outputs[0]+" | "+outputs[1]);
-		//System.out.println("("+polePos[0]+","+polePos[1]+")");
-		/*--- Check for exit condition (failure or victory).  If so, return. ---*/
 		steps++;
+		fitness++;
 	}
 	
 	@Override
 	public void render(Graphics2D g) 
 	{
-		if(done) {return;}
+		if(done || phenotype == null) {return;}
+		if(renderPhenotype) {phenotype.render(g);}
 		g.setColor(Color.BLUE);
 		g.drawLine(pos[0]+width/2, pos[1]+height/2, polePos[0]+width/2, polePos[1]+height/2);
-		g.setColor(Color.WHITE);
+		g.setColor(color);
 		g.fillRect(pos[0],pos[1],width,height);
 		g.setColor(Color.RED);
 		g.fillOval(polePos[0]+width/2-10, polePos[1]+height/2-10, 20, 20);
 		g.setColor(Color.BLACK);
-		g.drawString(""+steps, pos[0]+width/2, pos[1]+height/2);
-		phenotype.render(g);
+		g.drawString(""+fitness, pos[0]+width/2, pos[1]+height/2);
+		
+	}
+	public void setColor(int i)
+	{
+		color = new Color((int)((Math.pow(2, 24)-1)*(i+5)/Config.POPULATION_SIZE));
 	}
 	public void setPhenotype(Phenotype phen) 
 	{
 		phenotype = phen;
 	}
+	public Phenotype getPhenotype(){return phenotype;}
 	public int getSteps() {return steps;}
 	public boolean isDone() {return done;}
+	public int getFitness() {return fitness;}
+	public void resetFitness() {fitness=0; numTrials=0;}
+	public void setRenderPhenotype(boolean i) {renderPhenotype=i;}
+	public boolean getRenderPhenotype() {return renderPhenotype;}
+	public void setNumResets(int i) {numResets=i;}
 }

@@ -44,22 +44,32 @@ public class GameWorld
 		Tile home = board.getHome();
 		startPos = new double[]{home.getPosition()[0]+board.getTileSize()[0]/2-4,
 				 				home.getPosition()[1]+board.getTileSize()[1]/2-4};
-		double[] startAccel = new double[] {0.0,0.0};
-		double startAngle = 0.0;
+		double startAccel = 0.0;
 		for(int i=0;i<popSize;i++)
 		{
-			Worker w = new Fish(startPos,startAngle,startAccel,board.getDest().getPosition(),board);
+			Worker w = new Fish(startPos,Math.random()*Math.PI*2,startAccel,board.getDest().getPosition(),board);
 			workers.add(w);
 			displayObjects.add(w);
 		}
 	}
-	
-	public void run()
+	public void reset()
+	{
+		Tile home = board.getHome();
+		startPos = new double[]{home.getPosition()[0]+board.getTileSize()[0]/2-4,
+				 				home.getPosition()[1]+board.getTileSize()[1]/2-4};
+		for(Worker worker : workers)
+		{
+			worker.setVelocity(0);
+			worker.setAngle(0);
+			worker.setPosition(startPos);
+		}
+	}
+	public void run(int numFrames)
 	{
 		setupWindow();
 		try
 		{
-			Thread.sleep(10000);
+			while(displayWindow.getFramesSinceStart()<numFrames);
 			displayWindow.setRunning(false);
 			displayWindow.getThread().join();
 			windowFrame.dispose();
@@ -80,6 +90,7 @@ public class GameWorld
 	}
 	public void simulate(int iterations)
 	{
+		long t1 = 0;
 		for(int i=0;i<iterations;i++)
 		{
 			for(Worker w : workers)
@@ -103,6 +114,7 @@ public class GameWorld
 		for(int i=0;i<results.length;i++)
 		{
 			results[i] = workers.get(i).getFitness();
+			if(((Fish)workers.get(i)).checkVictoryCondition()) {results[i] = 3000;}
 		}
 		return results;
 	}

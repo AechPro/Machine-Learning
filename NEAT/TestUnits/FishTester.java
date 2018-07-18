@@ -22,7 +22,7 @@ public class FishTester extends TestUnit
 	{
 		super(rng,w,h);
 		numBiasNodes = 1;
-		numInputs = 5;
+		numInputs = 4;
 		numOutputs = 2;
 		numHiddenNodes = 1;
 		gameWorld = new GameWorld();
@@ -36,8 +36,6 @@ public class FishTester extends TestUnit
 		ArrayList<Node> inputNodes = new ArrayList<Node>();
 		ArrayList<Node> outputNodes = new ArrayList<Node>();
 		ArrayList<Node> biasNodes = new ArrayList<Node>();
-		ArrayList<Node> hiddenNodes = new ArrayList<Node>();
-		Random randf = new Random((long)(Math.random()*Long.MAX_VALUE));
 		Genome minimalGenome = null;
 		
 		for(int i=0;i<numBiasNodes;i++)
@@ -61,45 +59,24 @@ public class FishTester extends TestUnit
 			outputNodes.add(n);
 			nodes.add(n);
 		}
-		
-		int hiddenID = table.createNode(2, 4, Node.HIDDEN_NODE);
-		Node node = new Node(inputNodes.get(1).getSplitX(),0.5,Node.HIDDEN_NODE,hiddenID);
-		hiddenNodes.add(node);
-		nodes.add(node);
-		
 		for(int i=0;i<numInputs;i++)
 		{
-			int id = table.createConnection(inputNodes.get(i).getID(), node.getID());
-			Connection c = new Connection(inputNodes.get(i),node,randf.nextGaussian(),true,id);
-			cons.add(c);
 			for(int j=0;j<numOutputs;j++)
 			{
-				id = table.createConnection(inputNodes.get(i).getID(), outputNodes.get(j).getID());
-				c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+				int id = table.createConnection(inputNodes.get(i).getID(), outputNodes.get(j).getID());
+				Connection c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
 				cons.add(c);
 			}
 		}
-		
 		for(int i=0;i<numBiasNodes;i++)
 		{
-			int id = table.createConnection(biasNodes.get(i).getID(), node.getID());
-			Connection c = new Connection(biasNodes.get(i),node,randf.nextGaussian(),true,id);
-			cons.add(c);
 			for(int j=0;j<numOutputs;j++)
 			{
-				id = table.createConnection(biasNodes.get(i).getID(), outputNodes.get(j).getID());
-				c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+				int id = table.createConnection(biasNodes.get(i).getID(), outputNodes.get(j).getID());
+				Connection c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
 				cons.add(c);
 			}
 		}
-		
-		for(int i=0;i<numOutputs;i++)
-		{
-			int id = table.createConnection(node.getID(),outputNodes.get(i).getID());
-			Connection c = new Connection(node,outputNodes.get(i),randf.nextGaussian(),true,id);
-			cons.add(c);
-		}
-		
 		minimalGenome = new Genome(cons,nodes,table,randf,numInputs,numOutputs);
 		return minimalGenome;
 	}
@@ -180,6 +157,7 @@ public class FishTester extends TestUnit
 	
 	public Organism testPhenotypes(ArrayList<Organism> population)
 	{
+		int numFrames = 800;
 		for(Organism org : population)
 		{
 			org.createPhenotype(width/2,height/2);
@@ -190,21 +168,25 @@ public class FishTester extends TestUnit
 		}
 		
 		gameWorld.buildPop(population);
-		if(simCount++>10)
-		{
-			simCount=0;
-			flip=!flip;
-		}
+		simCount++;
 		
-		//if(TSLI++>10) {gameWorld.simulate(1000);}
-		//else{gameWorld.run();}
-		gameWorld.run();
+		//if(TSLI++>10 || simCount<15) {gameWorld.simulate(numFrames);}
+		//else{gameWorld.run(numFrames);}
+		gameWorld.simulate(numFrames);
+	    //gameWorld.run(numFrames);
 		double[] fitnessList = gameWorld.getTestResults();
 		
 		for(int i=0;i<fitnessList.length;i++)
 		{
-			if(best<fitnessList[i]) {best=fitnessList[i]; TSLI = 0;}
 			population.get(i).setFitness(fitnessList[i]);
+			if(best<fitnessList[i]) {best=fitnessList[i]; TSLI = 0;}
+			if(fitnessList[i] >= 2450) 
+			{
+				victor=true;
+				gameWorld.reset();
+				gameWorld.run(numFrames);
+				return population.get(i);
+			}
 		}
 		return null;
 	}

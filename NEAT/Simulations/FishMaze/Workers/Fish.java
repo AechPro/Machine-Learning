@@ -1,5 +1,7 @@
 package NEAT.Simulations.FishMaze.Workers;
 
+import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -8,31 +10,43 @@ import NEAT.Simulations.FishMaze.*;
 
 public class Fish extends Worker
 {
+	
 	private double[] inputVector;
 	private double[] outputVector;
 	private double[] startVector;
 	private double[] previousPosition;
 	private int TSLI;
-	public Fish(double[] startPos, double startAngle, double[] accel, double[] dest, GameBoard b)
+	private boolean victory;
+	
+	public Fish(double[] startPos, double startAngle, double accel, double[] dest, GameBoard b) 
 	{
 		super(startPos, startAngle, accel, dest, b);
 		startVector = new double[] {startPos[0],startPos[1]};
+		acceleration = 1;
 		init();
 	}
 
 	@Override
 	public void init()
 	{
-		inputVector = new double[5];
+		inputVector = new double[4];
 		outputVector = new double[2];
 		previousPosition = new double[2];
 		TSLI = 0;
+		victory=false;
 	}
-	
+
 	@Override
 	public void executeDecision()
 	{
 		if(phenotype == null) {return;}
+		if(checkVictoryCondition()) 
+		{
+			acceleration = 0;
+			velocity = 0;
+			theta = 0;
+			return;
+		}
 		loadInputVector();
 		boolean success = phenotype.activate(inputVector);
 		for(int relax = 0;relax<phenotype.getDepth();relax++)
@@ -40,216 +54,102 @@ public class Fish extends Worker
 			success = phenotype.activate(inputVector);
 		}
 		outputVector = phenotype.readOutputVector();
+		/*
+		theta = Math.PI*2*outputVector[2];
+		acceleration[0] = (outputVector[0] - 0.5)*2;
+		acceleration[1] = (outputVector[1] - 0.5)*2;*/
+		//System.out.println("("+outputVector[0]+","+outputVector[1]+","+outputVector[2]+")");
 		
-		velocity[0] = (outputVector[0] - 0.5)*maxVelocity[0];
-		velocity[1] = (outputVector[1] - 0.5)*maxVelocity[1];
+
 		phenotype.reset();
-		
-		if(previousPosition[0] != position[0] ||
-		   previousPosition[1] != position[1]) {TSLI=0;}
-		else{TSLI++;}
-		
-		previousPosition[0] = position[0];
-		previousPosition[1] = position[1];
+		theta += (outputVector[0] >= outputVector[1]) ? 0.1 : -0.1;
 	}
-	
+
 	public void loadInputVector()
 	{
-		int xo = 32;
-		int yo = 32;
+		double o1 = Math.cos(theta);
+		double o2 = Math.sin(theta);
+		int x = 0;
+		int y = 0;
+		int r = 32;
+		int radiusStep = 1;
 		Tile t = null;
 		int itr = 0;
-		for(int i=0;i<inputVector.length;i++) {inputVector[i]=0;}
+		int sensorRange = 3;
+		double FOV = Math.PI/4;
+		boolean found = false;
+		//Line2D sensor;
+		for(int i=0;i<inputVector.length;i++) {inputVector[i]=-1;}
 		
-		t = board.getTile(new double[]{position[0]+xo,position[1]-yo});
-		if(t!=null && t.isCollidable())
-		{inputVector[itr++]=1;}
-		else {inputVector[itr++]=0;}
-		
-		t = board.getTile(new double[]{position[0]+xo,position[1]});
-		if(t!=null && t.isCollidable())
-		{inputVector[itr++]=1;}
-		else {inputVector[itr++]=0;}
-		
-		t = board.getTile(new double[]{position[0]+xo,position[1]+yo});
-		if(t!=null && t.isCollidable())
-		{inputVector[itr++]=1;}
-		else {inputVector[itr++]=0;}
-		
-		inputVector[itr++]=velocity[0];
-		inputVector[itr++]=velocity[1];
-		
-		
-		//top left
-		/*t = board.getTile(new double[]{position[0]-xo,position[1]-yo});
-		if(t == null) 
+		//center sensor
+		found = false;
+		for(int i=0;i<sensorRange;i++)
 		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+				t = board.getTile(new double[] {x,y});
+				if(t == null) {inputVector[itr++] = 1; break;}
+				if(t.isCollidable())
+				{
+					inputVector[itr++] = getDistance(t)/(r*sensorRange);
+					found = true;
+					break;
+				}
+			}
+			if(found) {break;}
 		}
 		
-		
-		//top middle
-		t = board.getTile(new double[]{position[0],position[1]-yo});
-		if(t == null) 
+		//up sensor
+		o1 = Math.cos(theta - FOV/2);
+		o2 = Math.sin(theta - FOV/2);
+		found = false;
+		for(int i=0;i<sensorRange;i++)
 		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//top right
-		t = board.getTile(new double[]{position[0]+xo,position[1]-yo});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+				t = board.getTile(new double[] {x,y});
+				if(t == null) {inputVector[itr++] = 1; break;}
+				if(t.isCollidable())
+				{
+					inputVector[itr++] = getDistance(t)/(r*sensorRange);
+					found = true;
+					break;
+				}
+			}
+			if(found) {break;}
 		}
 		
-		
-		//middle left
-		t = board.getTile(new double[]{position[0]-xo,position[1]});
-		if(t == null) 
+		//down sensor
+		o1 = Math.cos(theta + FOV/2);
+		o2 = Math.sin(theta + FOV/2);
+		found = false;
+		for(int i=0;i<sensorRange;i++)
 		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+				t = board.getTile(new double[] {x,y});
+				if(t == null) {inputVector[itr++] = 1; break;}
+				if(t.isCollidable())
+				{
+					inputVector[itr++] = getDistance(t)/(r*sensorRange);
+					found = true;
+					break;
+				}
+			}
+			if(found) {break;}
 		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//center
-		t = board.getTile(new double[]{position[0],position[1]});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//middle right
-		t = board.getTile(new double[]{position[0]+xo,position[1]});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//bottom left
-		t = board.getTile(new double[]{position[0]-xo,position[1]+yo});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//bottom middle
-		t = board.getTile(new double[]{position[0],position[1]+yo});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		
-		
-		//bottom right
-		t = board.getTile(new double[]{position[0]+xo,position[1]+yo});
-		if(t == null) 
-		{
-			inputVector[itr] = 0;
-			itr++;
-			inputVector[itr] = 0;
-			itr++;
-		}
-		else 
-		{
-			inputVector[itr] = getDistance(t);
-			itr++;
-			if(t.isCollidable()) {inputVector[itr] = 1.0;}
-			else {inputVector[itr] = 0.0;}
-			itr++;
-		}
-		*/
+		inputVector[itr++] = theta;
+	}
+	public boolean checkVictoryCondition()
+	{
+		victory = getDistance(board.getDest())<31;
+		return victory;
 	}
 	public double getDistance(Tile t)
 	{
@@ -262,7 +162,7 @@ public class Fish extends Worker
 	public double getFitness()
 	{
 		if(phenotype == null) {return Math.random()*0.001;}
-		
+
 		//Manhattan distance between the fish and the destination.
 		double fitnessValue = Math.abs(position[0]-destination[0])+Math.abs(position[1]-destination[1]);
 		double dist = Math.abs(startVector[0]-destination[0])+Math.abs(startVector[1]-destination[1]);

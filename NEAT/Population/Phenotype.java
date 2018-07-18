@@ -272,4 +272,6 @@ public class Phenotype extends DisplayObject
 		//return 1.0d/(1.0d+(double)(Math.exp(-x/response)));
 		return (1 / (1 + Math.exp(-x/response)));
 	}
+	public void setX(int i) {x=i;}
+	public void setY(int i) {y=i;}
 }

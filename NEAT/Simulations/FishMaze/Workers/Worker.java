@@ -1,5 +1,6 @@
 package NEAT.Simulations.FishMaze.Workers;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -16,12 +17,13 @@ import NEAT.Simulations.FishMaze.*;
 public abstract class Worker extends DisplayObject
 {
 	protected double[] position;
-	protected double[] velocity;
-	protected double[] acceleration;
-	protected double[] maxVelocity;
+	protected double velocity;
+	protected double acceleration;
+	protected double maxVelocity;
 	protected double[] destination;
 	protected double[] home;
 	protected double[] orientation;
+	protected double vel;
 	
 	protected int width,height;
 	protected int species;
@@ -45,7 +47,7 @@ public abstract class Worker extends DisplayObject
 	public abstract void init();
 	public abstract double getFitness();
 	public abstract void executeDecision();
-	public Worker(double[] startPos, double startAngle, double[] accel, double[] dest, GameBoard b)
+	public Worker(double[] startPos, double startAngle, double accel, double[] dest, GameBoard b)
 	{
 		board = b;
 		destination=dest;
@@ -54,8 +56,7 @@ public abstract class Worker extends DisplayObject
 		acceleration = accel;
 		orientation = new double[2];
 		position = new double[]{startPos[0],startPos[1]};
-		velocity = new double[2];
-		maxVelocity = new double[]{5.0f,5.0f};
+		maxVelocity = 5.0;
 		
 		home = new double[]{startPos[0],startPos[1]};
 		
@@ -72,19 +73,19 @@ public abstract class Worker extends DisplayObject
 		{
 			t = new AffineTransform();
 		    t.translate(position[0], position[1]);
-		    t.rotate(theta, width/2, height/2);
+		    t.rotate(theta+Math.PI/2, width/2, height/2);
 		    
 			orientation[0] = (double) Math.cos(theta);
 			orientation[1] = (double) Math.sin(theta);
 			
-			if(!colH){position[0]+=velocity[0];}
-			if(!colV){position[1]+=velocity[1];}
+			if(!colH){position[0]+=velocity*orientation[0];}
+			if(!colV){position[1]+=velocity*orientation[1];}
 			
 			for(int i=0;i<2;i++)
 			{
-				velocity[i]+=acceleration[i]*orientation[i]*delta;
-				if(velocity[i]>maxVelocity[i]){velocity[i]=maxVelocity[i];}
-				else if(velocity[i]<-maxVelocity[i]){velocity[i]=-maxVelocity[i];}
+				velocity+=acceleration*delta;
+				if(velocity>maxVelocity){velocity=maxVelocity;}
+				else if(velocity<-maxVelocity){velocity=-maxVelocity;}
 			}
 			checkCollisions();
 			executeDecision();
@@ -99,14 +100,119 @@ public abstract class Worker extends DisplayObject
 		{
 			if(img != null)
 			{
+				
 			    g.transform(t);
 			    g.drawImage(img,0,0,null);
 			    g.transform(t.createInverse());
 			}
+			
+			//drawSensors(g);
+			
+			/*if(phenotype!=null)
+			{
+				phenotype.render(g);
+			}*/
 		}
 		catch(Exception e){e.printStackTrace();}
 	}
-	
+	public void drawSensors(Graphics2D g)
+	{
+		double o1,o2 = 0;
+		int x = 0 ,y = 0;
+		int p1 = (int)position[0]+width/2;
+		int p2 = (int)position[1]+height/2;
+		int r=32;
+		int radiusStep = 4;
+		double FOV = Math.PI/4;
+		int sensorRange = 3;
+		Tile tempTile;
+		Color c1 = new Color(255,0,0,100);
+		Color c2 = new Color(0,255,0,100);
+		Color collidableTile = Color.RED;
+		Color freeTile = Color.GREEN;
+		Color nullTile = Color.WHITE;
+		o1 = Math.cos(theta - FOV/2);
+		o2 = Math.sin(theta - FOV/2);
+		for(int i=0;i<sensorRange;i++)
+		{
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+			
+			
+				tempTile = board.getTile(new double[] {x,y});
+				if(tempTile == null){g.setColor(nullTile); break;}
+				else if(tempTile.isCollidable())
+				{
+					g.setColor(collidableTile);
+					tempTile.setColor(c1);
+					break;
+				}
+				else 
+				{
+					g.setColor(freeTile);
+					tempTile.setColor(c2);
+				}
+			}
+		}
+		
+		g.drawLine(p1, p2, x, y);
+		
+		o1 = Math.cos(theta + FOV/2);
+		o2 = Math.sin(theta + FOV/2);
+		for(int i=0;i<sensorRange;i++)
+		{
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+			
+			
+				tempTile = board.getTile(new double[] {x,y});
+				if(tempTile == null){g.setColor(nullTile); break;}
+				else if(tempTile.isCollidable())
+				{
+					g.setColor(collidableTile);
+					tempTile.setColor(c1);
+					break;
+				}
+				else 
+				{
+					g.setColor(freeTile);
+					tempTile.setColor(c2);
+				}
+			}
+		}
+		g.drawLine(p1, p2, x, y);
+		
+		o1 = Math.cos(theta);
+		o2 = Math.sin(theta);
+		for(int i=0;i<sensorRange;i++)
+		{
+			for(int j=0;j<r;j+=radiusStep)
+			{
+				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
+				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
+			
+			
+				tempTile = board.getTile(new double[] {x,y});
+				if(tempTile == null){g.setColor(nullTile); break;}
+				else if(tempTile.isCollidable())
+				{
+					g.setColor(collidableTile);
+					tempTile.setColor(c1);
+					break;
+				}
+				else 
+				{
+					g.setColor(freeTile);
+					tempTile.setColor(c2);
+				}
+			}
+		}
+		g.drawLine(p1, p2, x, y);
+	}
 	public boolean isColliding(int x1, int y1, int w, int h, int x2, int y2, int w2, int h2)
 	{
 		Rectangle r1 = new Rectangle(x1,y1,w,h);
@@ -118,8 +224,8 @@ public abstract class Worker extends DisplayObject
 	{
 		double x = position[0];
 		double y = position[1];
-		double xSpd = velocity[0];
-		double ySpd = velocity[1];
+		double xSpd = velocity*orientation[0];
+		double ySpd = velocity*orientation[1];
 		double prevYSpd = ySpd,prevXSpd=xSpd;
 		int hitBox = 0;
 		int tw = board.getTileSize()[0];
@@ -228,8 +334,7 @@ public abstract class Worker extends DisplayObject
 		
 		position[0] = x;
 		position[1] = y;
-		velocity[0] = xSpd;
-		velocity[1] = ySpd;
+		velocity = Math.sqrt(Math.pow(xSpd, 2)+Math.pow(ySpd, 2));
 	}
 	
 	public void startThread()
@@ -254,7 +359,7 @@ public abstract class Worker extends DisplayObject
 	public void setPhenotype(Organism org)
 	{
 		species = org.getColorMarker();
-		if(species == -1 || species > 255) {species = 0;}
+		if(species == -1 || species > 13000) {species = 0;}
 		img = null;
 		try{img = ImageIO.read(new File("resources/textures/workers/worker_"+species+".png"));}
 		catch(Exception e){System.out.println(species);e.printStackTrace();}
@@ -265,13 +370,15 @@ public abstract class Worker extends DisplayObject
 	}
 	
 	public double[] getPosition() {return new double[]{position[0],position[1]};}
-	public double[] getVelocity() {return new double[]{velocity[0],velocity[1]};}
-	public double[] getAcceleration() {return new double[]{acceleration[0],acceleration[0]};}
+	public double getVelocity() {return velocity;}
+	public double getAngle() {return theta;}
+	public double getAcceleration() {return acceleration;}
 	public double[] getDestination() {return destination;}
 	public double[] getOrientation() {return orientation;}
 	public boolean isThreadClosed(){return threadClosed;}
+	public void setAngle(double theta) {this.theta=theta;}
 	public void setPosition(double[] position) {this.position = new double[]{position[0],position[1]};}
-	public void setVelocity(double[] velocity) {this.velocity = new double[]{velocity[0],velocity[1]};}
-	public void setAcceleration(double[] acceleration) {this.acceleration = new double[]{acceleration[0],acceleration[1]};}
+	public void setVelocity(double velocity) {this.velocity = velocity;}
+	public void setAcceleration(double acceleration) {this.acceleration = acceleration;}
 	public void setDestination(double[] destination) {this.destination = destination;}
 }

@@ -92,11 +92,10 @@ public class GameBoard extends DisplayObject
 	public Tile getTile(double[] pos)
 	{
 		
-		int x = (int)pos[0];
+		int x = (int)(pos[0]/tileSize[0]);
 		int y = (int)(pos[1]/tileSize[1]);
 		
-		int index = (y-1)*width;
-		index+=x/tileSize[0];
+		int index = x + y*width;
 		if(index<0 || index>=tiles.size()){return null;}
 		
 		return tiles.get(index);

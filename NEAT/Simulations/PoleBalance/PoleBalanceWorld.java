@@ -17,12 +17,13 @@ public class PoleBalanceWorld
 	private ArrayList<Cart> carts;
 	private Window displayWindow;
 	private JFrame windowFrame;
-	private double[] startPos;
+	private int numTrials;
 	private int popSize;
 	
-	public PoleBalanceWorld()
+	public PoleBalanceWorld(int nt)
 	{
 		popSize = Config.POPULATION_SIZE;
+		numTrials = nt;
 		init();
 	}
 	
@@ -36,25 +37,58 @@ public class PoleBalanceWorld
 		}
 		for(Cart c : carts)
 		{
+			c.setNumResets(numTrials);
 			displayObjects.add(c);
 		}
 	}
 	
 	public void run()
 	{
-		for(int i=0;i<carts.size();i++) {carts.get(i).reset();}
+		int[] xList = new int[10];
+		int[] yList = new int[xList.length];
+		int[] bestIndices = new int[xList.length];
+		double bFitness = 0;
+		for(int i=0;i<xList.length;i++)
+		{
+			xList[i] = 1280/2 - 100 + (25*6*i);
+			yList[i] = 0;
+		}
+		for(int i=0;i<carts.size();i++) 
+		{
+			carts.get(i).reset(); 
+			carts.get(i).resetFitness();
+			if(carts.get(i).getPhenotype() == null) {continue;}
+			carts.get(i).setRenderPhenotype(false);
+			carts.get(i).getPhenotype().setY(720);
+		}
 		setupWindow();
 		boolean done = false;
-		while(!done)
-		{
-			done = true;
-			for(int i=0;i<carts.size();i++)
-			{
-				if(!carts.get(i).isDone()) {done=false;}
-			}
-		}
+		
 		try
 		{
+			while(!done)
+			{
+				synchronized(displayObjects)
+				{
+					bFitness = 0;
+					done = true;
+					for(int i=0;i<carts.size();i++)
+					{
+						carts.get(i).setRenderPhenotype(false);
+						if(!carts.get(i).isDone()) 
+						{
+							if(carts.get(i).getFitness() > bFitness+10) 
+							{
+								bFitness=carts.get(i).getFitness();
+								carts.get(i).setRenderPhenotype(true);
+								carts.get(i).getPhenotype().setX(xList[0]);
+							}
+							done=false;
+						}
+					}
+				}
+				Thread.sleep(100);
+			}
 			displayWindow.setRunning(false);
 			displayWindow.getThread().join();
 			windowFrame.dispose();
@@ -66,9 +100,16 @@ public class PoleBalanceWorld
 	}
 	public void simulate(int iterations)
 	{
-		for(int i=0;i<iterations;i++)
+		for(int j=0;j<carts.size();j++) {carts.get(j).reset();}
+		boolean done = false;
+		while(!done)
 		{
-			//update simulation agents
+			done = true;
+			for(int j=0;j<carts.size();j++)
+			{
+				carts.get(j).update(1.0);
+				if(!carts.get(j).isDone()) {done=false;}
+			}
 		}
 	}
 	public void buildPop(ArrayList<Organism> population)
@@ -78,6 +119,7 @@ public class PoleBalanceWorld
 		for(int i=0,stop=population.size();i<stop;i++)
 		{
 			carts.get(i).setPhenotype(population.get(i).getPhenotype());
+			carts.get(i).setColor(population.get(i).getColorMarker());
 			//workers.get(i).setPhenotype(population.get(i));
 		}
 	}
@@ -86,7 +128,7 @@ public class PoleBalanceWorld
 		double[] results = new double[popSize];
 		for(int i=0;i<results.length;i++)
 		{
-			results[i] = carts.get(i).getSteps();
+			results[i] = carts.get(i).getFitness();
 		}
 		return results;
 	}

@@ -1,23 +1,23 @@
 package NEAT.Configs;
 
-public class PoleConfig 
+public class PoleConfig
 {
 	//Global scope parameters.
-	public final int POPULATION_SIZE = 150;
-	public final double MAX_MUTATION_PERTURBATION = 2.5;
+	public final int POPULATION_SIZE = 1000;
+	public final double MAX_MUTATION_PERTURBATION = 1.8;
 	public final double WORST_PERCENT_REMOVED = 0.4;
 	
 	//Node specific parameters.
-	public final double NODE_ADD_CHANCE = 0.03;
-	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.3;
-	public final int MAX_ALLOWED_NODES = 100;
+	public final double NODE_ADD_CHANCE = 0.01;
+	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.1;
+	public final int MAX_ALLOWED_NODES = 25;
 	public final int MAX_ATTEMPTS_ADD_NODE = 20;
 
 	//Connection specific parameters.
-	public final double CONNECTION_ADD_CHANCE = 0.05;
+	public final double CONNECTION_ADD_CHANCE = 0.3;
 	public final double INHERITED_CONNECTION_ENABLE_RATE = 0.25;
-	public final double MUTATED_CONNECTION_ENABLE_RATE = 0.00;
-	public final double MUTATED_CONNECTION_TOGGLE_RATE = 0.00;
+	public final double MUTATED_CONNECTION_ENABLE_RATE = 0.05;
+	public final double MUTATED_CONNECTION_TOGGLE_RATE = 0.1;
 	public final double RECURSIVE_CONNECTION_CHANCE = 0.2;
 	public final double WEIGHT_REPLACEMENT_RATE = 0.2;
 	public final double WEIGHT_MUTATION_RATE = 0.8;
@@ -39,7 +39,7 @@ public class PoleConfig
 	//Compatibility specific parameters.
 	public final double COMPAT_EXCESS_COEF = 1.0;
 	public final double COMPAT_DISJOINT_COEF = 1.0;
-	public final double COMPAT_SHARED_COEF = 1.0;
+	public final double COMPAT_SHARED_COEF = 1.5;
 	
 	//Stagnation specific parameters.
 	public final int MAX_ALLOWED_ORGANISM_AGE = 20;

@@ -60,11 +60,14 @@ public class Organism
 	}
 	public void mutateGenotype(InnovationTable table)
 	{
-		genotype.addConnection(table);
-		if(genotype.getNodes().size()<Config.MAX_ALLOWED_NODES) {genotype.addNode(table);}
-		//genotype.mutateNodes();
-		//genotype.mutateConnections();
-		genotype.mutateWeights();
+		if(genotype.addNode(table));
+		else if(genotype.addConnection(table));
+		else
+		{
+			genotype.mutateConnections();
+			//genotype.mutateNodes();
+			genotype.mutateWeights();
+		}
 		genotype.setID(table.getNextGenomeID());
 		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
 		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
