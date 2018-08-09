@@ -20,12 +20,12 @@ public class PoleTester extends TestUnit
 	public PoleTester(Random rng, int windowWidth, int windowHeight) 
 	{
 		super(rng, windowWidth, windowHeight);
-		numInputs = 4;
+		numInputs = 3;
 		numOutputs = 2;
 		numHiddenNodes = 0;
 		numBiasNodes = 1;
 		bestFitness = 0;
-		numTrials = 10;
+		numTrials = 1;
 		gameWorld = new PoleBalanceWorld(numTrials);
 	}
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public abstract class Worker extends DisplayObject
 		acceleration = accel;
 		orientation = new double[2];
 		position = new double[]{startPos[0],startPos[1]};
-		maxVelocity = 5.0;
+		maxVelocity = 5;
 		
 		home = new double[]{startPos[0],startPos[1]};
 		
@@ -83,7 +84,7 @@ public abstract class Worker extends DisplayObject
 			
 			for(int i=0;i<2;i++)
 			{
-				velocity+=acceleration*delta;
+				velocity+=acceleration;
 				if(velocity>maxVelocity){velocity=maxVelocity;}
 				else if(velocity<-maxVelocity){velocity=-maxVelocity;}
 			}
@@ -118,100 +119,61 @@ public abstract class Worker extends DisplayObject
 	public void drawSensors(Graphics2D g)
 	{
 		double o1,o2 = 0;
-		int x = 0 ,y = 0;
-		int p1 = (int)position[0]+width/2;
-		int p2 = (int)position[1]+height/2;
-		int r=32;
-		int radiusStep = 4;
 		double FOV = Math.PI/4;
-		int sensorRange = 3;
-		Tile tempTile;
+		
+		o1 = Math.cos(theta - FOV/2);
+		o2 = Math.sin(theta - FOV/2);
+		drawSensor(o1,o2,g);
+		
+		o1 = Math.cos(theta + FOV/2);
+		o2 = Math.sin(theta + FOV/2);
+		drawSensor(o1,o2,g);
+		
+		o1 = Math.cos(theta);
+		o2 = Math.sin(theta);
+		drawSensor(o1,o2,g);
+	}
+	public void drawSensor(double o1, double o2, Graphics2D g)
+	{
 		Color c1 = new Color(255,0,0,100);
 		Color c2 = new Color(0,255,0,100);
 		Color collidableTile = Color.RED;
 		Color freeTile = Color.GREEN;
 		Color nullTile = Color.WHITE;
-		o1 = Math.cos(theta - FOV/2);
-		o2 = Math.sin(theta - FOV/2);
+		int x = 0;
+		int y = 0;
+		int r = 32;
+		Tile t = null;
+		int sensorRange = 3;
+		Line2D sensorLine = new Line2D.Double(position[0]+width/2,position[1]+height/2,o1*sensorRange*r+position[0]+width/2,o2*sensorRange*r+position[1]+height/2);
 		for(int i=0;i<sensorRange;i++)
 		{
-			for(int j=0;j<r;j+=radiusStep)
+			x = (int)(o1*r*(i) + position[0] + width/2);
+			y = (int)(o2*r*(i) + position[1] + height/2);
+			t = board.getTile(new double[] {x,y});
+			if(t == null) {g.setColor(nullTile);break;}
+			Rectangle rect = new Rectangle((int)t.getPosition()[0],(int)t.getPosition()[1],t.getWidth(),t.getHeight());
+			if(sensorLine.intersects(rect))
 			{
-				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
-				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
-			
-			
-				tempTile = board.getTile(new double[] {x,y});
-				if(tempTile == null){g.setColor(nullTile); break;}
-				else if(tempTile.isCollidable())
+				if(t.isCollidable())
 				{
+					g.setColor(Color.YELLOW);
+					g.draw(rect);
+					
 					g.setColor(collidableTile);
-					tempTile.setColor(c1);
+					t.setColor(c1);
+					
 					break;
 				}
-				else 
+				else
 				{
 					g.setColor(freeTile);
-					tempTile.setColor(c2);
+					t.setColor(c2);
 				}
+				
 			}
 		}
-		
-		g.drawLine(p1, p2, x, y);
-		
-		o1 = Math.cos(theta + FOV/2);
-		o2 = Math.sin(theta + FOV/2);
-		for(int i=0;i<sensorRange;i++)
-		{
-			for(int j=0;j<r;j+=radiusStep)
-			{
-				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
-				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
-			
-			
-				tempTile = board.getTile(new double[] {x,y});
-				if(tempTile == null){g.setColor(nullTile); break;}
-				else if(tempTile.isCollidable())
-				{
-					g.setColor(collidableTile);
-					tempTile.setColor(c1);
-					break;
-				}
-				else 
-				{
-					g.setColor(freeTile);
-					tempTile.setColor(c2);
-				}
-			}
-		}
-		g.drawLine(p1, p2, x, y);
-		
-		o1 = Math.cos(theta);
-		o2 = Math.sin(theta);
-		for(int i=0;i<sensorRange;i++)
-		{
-			for(int j=0;j<r;j+=radiusStep)
-			{
-				x = (int)(o1*(j+1)*(i+1) + position[0] + width/2);
-				y = (int)(o2*(j+1)*(i+1) + position[1] + height/2);
-			
-			
-				tempTile = board.getTile(new double[] {x,y});
-				if(tempTile == null){g.setColor(nullTile); break;}
-				else if(tempTile.isCollidable())
-				{
-					g.setColor(collidableTile);
-					tempTile.setColor(c1);
-					break;
-				}
-				else 
-				{
-					g.setColor(freeTile);
-					tempTile.setColor(c2);
-				}
-			}
-		}
-		g.drawLine(p1, p2, x, y);
+		g.draw(sensorLine);
 	}
 	public boolean isColliding(int x1, int y1, int w, int h, int x2, int y2, int w2, int h2)
 	{

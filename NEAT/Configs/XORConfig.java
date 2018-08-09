@@ -19,7 +19,8 @@ public class XORConfig
 	public final double MUTATED_CONNECTION_ENABLE_RATE = 0.00;
 	public final double MUTATED_CONNECTION_TOGGLE_RATE = 0.00;
 	public final double RECURSIVE_CONNECTION_CHANCE = 0.00;
-	public final double WEIGHT_REPLACEMENT_RATE = 0.2;
+	public final double WEIGHT_REPLACEMENT_RATE = 0.9;
+	public final double WEIGHT_MUTATION_PROB = 0.7;
 	public final double WEIGHT_MUTATION_RATE = 0.9;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 20;
 
@@ -35,6 +36,7 @@ public class XORConfig
 	public final int SPECIES_SIZE_FOR_CHAMP_CLONING = 5;
 	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
 	public final double NUM_POP_CHAMP_MUTATIONS = 2;
+	public final double INTERSPECIES_MATE_RATE = 0.001;
 	
 	//Compatibility specific parameters.
 	public final double COMPAT_EXCESS_COEF = 1.0;

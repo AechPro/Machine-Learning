@@ -120,11 +120,13 @@ public class Genome
 		
 		boolean foundSplit = false;
 		int idx = 0;
+		int offset = 0;
+		if(connections.size()>1) {offset = (int)Math.sqrt(connections.size()-1);}
 		Node inp;
 		
 		while(maxAttempts-->0 && !foundSplit)
 		{
-			idx = rand.nextInt(connections.size());
+			idx = rand.nextInt(connections.size() - offset);
 			inp = connections.get(idx).getInput();
 			
 			if(connections.get(idx).isEnabled())
@@ -178,22 +180,43 @@ public class Genome
 	}
 	public void mutateWeights()
 	{
-		double mutationRate = Config.WEIGHT_MUTATION_RATE;
-		double replaceProb = Config.WEIGHT_REPLACEMENT_RATE;
+		if(rand.nextDouble() >= Config.WEIGHT_MUTATION_PROB) {return;}
+		double mutationRate = 0.1;
+		double replaceProb = 0;
 		double maxPerturb = Config.MAX_MUTATION_PERTURBATION;
+		int numCons = connections.size();
+		int end = (int)(Math.round(numCons*0.8));
+		int num = 0;
+		boolean severe = rand.nextDouble()>0.5;
 		for(Connection con : connections)
 		{
-			if(con.getInput().getType() == Node.BIAS_NODE || !con.isEnabled()){continue;}
+			num++;
+			if(!con.isEnabled()){continue;}
+			if(severe)
+			{
+				mutationRate=Config.WEIGHT_MUTATION_RATE;
+				replaceProb=Config.WEIGHT_REPLACEMENT_RATE;
+			}
+			else if(num>end && numCons>=10)
+			{
+				mutationRate=Config.WEIGHT_MUTATION_RATE+0.2;
+				replaceProb=Config.WEIGHT_REPLACEMENT_RATE+0.2;
+			}
+			else
+			{
+				mutationRate = 1.0;
+			}
 			if(rand.nextDouble()<mutationRate)
 			{
-				double mutationValue = new Random().nextGaussian();
+				double mutationValue = rand.nextGaussian();
 				con.setWeight(con.getWeight() + mutationValue*maxPerturb);
 			}
 			else if(rand.nextDouble()<replaceProb)
 			{
-				double mutationValue = new Random().nextGaussian();
+				double mutationValue = rand.nextGaussian();
 				con.setWeight(mutationValue);
 			}
+			
 		}
 	}
 	public void mutateConnections()
@@ -220,7 +243,7 @@ public class Genome
 		{
 			if(rand.nextDouble()<mutationRate)
 			{
-				double mutationValue = new Random().nextGaussian()*maxPerturb/3;
+				double mutationValue = rand.nextGaussian()*maxPerturb/3;
 				n.setActivationResponse(n.getActivationResponse()+mutationValue);
 			}
 		}
@@ -303,6 +326,16 @@ public class Genome
 		output+="\nCONNECTIONS: "+connections.size();
 		output+="\nNODES: "+nodes.size();
 		return output;
+	}
+	public double getAverageConnectionWeight()
+	{
+		double avg = 0;
+		if(connections.size() == 0) {return 0;}
+		for(int i=0;i<connections.size();i++)
+		{
+			avg+=connections.get(i).getWeight();
+		}
+		return avg/connections.size();
 	}
 	public Random getRand() {return rand;}
 	public void setRand(Random rng) {rand = rng;}

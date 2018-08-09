@@ -270,7 +270,7 @@ public class Phenotype extends DisplayObject
 	{
 		//System.out.println("CALCULATING SIGMOID OF "+x+" OUTPUT = "+1.0d/(1.0d+(double)(Math.exp(-x/response))));
 		//return 1.0d/(1.0d+(double)(Math.exp(-x/response)));
-		return (1 / (1 + Math.exp(-x/response)));
+		return (1 / (1 + Math.exp(-x/1)));
 	}
 	public void setX(int i) {x=i;}
 	public void setY(int i) {y=i;}

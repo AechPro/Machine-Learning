@@ -51,4 +51,9 @@ public class SpeciesSorter
 		sorter.sortSpecies(species,0,species.size()-1);
 		return species;
 	}
+	public Species getRandomSpecies()
+	{
+		if(species == null || species.size() == 0) {return null;}
+		return species.get((int)(Math.round(Math.random()*(species.size()-1))));
+	}
 }

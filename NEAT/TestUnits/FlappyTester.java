@@ -7,23 +7,22 @@ import NEAT.Genes.Connection;
 import NEAT.Genes.Node;
 import NEAT.Population.Genome;
 import NEAT.Population.Organism;
+import NEAT.Simulations.FlappySquares.GameWorld;
 import NEAT.util.InnovationTable;
 
-import NEAT.Simulations.FishMaze.*;
-
-public class FishTester extends TestUnit
+public class FlappyTester extends TestUnit
 {
 	private GameWorld gameWorld;
 	private boolean flip = true;
 	private int simCount = 0;
 	private double best = 0.0;
 	private int TSLI = 0;
-	public FishTester(Random rng, int w, int h)
+	public FlappyTester(Random rng, int w, int h)
 	{
 		super(rng,w,h);
 		numBiasNodes = 1;
-		numInputs = 1*4+1;
-		numOutputs = 2;
+		numInputs = 3;
+		numOutputs = 1;
 		numHiddenNodes = 1;
 		gameWorld = new GameWorld();
 	}
@@ -168,42 +167,21 @@ public class FishTester extends TestUnit
 		}
 		
 		gameWorld.buildPop(population);
-		simCount++;
-		/*if(simCount < 25)
-		{
-			gameWorld.simulate(numFrames);
-		}
-		else if(simCount < 30)
-		{
-			gameWorld.run(numFrames);
-		}
-		else {simCount=0;}
-		
-		*/
-		//gameWorld.run(numFrames);
-		if(TSLI++>5 || simCount<15) {gameWorld.simulate(numFrames);}
-		else{gameWorld.run(numFrames);}
-		/*if(simCount<10){gameWorld.simulate(numFrames);}
-		else
-		{
-			gameWorld.run(numFrames);
-			if(simCount>=15) 
-			{
-				simCount=0;
-			}
-		}*/
-		//gameWorld.simulate(numFrames);
+		gameWorld.simulate();
+		//gameWorld.run();
+		//if(simCount++>50){gameWorld.run(); simCount = 0;}
+		//else {gameWorld.simulate();}
 		double[] fitnessList = gameWorld.getTestResults();
 		
 		for(int i=0;i<fitnessList.length;i++)
 		{
 			population.get(i).setFitness(fitnessList[i]);
 			if(best<fitnessList[i]) {best=fitnessList[i]; TSLI = 0;}
-			if(fitnessList[i] >= 2450) 
+			if(fitnessList[i] >= 2000) 
 			{
 				victor=true;
-				//gameWorld.reset();
-				//gameWorld.run(numFrames);
+				gameWorld.buildPop(population);
+				gameWorld.run();
 				return population.get(i);
 			}
 		}

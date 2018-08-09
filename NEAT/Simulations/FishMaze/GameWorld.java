@@ -47,29 +47,24 @@ public class GameWorld
 		double startAccel = 0.0;
 		for(int i=0;i<popSize;i++)
 		{
-			Worker w = new Fish(startPos,Math.random()*Math.PI*2,startAccel,board.getDest().getPosition(),board);
+			Worker w = new Fish(startPos,0,startAccel,board.getDest().getPosition(),board);
 			workers.add(w);
 			displayObjects.add(w);
 		}
 	}
 	public void reset()
 	{
-		Tile home = board.getHome();
-		startPos = new double[]{home.getPosition()[0]+board.getTileSize()[0]/2-4,
-				 				home.getPosition()[1]+board.getTileSize()[1]/2-4};
-		for(Worker worker : workers)
-		{
-			worker.setVelocity(0);
-			worker.setAngle(0);
-			worker.setPosition(startPos);
-		}
+		init();
 	}
 	public void run(int numFrames)
 	{
 		setupWindow();
 		try
 		{
-			while(displayWindow.getFramesSinceStart()<numFrames);
+			while(runCondition(numFrames,true))
+			{	
+				Thread.sleep(450);
+			}
 			displayWindow.setRunning(false);
 			displayWindow.getThread().join();
 			windowFrame.dispose();
@@ -79,25 +74,40 @@ public class GameWorld
 		catch(Exception e) {e.printStackTrace();}
 		
 	}
-	public boolean winCondition()
+	public boolean runCondition(int numFrames, boolean checkWindow)
 	{
-		boolean done = true;
-		for(Worker w : workers)
+		boolean running = false;
+		synchronized(displayObjects)
 		{
-			if(((Fish)w).getTSLI()<120) {done=false;}
-		}
-		return done;
-	}
-	public void simulate(int iterations)
-	{
-		long t1 = 0;
-		for(int i=0;i<iterations;i++)
-		{
+			running = false;
 			for(Worker w : workers)
 			{
-				w.update(1.0);
+				if(!((Fish)w).hasFinished())
+				{
+					running = true;
+				}
+			}
+			if(running && checkWindow) {running = displayWindow.getFramesSinceStart() < numFrames;}
+		}
+		return running;
+	}
+	public void simulate(int numFrames)
+	{
+		
+		int itr = 0;
+		long t1 = System.nanoTime();
+		while(runCondition(numFrames,false) && itr++ < numFrames)
+		{
+			synchronized(displayObjects)
+			{
+				for(Worker w : workers)
+				{
+					w.update(1.0);
+				}
 			}
 		}
+		double fps = numFrames*Math.pow(10, 9)/(System.nanoTime() - t1);
+		System.out.println("Sim framerate: "+(int)Math.round(fps)+" fps");
 	}
 	public void buildPop(ArrayList<Organism> population)
 	{
@@ -114,7 +124,6 @@ public class GameWorld
 		for(int i=0;i<results.length;i++)
 		{
 			results[i] = workers.get(i).getFitness();
-			if(((Fish)workers.get(i)).checkVictoryCondition()) {results[i] = 3000;}
 		}
 		return results;
 	}

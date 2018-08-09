@@ -43,7 +43,7 @@ public class Organism
 		phenotype = null;
 		fitness = other.getFitness();
 		adjustedFitness = other.getAdjustedFitness();
-		spawnAmount = 0.0;
+		spawnAmount = other.getSpawnAmount();
 		sorter = new SortingUnit();
 		bestFitness = other.getBestFitness();
 		timeSinceLastImprovement = other.getTimeSinceLastImprovement();
@@ -211,6 +211,10 @@ public class Organism
 		output+=genotype;
 		output+="\nPhenotype: "+phenotype;
 		return output;
+	}
+	public double getAverageConnectionWeight()
+	{
+		return genotype.getAverageConnectionWeight();
 	}
 	public void setFitness(double i) 
 	{

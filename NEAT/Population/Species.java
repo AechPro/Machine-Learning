@@ -2,6 +2,8 @@ package NEAT.Population;
 
 import java.util.*;
 
+import javax.swing.InternalFrameFocusTraversalPolicy;
+
 import NEAT.Configs.Config;
 import NEAT.Genes.*;
 import NEAT.util.InnovationTable;
@@ -30,8 +32,8 @@ public class Species
 		rand = rng;
 		members = new ArrayList<Organism>();
 		members.add(first);
-		representative = first;
-		first.setID(ID);
+		first.setSpeciesID(ID);
+		representative = new Organism(first);
 		sorter = new SortingUnit();
 		selector = new SelectionUnit();
 		age=0;
@@ -43,7 +45,6 @@ public class Species
 	public void reproduce(InnovationTable table)
 	{	
 		if(members.size() == 0) {return;}
-		int popSize = members.size();
 		int numToSpawn = (int)(Math.round(spawnAmount));
 		//poolSize set here in case we add any children to our member list during
 		//reproduction. The children will be appended to the end of our member list
@@ -52,18 +53,20 @@ public class Species
 		int poolSize = members.size()-1;
 		Organism child = null;
 		int spawned = 0;
-		if(numToSpawn > 0 && (numToSpawn>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || champSpawnAmount>0))
+		if(numToSpawn>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING)
 		{
-			if(!getBestMember().isPopChamp() || true)
-			{
-				for(int i=0,stop=Math.max(1, champSpawnAmount);i<stop;i++)
-				{
-					child = new Organism(getBestMember());
-					members.add(child);
-					numToSpawn--;
-					spawned++;
-				}
-			}
+			child = new Organism(getBestMember());
+			child.setSpeciesID(-1);
+			speciationUnit.speciateOrganism(child, false);
+			numToSpawn--;
+			spawned++;
+			
+			child = new Organism(getBestMember());
+			child.mutateGenotypeNonStructural(table);
+			child.setSpeciesID(-1);
+			speciationUnit.speciateOrganism(child, false);
+			numToSpawn--;
+			spawned++;
 		}
 		/*if(getBestMember().isPopChamp())
 		{
@@ -83,7 +86,8 @@ public class Species
 		for(int i=0;i<numToSpawn;i++)
 		{
 			child = null;
-			if(popSize==1 || Math.random()>Config.CROSSOVER_RATE)
+			//Note that poolSize = members.size()-1 so if poolSize == 0 then members.size() == 1
+			if(poolSize==0 || Math.random()>Config.CROSSOVER_RATE)
 			{
 
 				Organism selection = selector.randomSelectFromPool(1,poolSize,members).get(0);
@@ -92,11 +96,27 @@ public class Species
 			}
 			else
 			{
-				ArrayList<Organism> parents = selector.randomSelectFromPool(2, poolSize, members);
-				child = crossover(parents.get(0),parents.get(1),table);
-				if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+				Species s = speciationUnit.getRandomSpecies();
+				if(Math.random()<Config.INTERSPECIES_MATE_RATE && s != null)
 				{
-					child.mutateGenotype(table);
+					Organism p1 = selector.randomSelectFromPool(1, poolSize, members).get(0);
+					int maxAttempts = Config.MAX_ATTEMPTS_FIND_PARENT;
+					while(maxAttempts-->0 && (s = speciationUnit.getRandomSpecies()) == this);
+					Organism p2 = s.getBestMember();
+					child = crossover(p1,p2,table);
+					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || p1 == p2)
+					{
+						child.mutateGenotype(table);
+					}
+				}
+				else
+				{
+					ArrayList<Organism> parents = selector.randomSelectFromPool(2, poolSize, members);
+					child = crossover(parents.get(0),parents.get(1),table);
+					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+					{
+						child.mutateGenotype(table);
+					}
 				}
 			}
 			if(child != null) {spawned++;}
@@ -178,7 +198,6 @@ public class Species
 	public void tick()
 	{
 		if(members.size() == 0) {return;}
-		sorter.sortOrganismsAdjustedFitness(members,0,members.size()-1);
 		for(Organism org : members)
 		{
 			if(org.getFitness() > bestFitness)
@@ -188,16 +207,53 @@ public class Species
 			}
 			org.tick();
 		}
-		
+
 		timeSinceLastImprovement++;
 		age++;
+	}
+	public void deltaCode(int num, boolean champs, InnovationTable table)
+	{
+		Organism child;
+		Organism best = getBestMember();
+		int poolSize = members.size()-1;
+		ArrayList<Organism> parents = new ArrayList<Organism>();
+		ArrayList<Organism> newMembers = new ArrayList<Organism>();
+		for(int i=0;i<num;i++)
+		{
+			if(champs)
+			{
+				child = new Organism(best);
+				child.mutateGenotype(table);
+			}
+			else
+			{
+				if(poolSize==0 || Math.random()>Config.CROSSOVER_RATE)
+				{
+					Organism selection = selector.randomSelectFromPool(1,poolSize,members).get(0);
+					child = new Organism(selection);
+					child.mutateGenotype(table);
+				}
+				else
+				{
+					parents = selector.randomSelectFromPool(2, poolSize, members);
+					child = crossover(parents.get(0),parents.get(1),table);
+					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+					{
+						child.mutateGenotype(table);
+					}
+				}
+			}
+			child.setSpeciesID(-1);
+			newMembers.add(child);
+		}
+		members = newMembers;
 	}
 	public void addMember(Organism mem)
 	{
 		members.add(mem);
 		mem.setSpeciesID(ID);
-		Organism org = members.get((int)(Math.round(Math.random()*(members.size()-1))));
-		representative = new Organism(org);
+		//Organism org = members.get((int)(Math.round(Math.random()*(members.size()-1))));
+		//representative = new Organism(org);
 	}
 	public void removeOldGeneration()
 	{
@@ -243,7 +299,6 @@ public class Species
 		double spawns = 0;
 		for(Organism org : members)
 		{
-
 			spawns = org.getAdjustedFitness()/globalAverage;
 			intComponent+=(int)(spawns);
 			fractionComponent += spawns - (int)spawns;
@@ -264,7 +319,7 @@ public class Species
 			culledMembers.add(members.get(i));
 		}
 		members = culledMembers;
-		
+
 	}
 	@Override
 	public String toString()
