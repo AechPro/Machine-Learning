@@ -178,32 +178,22 @@ public class FishTester extends TestUnit
 			gameWorld.run(numFrames);
 		}
 		else {simCount=0;}
-		
 		*/
 		//gameWorld.run(numFrames);
-		if(TSLI++>5 || simCount<15) {gameWorld.simulate(numFrames);}
-		else{gameWorld.run(numFrames);}
-		/*if(simCount<10){gameWorld.simulate(numFrames);}
-		else
-		{
-			gameWorld.run(numFrames);
-			if(simCount>=15) 
-			{
-				simCount=0;
-			}
-		}*/
-		//gameWorld.simulate(numFrames);
+		//if(TSLI++>3 || simCount<15) {gameWorld.simulate(numFrames);}
+		//else{gameWorld.run(numFrames);}
+		gameWorld.simulate(numFrames);
 		double[] fitnessList = gameWorld.getTestResults();
 		
 		for(int i=0;i<fitnessList.length;i++)
 		{
 			population.get(i).setFitness(fitnessList[i]);
 			if(best<fitnessList[i]) {best=fitnessList[i]; TSLI = 0;}
-			if(fitnessList[i] >= 2450) 
+			if(fitnessList[i] >= 3000) 
 			{
 				victor=true;
-				//gameWorld.reset();
-				//gameWorld.run(numFrames);
+				gameWorld.buildPop(population);
+				gameWorld.run(numFrames);
 				return population.get(i);
 			}
 		}

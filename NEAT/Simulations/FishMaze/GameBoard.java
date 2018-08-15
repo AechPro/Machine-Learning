@@ -100,7 +100,13 @@ public class GameBoard extends DisplayObject
 		
 		return tiles.get(index);
 	}
-	
+	public Tile getTile(int row, int col)
+	{
+		int index = row + col*width;
+		if(index<0 || index>=tiles.size()){return null;}
+		
+		return tiles.get(index);
+	}
 	public void scoreTiles()
 	{
 		double score = 0;

@@ -23,6 +23,11 @@ public class PoleConfig
 	public final double WEIGHT_MUTATION_PROB = 0.7;
 	public final double WEIGHT_MUTATION_RATE = 0.9;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 20;
+	
+	//Feature Filter specific parameters.
+	public final double FILTER_MUTATION_RATE = 0.3;
+	public final double FILTER_REPLACEMENT_RATE = 0.1;
+	public final int NUM_IMAGE_COLOR_CHANNELS = 3;
 
 	//Mating specific parameters.
 	public final double CROSSOVER_RATE = 0.75;

@@ -74,6 +74,7 @@ public class Tile
 		g.fillRect(0,0,img.getWidth(),img.getHeight());
 		g.dispose();
 	}
+	public double getScore() {return score;}
 	public double[] getPosition() {return new double[]{position[0],position[1]};}
 	public int getId() {return id;}
 	public int getHeight(){return height;}

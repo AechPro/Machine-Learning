@@ -146,7 +146,7 @@ public class Main
 	{
 		double totalExpected = 0.0;
 
-		//Mark our old organisms for death this generation.
+		//Mark one old species for obliteration every 30 generations.
 		if(generation%30==0)
 		{
 			for(int i=0,stop=species.size();i<stop;i++)
@@ -159,7 +159,7 @@ public class Main
 			}
 		}
 
-		//Perform species specific fitness sharing.
+		//Perform species specific fitness sharing and mark the old generation for death.
 		for(Species s : species)
 		{
 			s.adjustFitnessValues();
@@ -186,6 +186,8 @@ public class Main
 
 		//If we're off by some amount of spawns, adjust the spawn amounts of each species
 		//weighted by their predicted spawn amount until we have met the config population size.
+		//We will be off by some spawns because we round each species' spawn amounts per reproduction
+		//cycle.
 		if(totalExpected!=Config.POPULATION_SIZE)
 		{
 			double coeff = (Config.POPULATION_SIZE - totalExpected)/totalExpected;

@@ -216,7 +216,6 @@ public class Genome
 				double mutationValue = rand.nextGaussian();
 				con.setWeight(mutationValue);
 			}
-			
 		}
 	}
 	public void mutateConnections()

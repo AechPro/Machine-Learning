@@ -36,4 +36,7 @@ public interface Config
 	public final double NUM_POP_CHAMP_MUTATIONS = cfg.NUM_POP_CHAMP_MUTATIONS;
 	public final double INTERSPECIES_MATE_RATE = cfg.INTERSPECIES_MATE_RATE;
 	public final double WEIGHT_MUTATION_PROB = cfg.WEIGHT_MUTATION_PROB;
+	public final double FILTER_MUTATION_RATE = cfg.FILTER_MUTATION_RATE;
+	public final double FILTER_REPLACEMENT_RATE = cfg.FILTER_REPLACEMENT_RATE;
+	public final int NUM_IMAGE_COLOR_CHANNELS = cfg.NUM_IMAGE_COLOR_CHANNELS;
 }

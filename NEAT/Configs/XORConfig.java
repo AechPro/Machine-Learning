@@ -6,7 +6,7 @@ public class XORConfig
 	public final int POPULATION_SIZE = 150;
 	public final double MAX_MUTATION_PERTURBATION = 2.5;
 	public final double WORST_PERCENT_REMOVED = 0.2;
-	
+
 	//Node specific parameters.
 	public final double NODE_ADD_CHANCE = 0.03;
 	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.3;
@@ -23,6 +23,11 @@ public class XORConfig
 	public final double WEIGHT_MUTATION_PROB = 0.7;
 	public final double WEIGHT_MUTATION_RATE = 0.9;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 20;
+	
+	//Feature Filter specific parameters.
+	public final double FILTER_MUTATION_RATE = 0.3;
+	public final double FILTER_REPLACEMENT_RATE = 0.1;
+	public final int NUM_IMAGE_COLOR_CHANNELS = 3;
 
 	//Mating specific parameters.
 	public final double CROSSOVER_RATE = 0.75;
@@ -37,12 +42,12 @@ public class XORConfig
 	public final double SPECIES_COMPAT_THRESHOLD = 3.0;
 	public final double NUM_POP_CHAMP_MUTATIONS = 2;
 	public final double INTERSPECIES_MATE_RATE = 0.001;
-	
+
 	//Compatibility specific parameters.
 	public final double COMPAT_EXCESS_COEF = 1.0;
 	public final double COMPAT_DISJOINT_COEF = 1.0;
 	public final double COMPAT_SHARED_COEF = 0.4;
-	
+
 	//Stagnation specific parameters.
 	public final int MAX_ALLOWED_ORGANISM_AGE = 20;
 	public final int MAX_TIME_ORGANISM_STAGNATION = 10;

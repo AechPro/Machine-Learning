@@ -124,6 +124,7 @@ public class GameWorld
 		for(int i=0;i<results.length;i++)
 		{
 			results[i] = workers.get(i).getFitness();
+			if(((Fish)workers.get(i)).hasFinished()) {results[i] = 3000;}
 		}
 		return results;
 	}
