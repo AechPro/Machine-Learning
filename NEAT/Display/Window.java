@@ -99,6 +99,7 @@ public class Window extends JPanel implements Runnable
 				frameTick = 0;
 				secondTicker = System.nanoTime();
 			}
+			//delay(1000);
 		}
 	}
 	

@@ -4,7 +4,7 @@ public interface Config
 {
 	static final FishConfig cfg = new FishConfig();
 	public final double CONNECTION_ADD_CHANCE = cfg.CONNECTION_ADD_CHANCE;
-	public final double NODE_ADD_CHANCE = cfg.NODE_ADD_CHANCE;
+	public final double NEURON_ADD_CHANCE = cfg.NEURON_ADD_CHANCE;
 	public final double CROSSOVER_RATE = cfg.CROSSOVER_RATE;
 	public final double WEIGHT_MUTATION_RATE = cfg.WEIGHT_MUTATION_RATE;
 	public final double MAX_MUTATION_PERTURBATION = cfg.MAX_MUTATION_PERTURBATION;
@@ -39,4 +39,5 @@ public interface Config
 	public final double FILTER_MUTATION_RATE = cfg.FILTER_MUTATION_RATE;
 	public final double FILTER_REPLACEMENT_RATE = cfg.FILTER_REPLACEMENT_RATE;
 	public final int NUM_IMAGE_COLOR_CHANNELS = cfg.NUM_IMAGE_COLOR_CHANNELS;
+	public final double FILTER_ADD_CHANCE = cfg.FILTER_ADD_CHANCE;
 }

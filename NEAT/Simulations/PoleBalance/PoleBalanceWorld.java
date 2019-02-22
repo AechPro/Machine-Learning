@@ -63,17 +63,20 @@ public class PoleBalanceWorld
 		}
 		setupWindow();
 		boolean done = false;
-		
+		//System.out.println("running");
 		try
 		{
 			while(!done)
 			{
+			    //System.out.println("while loop");
 				synchronized(displayObjects)
 				{
+				    //System.out.println("sync");
 					bFitness = 0;
 					done = true;
 					for(int i=0;i<carts.size();i++)
 					{
+					    //System.out.println("carts");
 						carts.get(i).setRenderPhenotype(false);
 						if(!carts.get(i).isDone()) 
 						{
@@ -86,9 +89,12 @@ public class PoleBalanceWorld
 							done=false;
 						}
 					}
+					//System.out.println("release sync");
 				}
+				//System.out.println("sleep");
 				Thread.sleep(100);
 			}
+			//System.out.println("joining with display window");
 			displayWindow.setRunning(false);
 			displayWindow.getThread().join();
 			windowFrame.dispose();

@@ -67,7 +67,7 @@ public class Pole
 	}
 	public void render(Graphics2D g)
 	{
-		g.setColor(Color.BLUE);
+		g.setColor(Color.GREEN);
 		g.drawLine(cx+cartWidth/2, cy+cartHeight/2, polePos[0], polePos[1]);		
 		g.setColor(Color.RED);
 		g.fillOval(polePos[0]-10, polePos[1]-10, 20, 20);

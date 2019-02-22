@@ -57,7 +57,7 @@ public abstract class Worker extends DisplayObject
 		acceleration = accel;
 		orientation = new double[2];
 		position = new double[]{startPos[0],startPos[1]};
-		maxVelocity = 5;
+		maxVelocity = 8;
 		
 		home = new double[]{startPos[0],startPos[1]};
 		

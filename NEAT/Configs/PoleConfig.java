@@ -8,7 +8,8 @@ public class PoleConfig
 	public final double WORST_PERCENT_REMOVED = 0.4;
 	
 	//Node specific parameters.
-	public final double NODE_ADD_CHANCE = 0.01;
+	public final double NEURON_ADD_CHANCE = 0.01;
+    public final double FILTER_ADD_CHANCE = 0.00;
 	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.1;
 	public final int MAX_ALLOWED_NODES = 25;
 	public final int MAX_ATTEMPTS_ADD_NODE = 20;

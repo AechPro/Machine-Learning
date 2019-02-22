@@ -3,21 +3,26 @@ package NEAT.util;
 
 import java.util.ArrayList;
 
+import NEAT.Genes.Neuron;
 import NEAT.Genes.Node;
 
 public class InnovationTable
 {
 	public final int NEW_NODE = 0;
 	public final int NEW_CONNECTION = 1;
+	public final int NEW_FILTER = 2;
+	
 	private ArrayList<int[]> innovations;
 	private int currentID;
 	private int currentNodeID;
 	private int currentSpeciesID;
 	private int currentOrganismID;
 	private int currentGenomeID;
+	private int currentFilterID;
 	public InnovationTable()
 	{
 		innovations = new ArrayList<int[]>();
+		currentFilterID = 0;
 		currentID = 0;
 		currentNodeID = 0;
 		currentGenomeID = 0;
@@ -31,6 +36,14 @@ public class InnovationTable
 		int[] list = new int[]{currentID, innovType, input, output, nodeID, nodeType};
 		innovations.add(list);
 		return currentID;
+	}
+	public int createFilter(int input, int output)
+	{
+	    currentID++;
+	    currentNodeID++;
+	    int[] list = new int[] {currentID, NEW_FILTER, input, output, currentNodeID,-1};
+	    innovations.add(list);
+	    return currentNodeID;
 	}
 	public int createConnection(int input, int output)
 	{
@@ -58,6 +71,19 @@ public class InnovationTable
 		}
 		return -1;
 	}
+	public int getFilterID(int innovNum)
+	{
+	    for(int i=0,stop=innovations.size();i<stop;i++)
+        {
+            int[] list = innovations.get(i);
+            if(list[0] == innovNum && list[1] == NEW_FILTER)
+            {
+                return list[4];
+            }
+        }
+        System.out.println("RETURNING BAD FILTER ID FOR INNOV "+innovNum);
+        return -1;
+	}
 	public int getNodeID(int innovNum)
 	{
 		for(int i=0,stop=innovations.size();i<stop;i++)
@@ -83,14 +109,15 @@ public class InnovationTable
 			int[] list = innovations.get(i);
 			output += list[0]+"  ";
 			if(list[1] == NEW_NODE){output += "NEW_NODE   ";}
-			else{output+="NEW_CON   ";}
+			else if(list[1] == NEW_CONNECTION){output+="NEW_CON   ";}
+			else {output+="NEW_FIL   ";}
 			output += list[2]+"       "+list[3]+"      "+list[4]+"     ";
 			switch(list[5])
 			{
-				case(Node.HIDDEN_NODE):
+				case(Neuron.HIDDEN_NEURON):
 					output+="HID";
 					break;
-				case(Node.BIAS_NODE):
+				case(Neuron.BIAS_NEURON):
 					output+="BIA";
 					break;
 				case(Node.INPUT_NODE):

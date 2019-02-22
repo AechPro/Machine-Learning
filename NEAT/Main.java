@@ -88,7 +88,7 @@ public class Main
 			init();
 
 			//This is the loop for a single test.
-			while(running && generation < 10000)
+			while(running && generation < 100)
 			{
 				epoch();
 				generation++;
@@ -147,7 +147,7 @@ public class Main
 		double totalExpected = 0.0;
 
 		//Mark one old species for obliteration every 30 generations.
-		if(generation%30==0)
+		if(generation%30==0 && generation > 0)
 		{
 			for(int i=0,stop=species.size();i<stop;i++)
 			{
@@ -238,7 +238,7 @@ public class Main
 		int champIndex = -1;
 		for(int i=0,stop=population.size();i<stop;i++)
 		{
-			if(population.get(i).getFitness() > bestFitness) 
+			if(population.get(i).getFitness() >= bestFitness) 
 			{
 				bestFitness=population.get(i).getFitness();
 				timeSinceLastImprovement = 0;
@@ -308,7 +308,7 @@ public class Main
 			{
 				if(org.getPhenotype() != null)
 				{
-					org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 500,500);
+					org.getPhenotype().saveAsImage("resources/NEAT/debug/phenotypes/phenotype_"+(++itr)+".png", 1200,500);
 				}
 			}
 		}
@@ -321,7 +321,9 @@ public class Main
 			System.out.println("POP SIZE: "+population.size());
 			System.out.println(victor);
 			bestFitness = victor.getFitness();
-			victor.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 600,600);
+			victor.getPhenotype().saveAsImage("resources/NEAT/debug/victor/phenotype.png", 1200,600);
+			victor.save("resources/NEAT/debug/victor/genome.txt");
+			victor.load("resources/NEAT/debug/victor/genome.txt");
 			running = false;
 			success = true;
 		}

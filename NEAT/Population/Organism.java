@@ -1,5 +1,9 @@
 package NEAT.Population;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -65,7 +69,7 @@ public class Organism
 		else
 		{
 			genotype.mutateConnections();
-			//genotype.mutateNodes();
+			genotype.mutateNodes();
 			genotype.mutateWeights();
 		}
 		genotype.setID(table.getNextGenomeID());
@@ -76,7 +80,8 @@ public class Organism
 	{
 		//genotype.mutateNodes();
 		genotype.mutateWeights();
-		genotype.setID(table.getNextGenomeID());
+		if(table == null) {}
+		else{genotype.setID(table.getNextGenomeID());}
 		sorter.sortConnections(genotype.getConnections(), 0, genotype.getConnections().size()-1);
 		sorter.sortNodes(genotype.getNodes(), 0, genotype.getNodes().size()-1);
 	}
@@ -110,16 +115,36 @@ public class Organism
 			{
 				int pixelSeperator = 300;
 				//System.out.println(c.getInput()+"\n"+c.getOutput());
-				Node n1 = new Node(c.getInput());
-				Node n2 = new Node(c.getOutput());
+				Node n1 = null;
+				Node n2 = null;
+				
+				if(c.getInput() instanceof Neuron)
+                {
+                    n1 = new Neuron(c.getInput());
+                }
+				else
+				{
+				    n1 = new FeatureFilter(c.getInput());
+				}
+				
+				if(c.getOutput() instanceof Neuron)
+                {
+                    n2 = new Neuron(c.getOutput());
+                }
+				else
+				{
+				    n2 = new FeatureFilter(c.getOutput());
+				}
+				
+				//System.out.println("AFTER CREATION: "+n1.getOutputs());
 
 				n1.setX((int)(n1.getSplitX()*pixelSeperator));
 				n1.setY((int)(-n1.getSplitY()*pixelSeperator));
 
 				n2.setX((int)(n2.getSplitX()*pixelSeperator));
 				n2.setY((int)(-n2.getSplitY()*pixelSeperator));
-				if(n1.getType() == Node.HIDDEN_NODE){n1.setX((int)(n1.getSplitX()*pixelSeperator/1.3));}
-				if(n2.getType() == Node.HIDDEN_NODE){n2.setX((int)(n2.getSplitX()*pixelSeperator/1.3));}
+				if(n1.getType() == Neuron.HIDDEN_NEURON){n1.setX((int)(n1.getSplitX()*pixelSeperator/1.3));}
+				if(n2.getType() == Neuron.HIDDEN_NEURON){n2.setX((int)(n2.getSplitX()*pixelSeperator/1.3));}
 				boolean found = false;
 				for(int i=0;i<phenotypeNodes.size();i++)
 				{
@@ -185,6 +210,113 @@ public class Organism
 		System.out.println("\nDISJOINT: "+numDisjoint+"\nEXCESS: "+numExcess+"\nSHARED: "+numShared+"\nMEAN WEIGHT: "+meanWeight);
 		System.out.println("COMPATIBILITY VALUE: "+compat);*/
 		return compat;
+	}
+	public void save(String filePath)
+    {
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+            Connection c = null;
+            Node n = null;
+            writer.write("org id:"+ID+"\n");
+            writer.write("species id:"+speciesID+"\n");
+            writer.write("age:"+age+"\n");
+            writer.write("TSLI:"+timeSinceLastImprovement+"\n");
+            writer.write("fitness:"+fitness+"\n");
+            writer.write("genome id:"+genotype.getID()+"\n");
+            writer.write("num genes:"+genotype.getConnections().size()+"\n");
+            for(int i=0,stop=genotype.getConnections().size();i<stop;i++)
+            {
+                c = genotype.getConnections().get(i);
+                n = c.getInput();
+                writer.write("connection "+i+":"+c.getInnovation()+" "+c.getWeight()+" "+c.isEnabled());
+                writer.write(" "+n.getID()+" "+n.getType()+" "+n.getSplitX()+" "+n.getSplitY());
+                n = c.getOutput();
+                writer.write(" "+n.getID()+" "+n.getType()+" "+n.getSplitX()+" "+n.getSplitY()+"\n");
+            }
+            writer.close();
+        }
+        catch(Exception e) {e.printStackTrace();}
+    }
+	public void load(String filePath)
+	{
+	    //System.out.println("\n\n************BEFORE LOADING***********"+toString(1));
+	    try
+	    {
+	        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+	        ArrayList<Connection> connections = new ArrayList<Connection>();
+	        ArrayList<Neuron> nodes = new ArrayList<Neuron>();
+	        int cid = 0;
+	        double w = 0;
+	        boolean en = true;
+	        int nid = 0;
+	        int ntype = 0;
+	        double sx = 0;
+	        double sy = 0;
+	        int inputs = 0;
+            int outputs = 0;
+	        int genomeID = 0;
+            int numCons = 0;
+	        String line = null;
+	        
+	        line = reader.readLine().toLowerCase();
+            ID = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+
+            line = reader.readLine().toLowerCase();
+            speciesID = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+            
+            line = reader.readLine().toLowerCase();
+            age = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+            
+            line = reader.readLine().toLowerCase();
+            timeSinceLastImprovement = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+            
+            line = reader.readLine().toLowerCase();
+            fitness = Double.parseDouble(line.substring(line.indexOf(":")+1, line.length()));
+            
+            line = reader.readLine().toLowerCase();
+            genomeID = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+            
+            line = reader.readLine().toLowerCase();
+            numCons = Integer.parseInt(line.substring(line.indexOf(":")+1, line.length()));
+            
+            for(int i = 0;i<numCons;i++)
+            {
+                line = reader.readLine().toLowerCase();
+                line = line.substring(line.indexOf(":")+1, line.length());
+                String[] data = line.split(" ");
+                cid = Integer.parseInt(data[0]);
+                w = Double.parseDouble(data[1]);
+                en = Boolean.parseBoolean(data[2]);
+                
+                nid = Integer.parseInt(data[3]);
+                ntype = Integer.parseInt(data[4]);
+                sx = Double.parseDouble(data[5]);
+                sy = Double.parseDouble(data[6]);
+                Neuron in = new Neuron(sx,sy,ntype,nid);
+                if(ntype == Node.OUTPUT_NODE) {outputs++;}
+                if(ntype == Node.INPUT_NODE) {inputs++;}
+                
+                nid = Integer.parseInt(data[7]);
+                ntype = Integer.parseInt(data[8]);
+                sx = Double.parseDouble(data[9]);
+                sy = Double.parseDouble(data[10]);
+                Neuron out = new Neuron(sx,sy,ntype,nid);
+                if(ntype == Node.OUTPUT_NODE) {outputs++;}
+                if(ntype == Node.INPUT_NODE) {inputs++;}
+                
+                Connection c = new Connection(in,out,w,en,cid);
+                if(!nodes.contains(out)) {nodes.add(out);}
+                if(!nodes.contains(in)) {nodes.add(in);}
+                connections.add(c);
+                
+            }
+            genotype = new Genome(connections,null,null,inputs,outputs);
+            genotype.setID(genomeID);
+	        reader.close();
+	    }
+	    catch(Exception e) {e.printStackTrace();}
+	    //System.out.println("\n\n****************AFTER LOADING****************"+toString(1));
 	}
 	public String toString(int verbosity)
 	{

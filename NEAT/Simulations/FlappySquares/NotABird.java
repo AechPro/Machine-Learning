@@ -21,7 +21,7 @@ public class NotABird extends DisplayObject
 	private ArrayList<NotAPole> knownPoles;
 	private NotAPole nearestPole;
 	private boolean colliding;
-	private double[] inputVector;
+	private double[][][] inputVector;
 	private double[] outputVector;
 	private double x,y;
 	private double gravity = 2;
@@ -38,7 +38,7 @@ public class NotABird extends DisplayObject
 	public NotABird(double sx, double sy, int w, int h, int winWidth, int winHeight, ArrayList<NotAPole> poles)
 	{
 		colliding = false;
-		inputVector = new double[3];
+		inputVector = new double[3][1][1];
 		outputVector = new double[1];
 		x = sx;
 		y = sy;
@@ -58,9 +58,9 @@ public class NotABird extends DisplayObject
 	
 	public void loadInputVector()
 	{
-		inputVector[0] = (double)nearestPole.getX()/(double)windowWidth;
-		inputVector[1] = (double)nearestPole.getGapStart()/(double)windowHeight;
-		inputVector[2] = y/(double)windowHeight;
+		inputVector[0][0][0] = (double)nearestPole.getX()/(double)windowWidth;
+		inputVector[1][0][0] = (double)nearestPole.getGapStart()/(double)windowHeight;
+		inputVector[2][0][0] = y/(double)windowHeight;
  	}
 	public void jump()
 	{
@@ -69,7 +69,7 @@ public class NotABird extends DisplayObject
 	@Override
 	public void update(double delta) 
 	{
-		y+=ySpd;
+		y+=ySpd*delta;
 		ySpd+=gravity;
 		clamp();
 		

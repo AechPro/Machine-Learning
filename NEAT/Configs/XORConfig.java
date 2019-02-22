@@ -9,6 +9,7 @@ public class XORConfig
 
 	//Node specific parameters.
 	public final double NODE_ADD_CHANCE = 0.03;
+    public final double FILTER_ADD_CHANCE = 0.00;
 	public final double ACTIVATION_RESPONSE_MUTATION_RATE = 0.3;
 	public final int MAX_ALLOWED_NODES = 100;
 	public final int MAX_ATTEMPTS_ADD_NODE = 20;

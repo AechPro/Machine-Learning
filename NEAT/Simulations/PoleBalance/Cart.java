@@ -15,7 +15,7 @@ import NEAT.util.InnovationTable;
 
 public class Cart extends DisplayObject
 {
-	private double[] inputs;
+	private double[][][] inputs;
 	private double[] outputs;
 	private boolean victory;
 	private int width,height,poleRadius;
@@ -73,7 +73,7 @@ public class Cart extends DisplayObject
 		timeSinceMovement = 0;
 		twelve_degrees = Math.PI/2;//0.2094384;
 		poleRadius = (int)(Math.round(300*LENGTH));
-		inputs = new double[4];
+		inputs = new double[4][1][1];
 		outputs = new double[2];
 		pos = new int[] {100,720/2};
 		polePos = new int[] {100,720/2};
@@ -122,9 +122,9 @@ public class Cart extends DisplayObject
 		//theta2 = pole2.getTheta();
 		
 		
-		inputs[0]=(x + 2.4) / 4.8;
-		inputs[1]=(theta1 + 1.0) / 2.0;
-		inputs[2]=(theta2 + 1.0) / 2.0;
+		inputs[0][0][0]=(x + 2.4) / 4.8;
+		inputs[1][0][0]=(theta1 + 1.0) / 2.0;
+		inputs[2][0][0]=(theta2 + 1.0) / 2.0;
 
 		if(!phenotype.activate(inputs)) {done=true;}
 		pos[0] = (int)(Math.round((1280-width)*(x+2.4)/4.8));
@@ -137,7 +137,7 @@ public class Cart extends DisplayObject
 		else {y = 1;}
 		
 		xDot = pole1.step(y,pos);
-		x  += TAU * 0.75*(xDot+pole2.step(y, pos));
+		x  += TAU * 0.75*(xDot);
 		
 		steps++;
 		fitness++;
@@ -150,7 +150,7 @@ public class Cart extends DisplayObject
 		if(renderPhenotype) {phenotype.render(g);}
 		
 		pole1.render(g);
-		pole2.render(g);
+		//pole2.render(g);
 		g.setColor(color);
 		g.fillRect(pos[0],pos[1],width,height);
 		

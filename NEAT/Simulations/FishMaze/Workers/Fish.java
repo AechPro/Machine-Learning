@@ -11,7 +11,7 @@ import NEAT.Simulations.FishMaze.*;
 public class Fish extends Worker
 {
 
-	private double[] inputVector;
+	private double[][][] inputVector;
 	private double[] outputVector;
 	private double[] startVector;
 	private double previousScore;
@@ -34,7 +34,7 @@ public class Fish extends Worker
 	@Override
 	public void init()
 	{
-		inputVector = new double[w*h+1];
+		inputVector = new double[w*h+1][1][1];
 		outputVector = new double[2];
 		TSLI = 0;
 		victory=false;
@@ -82,7 +82,7 @@ public class Fish extends Worker
 		Tile t = null;
 		int to = 31;
 		int itr = 0;
-		for(int i=0;i<inputVector.length;i++) {inputVector[i]=-3;}
+		for(int i=0;i<inputVector.length;i++) {inputVector[i][0][0]=-3;}
 		/*for(int i=0;i<w;i++)
 		{
 			for(int j=0;j<h;j++)
@@ -100,8 +100,8 @@ public class Fish extends Worker
 			bestScore = dist;
 			fitness += 60;
 		}
-		inputVector[inputVector.length-2] = theta/Math.PI*2;
-		inputVector[inputVector.length-2] = dist/(32*board.getWidth());
+		inputVector[inputVector.length-2][0][0] = theta/Math.PI*2;
+		inputVector[inputVector.length-2][0][0] = dist/(32*board.getWidth());
 	}
 
 	public void loadSensors()
@@ -139,18 +139,18 @@ public class Fish extends Worker
 			x = (int)(o1*r*(i) + position[0] + width/2);
 			y = (int)(o2*r*(i) + position[1] + height/2);
 			t = board.getTile(new double[] {x,y});
-			if(t == null) {inputVector[itr] = -1; break;}
+			if(t == null) {inputVector[itr][0][0] = -1; break;}
 			if(t.isCollidable())
 			{
 				Rectangle rect = new Rectangle((int)t.getPosition()[0],(int)t.getPosition()[1],t.getWidth(),t.getHeight());
 				if(sensorLine.intersects(rect))
 				{
-					inputVector[itr] = getDistance(t)/(r*sensorRange);
+					inputVector[itr][0][0] = getDistance(t)/(r*sensorRange);
 					break;
 				}
 				
 			}
-			else {inputVector[itr]=1.1;}
+			else {inputVector[itr][0][0]=1.1;}
 		}
 	}
 	public boolean checkVictoryCondition()

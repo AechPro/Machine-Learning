@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import NEAT.Genes.Connection;
+import NEAT.Genes.Neuron;
 import NEAT.Genes.Node;
 import NEAT.Population.Genome;
 import NEAT.Population.Organism;
@@ -26,22 +27,22 @@ public class XORTester extends TestUnit
 		
 		for(int i=0;i<numBiasNodes;i++)
 		{
-			int id = table.createNode(-1, -1, Node.BIAS_NODE);
-			Node n = new Node(0.25*i,0.0,Node.BIAS_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.BIAS_NEURON);
+			Neuron n = new Neuron(0.25*i,0.0,Neuron.BIAS_NEURON,id);
 			biasNodes.add(n);
 			nodes.add(n);
 		}
 		for(int i=0;i<numInputs;i++)
 		{
-			int id = table.createNode(-1, -1, Node.INPUT_NODE);
-			Node n = new Node(biasNodes.get(numBiasNodes-1).getSplitX()+0.25*(i+1),0.0,Node.INPUT_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.INPUT_NODE);
+			Neuron n = new Neuron(biasNodes.get(numBiasNodes-1).getSplitX()+0.25*(i+1),0.0,Neuron.INPUT_NODE,id);
 			inputNodes.add(n);
 			nodes.add(n);
 		}
 		for(int i=0;i<numOutputs;i++)
 		{
-			int id = table.createNode(-1, -1, Node.OUTPUT_NODE);
-			Node n = new Node(inputNodes.get(0).getSplitX()+0.25*i,1.0,Node.OUTPUT_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.OUTPUT_NODE);
+			Neuron n = new Neuron(inputNodes.get(0).getSplitX()+0.25*i,1.0,Neuron.OUTPUT_NODE,id);
 			outputNodes.add(n);
 			nodes.add(n);
 		}
@@ -80,28 +81,28 @@ public class XORTester extends TestUnit
 		
 		for(int i=0;i<numBiasNodes;i++)
 		{
-			int id = table.createNode(-1, -1, Node.BIAS_NODE);
-			Node n = new Node(0.25*i,0.0,Node.BIAS_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.BIAS_NEURON);
+			Neuron n = new Neuron(0.25*i,0.0,Neuron.BIAS_NEURON,id);
 			biasNodes.add(n);
 			nodes.add(n);
 		}
 		for(int i=0;i<numInputs;i++)
 		{
-			int id = table.createNode(-1, -1, Node.INPUT_NODE);
-			Node n = new Node(biasNodes.get(numBiasNodes-1).getSplitX()+0.25*(i+1),0.0,Node.INPUT_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.INPUT_NODE);
+			Neuron n = new Neuron(biasNodes.get(numBiasNodes-1).getSplitX()+0.25*(i+1),0.0,Neuron.INPUT_NODE,id);
 			inputNodes.add(n);
 			nodes.add(n);
 		}
 		for(int i=0;i<numOutputs;i++)
 		{
-			int id = table.createNode(-1, -1, Node.OUTPUT_NODE);
-			Node n = new Node(inputNodes.get(0).getSplitX()+0.25*i,1.0,Node.OUTPUT_NODE,id);
+			int id = table.createNode(-1, -1, Neuron.OUTPUT_NODE);
+			Neuron n = new Neuron(inputNodes.get(0).getSplitX()+0.25*i,1.0,Neuron.OUTPUT_NODE,id);
 			outputNodes.add(n);
 			nodes.add(n);
 		}
 		
-		int hiddenID = table.createNode(2, 4, Node.HIDDEN_NODE);
-		Node node = new Node(inputNodes.get(1).getSplitX(),0.5,Node.HIDDEN_NODE,hiddenID);
+		int hiddenID = table.createNode(2, 4, Neuron.HIDDEN_NEURON);
+		Neuron node = new Neuron(inputNodes.get(1).getSplitX(),0.5,Neuron.HIDDEN_NEURON,hiddenID);
 		hiddenNodes.add(node);
 		nodes.add(node);
 		
@@ -165,7 +166,7 @@ public class XORTester extends TestUnit
 		boolean success = false;
 		for(int i=0;i<inputs.length;i++)
 		{
-			success = phen.activate(inputs[i]);
+			success = phen.activate(inputs[i][0][0]);
 			for(int relax = 0;relax<phen.getDepth();relax++)
 			{
 				success = phen.activate(inputs[i]);
@@ -190,12 +191,12 @@ public class XORTester extends TestUnit
 		victor = accuracy == 1.0;
 		return fitness;
 	}
-	public static final double[][] inputs = new double[][]
+	public static final double[][][] inputs = new double[][][]
 	{
-		{0.0,0.0},
+		{{0.0,0.0},
 		{0.0,1.0},
 		{1.0,0.0},
-		{1.0,1.0}
+		{1.0,1.0}}
 	};
 	public static final double[][] outputs = new double[][] 
 	{

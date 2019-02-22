@@ -6,6 +6,38 @@ import NEAT.Population.*;
 public class SortingUnit 
 {
 	public SortingUnit() {}
+	
+	public void sortNeurons(ArrayList<Neuron> nodes, int low, int high)
+    {
+        if(low>=high) {return;}
+        int index = partitionNeurons(nodes,low,high);
+        if(low<index-1){sortNeurons(nodes,low,index-1);}
+        if(index<high){sortNeurons(nodes,index,high);}
+    }
+    public int partitionNeurons(ArrayList<Neuron> nodes, int low, int high)
+    {
+        Neuron temp;
+        int i = low, j = high;
+
+        double pivot = nodes.get((low+high)/2).getSplitY();
+
+        while(i<=j)
+        {
+            while(nodes.get(i).getSplitY()<pivot){i++;}
+            while(nodes.get(j).getSplitY()>pivot){j--;}
+            if(i<=j)
+            {
+                temp = nodes.get(i);
+                nodes.set(i,nodes.get(j));
+                nodes.set(j,temp);
+                i++;
+                j--;
+            }
+        }
+        return i;
+    }
+	
+	
 	public void sortNodes(ArrayList<Node> nodes, int low, int high)
 	{
 		if(low>=high) {return;}

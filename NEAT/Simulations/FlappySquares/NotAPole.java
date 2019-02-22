@@ -33,7 +33,7 @@ public class NotAPole extends DisplayObject
 	public void update(double delta) 
 	{
 		if(x+width<0) {needsReset = true;}
-		x+=xSpd;
+		x+=xSpd*delta;
 	}
 	@Override
 	public void render(Graphics2D g)
