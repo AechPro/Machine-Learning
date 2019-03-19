@@ -593,6 +593,38 @@ public class FeatureFilter extends Node
         return x;
     }
     
+    public int[] getOutputShape(int[] inputShape)
+    {
+        boolean debug = true;
+        if(debug)
+        {
+            System.out.println("\n!!!FEATURE FILTER "+id+" GOT OUTPUT SHAPE COMPUTATION REQUEST!!!");
+            System.out.println("Initial input shape: ("+inputShape[0]+","+inputShape[1]+")");
+        }
+        
+        for(Connection c : inputs)
+        {
+            if(c.getInput().getType() == Node.FEATURE_FILTER)
+            {
+                inputShape = ((FeatureFilter)c.getInput()).getOutputShape(inputShape);
+            }
+        }
+        
+        double a = (inputShape[0] - kernel[0]) % stepKernel[0];
+        double b = (inputShape[1] - kernel[1]) % stepKernel[1];
+        int padding = (int)Math.max(a,b);
+        int newWidth = 1 + (inputShape[0] - kernel[0] + padding)/stepKernel[0];
+        int newHeight = 1 + (inputShape[1] - kernel[1] + padding)/stepKernel[1];
+        
+        if(debug)
+        {
+            System.out.println("\nFilter "+id+" returning output shape");
+            System.out.println("Got at input: ("+inputShape[0]+","+inputShape[1]+")");
+            System.out.println("Returning: ("+newWidth+","+newHeight+")");
+        }
+        return new int[] {newWidth,newHeight};
+    }
+    
     public void addInput(Connection c) {inputs.add(c);}
     public void addOutput(Connection c)
     {

@@ -3,8 +3,8 @@ package NEAT.Configs;
 public class FishConfig
 {
 	//Global scope parameters.
-	public final int POPULATION_SIZE = 1000;
-	public final double MAX_MUTATION_PERTURBATION = 2.5;
+	public final int POPULATION_SIZE = 300;
+	public final double MAX_MUTATION_PERTURBATION = 1.5;
 	public final double WORST_PERCENT_REMOVED = 0.4;
 	
 	//Node specific parameters.
@@ -19,16 +19,17 @@ public class FishConfig
 	public final double MUTATED_CONNECTION_ENABLE_RATE = 0.05;
 	public final double MUTATED_CONNECTION_TOGGLE_RATE = 0.1;
 	public final double RECURSIVE_CONNECTION_CHANCE = 0.20;
-	public final double WEIGHT_REPLACEMENT_RATE = 0.9;
+	public final double WEIGHT_REPLACEMENT_RATE = 0.7;
 	public final double WEIGHT_MUTATION_PROB = 0.7;
-	public final double WEIGHT_MUTATION_RATE = 0.9;
+	public final double WEIGHT_MUTATION_RATE = 0.5;
 	public final int MAX_ATTEMPTS_ADD_CONNECTION = 100;
 	
 	//Feature Filter specific parameters.
-    public final double FILTER_ADD_CHANCE = 0.00;
-	public final double FILTER_MUTATION_RATE = 0.3;
-	public final double FILTER_REPLACEMENT_RATE = 0.1;
-	public final int NUM_IMAGE_COLOR_CHANNELS = 3;
+	public final int[] FEATURE_FILTER_INITIAL_INPUT_SHAPE = null;
+    public final double FILTER_ADD_CHANCE = 0;
+	public final double FILTER_MUTATION_RATE = 0;
+	public final double FILTER_REPLACEMENT_RATE = 0;
+	public final int NUM_IMAGE_COLOR_CHANNELS = 0;
 
 	//Mating specific parameters.
 	public final double CROSSOVER_RATE = 0.75;
@@ -52,7 +53,7 @@ public class FishConfig
 	//Stagnation specific parameters. These don't do anything right now.
 	public final int MAX_ALLOWED_ORGANISM_AGE = 20;
 	public final int MAX_TIME_ORGANISM_STAGNATION = 10;
-	public final int MAX_TIME_SPECIES_STAGNATION = 15;
-	public final int MAX_TIME_POPULATION_STAGNATION = 5 + MAX_TIME_SPECIES_STAGNATION;
+	public final int MAX_TIME_SPECIES_STAGNATION = 20;
+	public final int MAX_TIME_POPULATION_STAGNATION = 10 + MAX_TIME_SPECIES_STAGNATION;
 
 }

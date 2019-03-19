@@ -121,7 +121,6 @@ public class Cart extends DisplayObject
 		theta1 = pole1.getTheta();
 		//theta2 = pole2.getTheta();
 		
-		
 		inputs[0][0][0]=(x + 2.4) / 4.8;
 		inputs[1][0][0]=(theta1 + 1.0) / 2.0;
 		inputs[2][0][0]=(theta2 + 1.0) / 2.0;
@@ -144,10 +143,10 @@ public class Cart extends DisplayObject
 	}
 	
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, double frameDelta) 
 	{
 		if(done || phenotype == null) {return;}
-		if(renderPhenotype) {phenotype.render(g);}
+		if(renderPhenotype) {phenotype.render(g,1.0);}
 		
 		pole1.render(g);
 		//pole2.render(g);

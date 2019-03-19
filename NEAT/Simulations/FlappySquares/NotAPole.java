@@ -36,7 +36,7 @@ public class NotAPole extends DisplayObject
 		x+=xSpd*delta;
 	}
 	@Override
-	public void render(Graphics2D g)
+	public void render(Graphics2D g, double frameDelta)
 	{
 		g.setColor(c);
 		g.fillRect((int)x,0,width,gapStart);

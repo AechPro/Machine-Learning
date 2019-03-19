@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import NEAT.Configs.Config;
 import NEAT.Genes.Connection;
 import NEAT.Genes.FeatureFilter;
 import NEAT.Genes.Neuron;
@@ -74,8 +75,20 @@ public class ConvTester extends TestUnit
         {
             for(int j=0;j<numOutputs;j++)
             {
+                
+                int[] filterPos = new int[2];
+                int[] availablePositions = inputNodes.get(i).getOutputShape(Config.FEATURE_FILTER_INITIAL_INPUT_SHAPE);
+                
+                int filterX = randf.nextInt(availablePositions[0]);
+                int filterY = randf.nextInt(availablePositions[1]);
+                
+                filterPos[0] = filterX;
+                filterPos[1] = filterY;
+                
+                System.out.println("CHOSE FILTER COORDINATES ("+filterX+","+filterY+")");
+                
                 int id = table.createConnection(inputNodes.get(i).getID(), outputNodes.get(j).getID());
-                Connection c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+                Connection c = new Connection(inputNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,filterPos,id);
                 cons.add(c);
             }
         }
@@ -83,8 +96,16 @@ public class ConvTester extends TestUnit
         {
             for(int j=0;j<numOutputs;j++)
             {
+                int[] filterPos = new int[2];
+                int[] availablePositions = inputNodes.get(i).getOutputShape(Config.FEATURE_FILTER_INITIAL_INPUT_SHAPE);
+                
+                int filterX = randf.nextInt(availablePositions[0]);
+                int filterY = randf.nextInt(availablePositions[1]);
+                
+                filterPos[0] = filterX;
+                filterPos[1] = filterY;
                 int id = table.createConnection(biasNodes.get(i).getID(), outputNodes.get(j).getID());
-                Connection c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,id);
+                Connection c = new Connection(biasNodes.get(i),outputNodes.get(j),randf.nextGaussian(),true,filterPos,id);
                 cons.add(c);
             }
         }
@@ -174,7 +195,7 @@ public class ConvTester extends TestUnit
             phen.calculateDepth();
             for(int i=0;i<mnistSet.get(0).size();i++)
             {
-               // System.out.println("Testing image #"+i+" of "+mnistSet.get(1).size()+" on organism "+n);
+                //System.out.println("Testing image #"+i+" of "+mnistSet.get(1).size()+" on organism "+n);
                 double[][][] input = mnistSet.get(1).get(i).getInput().getMat();
                 for(int j=0;j<phen.getDepth() && !phen.activate(input);j++)
                 {
@@ -183,10 +204,11 @@ public class ConvTester extends TestUnit
 
                 double[] vec = phen.readOutputVector();
                 double[][][] res = mnistSet.get(1).get(i).getResult().getMat();
-                //System.out.println("Pred: "+arg+" Conf: "+v
+                
                 int arg = argMax(vec);
                 int label = argMax(res[0]);
-                double val = squareLoss(label, arg);
+                double val = squareLoss(vec,res);
+                //System.out.println("Pred: "+arg+" Conf: "+vec[arg]+" Label: "+label);
                 //System.out.println("Organism scored "+val+" on this image");
                 score += val;
             }
@@ -217,7 +239,7 @@ public class ConvTester extends TestUnit
             }
             accuracy/=mnistSet.get(1).size();
             System.out.println("ORG "+n+" SCORED: "+score+" WITH ACCURACY: "+accuracy);
-            if(score >= 0.9)
+            if(accuracy >= 0.9)
             {
                 victor = org;
             }
@@ -226,9 +248,14 @@ public class ConvTester extends TestUnit
         return victor;
     }
     
-    public double squareLoss(double a, double b)
+    public double squareLoss(double[] vec, double[][][] res)
     {
-        return Math.pow(a - b,2);
+        double sum = 0;
+        for(int i=0;i<vec.length;i++)
+        {
+            sum+=Math.pow(vec[i] - res[0][i][0],2);
+        }
+        return sum/vec.length;
     }
     
     public double logLoss(double[][][] label, double[] pred)

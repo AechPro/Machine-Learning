@@ -95,7 +95,7 @@ public abstract class Worker extends DisplayObject
 	}
 	
 	@Override
-	public void render(Graphics2D g)
+	public void render(Graphics2D g, double frameDelta)
 	{
 		try
 		{

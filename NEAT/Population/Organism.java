@@ -43,7 +43,7 @@ public class Organism
 	{
 		speciesID = other.getSpeciesID();
 		genotype = new Genome(other.getGenotype());
-		populationChamp = other.isPopChamp();
+		populationChamp = false;
 		phenotype = null;
 		fitness = other.getFitness();
 		adjustedFitness = other.getAdjustedFitness();
@@ -169,7 +169,7 @@ public class Organism
 					}
 				}
 				if(!found){phenotypeNodes.add(n2);}
-				Connection phenCon = new Connection(n1,n2,c.getWeight(),c.isEnabled(),c.getInnovation());
+				Connection phenCon = new Connection(n1,n2,c.getWeight(),c.isEnabled(),c.cloneFeatureFilterPos(),c.getInnovation());
 				n1.addOutput(phenCon);
 				n2.addInput(phenCon);
 			}
@@ -357,7 +357,15 @@ public class Organism
 		}
 		fitness=i;
 	}
-	public void markForDeath() {deathMark = true;}
+	public void markForDeath() 
+	{
+	    if(populationChamp)
+	    {
+	        deathMark = false;
+	        return;
+	    }
+	    deathMark = true;
+	}
 	public boolean markedForDeath() {return deathMark;}
 	public void setSpawnAmount(double i) {spawnAmount = i;}
 	public void setPopChamp(boolean i) {populationChamp=i;}

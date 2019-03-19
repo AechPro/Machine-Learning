@@ -3,6 +3,7 @@ package NEAT.TestUnits;
 import java.util.ArrayList;
 import java.util.Random;
 
+import NEAT.Configs.Config;
 import NEAT.Genes.Connection;
 import NEAT.Genes.Neuron;
 import NEAT.Genes.Node;
@@ -10,11 +11,11 @@ import NEAT.Population.Genome;
 import NEAT.Population.Organism;
 import NEAT.util.InnovationTable;
 
-import NEAT.Simulations.FishMaze.*;
+import NEAT.Simulations.BetterFish.*;
 
 public class FishTester extends TestUnit
 {
-	private GameWorld gameWorld;
+	private Simulator gameWorld;
 	private boolean flip = true;
 	private int simCount = 0;
 	private double best = 0.0;
@@ -26,7 +27,7 @@ public class FishTester extends TestUnit
 		numInputs = 1*4+1;
 		numOutputs = 2;
 		numHiddenNodes = 1;
-		gameWorld = new GameWorld();
+		gameWorld = new Simulator(Config.POPULATION_SIZE);
 	}
 	
 	@Override
@@ -158,7 +159,7 @@ public class FishTester extends TestUnit
 	
 	public Organism testPhenotypes(ArrayList<Organism> population)
 	{
-		int numFrames = 600;
+		int numFrames = 1200;
 		for(Organism org : population)
 		{
 			org.createPhenotype(width/2,height/2);
@@ -170,30 +171,27 @@ public class FishTester extends TestUnit
 		
 		gameWorld.buildPop(population);
 		simCount++;
-		/*if(simCount < 25)
-		{
-			gameWorld.simulate(numFrames);
-		}
-		else if(simCount < 30)
-		{
-			gameWorld.run(numFrames);
-		}
-		else {simCount=0;}*/
-		gameWorld.run(numFrames);
-		//if(TSLI++>3 || simCount<15) {gameWorld.simulate(numFrames);}
-		//else{gameWorld.run(numFrames);}
-		//gameWorld.simulate(numFrames);
+		//gameWorld.runVisible(numFrames);
+		if(TSLI++>3 || simCount<15) {gameWorld.runInvisible(numFrames);}
+		else{gameWorld.runVisible(numFrames);}
+		//gameWorld.runInvisible(numFrames);
 		double[] fitnessList = gameWorld.getTestResults();
 		
 		for(int i=0;i<fitnessList.length;i++)
 		{
 			population.get(i).setFitness(fitnessList[i]);
 			if(best<fitnessList[i]) {best=fitnessList[i]; TSLI = 0;}
-			if(fitnessList[i] >= 3000) 
+			if(fitnessList[i] >= 30000) 
 			{
 				victor=true;
+				
+				for(int j=0;j<population.size();j++) 
+				{
+				    population.get(j).setPopChamp(false);
+				}
+				population.get(i).setPopChamp(true);
 				gameWorld.buildPop(population);
-				gameWorld.run(numFrames);
+				gameWorld.runVisible(numFrames);
 				return population.get(i);
 			}
 		}

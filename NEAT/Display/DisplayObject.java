@@ -2,7 +2,9 @@ package NEAT.Display;
 
 import java.awt.Graphics2D;
 
-public abstract class DisplayObject
+import core.phys.PhysicsObject;
+
+public abstract class DisplayObject extends PhysicsObject
 {
 	public static final int RENDER_IN_FRONT = 0;
 	public static final int RENDER_LAST = RENDER_IN_FRONT;
@@ -15,7 +17,11 @@ public abstract class DisplayObject
 	protected int renderPriority;
 	protected int updatePriority;
 	public abstract void update(double delta);
-	public abstract void render(Graphics2D g);
+	public abstract void render(Graphics2D g, double frameDelta);
+	public void update()
+	{
+	    
+	}
 	public DisplayObject(int _renderPriority, int _updatePriority)
 	{
 		renderPriority = _renderPriority;

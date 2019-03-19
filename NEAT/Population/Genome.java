@@ -141,7 +141,6 @@ public class Genome
             n1 = nodes.get(inpIdx);
             n2 = nodes.get(outIdx);
             if(n2.getType() == Node.INPUT_NODE
-                    || duplicateConnection(n1.getID(),n2.getID())
                     || n2.getType() == Node.BIAS_NEURON 
                     || n1.getType() == Node.OUTPUT_NODE
                     || (inpIdx == outIdx && !recursive) 
@@ -149,6 +148,7 @@ public class Genome
             {continue;}
             else
             {
+                if(duplicateConnection(n1.getID(),n2.getID()) && n1 instanceof Neuron){continue;}
                 maxAttempts = 0;
                 found = true;
                 break;
@@ -157,7 +157,26 @@ public class Genome
         if(n1 == null || n2 == null || !found){return false;}
         int id = table.checkInnovation(table.NEW_CONNECTION, n1.getID(),n2.getID());
         if(id==-1){id = table.createConnection(n1.getID(),n2.getID());}
-        Connection newCon = new Connection(n1, n2, rand.nextGaussian(), true, id);
+        Connection newCon = null;
+        
+        //Check if input will be a feature filter. If so, attach connection randomly inside it.
+        if(n1.getType() == Node.FEATURE_FILTER)
+        {
+            int[] filterPos = new int[2];
+            int[] availablePositions = ((FeatureFilter)n1).getOutputShape(Config.FEATURE_FILTER_INITIAL_INPUT_SHAPE);
+            
+            int filterX = rand.nextInt(availablePositions[0]);
+            int filterY = rand.nextInt(availablePositions[1]);
+            
+            filterPos[0] = filterX;
+            filterPos[1] = filterY;
+            newCon = new Connection(n1, n2, rand.nextGaussian(), true, filterPos, id);
+        }
+        else
+        {
+            newCon = new Connection(n1, n2, rand.nextGaussian(), true, id);
+        }
+        
         connections.add(newCon);
         return true;
     }
@@ -204,8 +223,10 @@ public class Genome
         if(!foundSplit){return false;}
 
         connections.get(idx).setEnable(false);
+        
 
         double oldWeight = connections.get(idx).getWeight();
+        int[] oldPos = connections.get(idx).cloneFeatureFilterPos();
 
         Node out = connections.get(idx).getOutput();
         inp = connections.get(idx).getInput();
@@ -228,7 +249,7 @@ public class Genome
             int link1ID = table.createConnection(inp.getID(), n.getID());
             int link2ID = table.createConnection(n.getID(), out.getID());
             Connection con1 = new Connection(inp,n,1.0,true,link1ID);
-            Connection con2 = new Connection(n,out,oldWeight,true,link2ID);
+            Connection con2 = new Connection(n,out,oldWeight,true,oldPos,link2ID);
             connections.add(con1);
             connections.add(con2);
         }
@@ -240,7 +261,7 @@ public class Genome
             int link1ID = table.checkInnovation(table.NEW_CONNECTION, inp.getID(), n.getID());
             int link2ID = table.checkInnovation(table.NEW_CONNECTION, n.getID(), out.getID());
             Connection con1 = new Connection(inp,n,1.0,true,link1ID);
-            Connection con2 = new Connection(n,out,oldWeight,true,link2ID);
+            Connection con2 = new Connection(n,out,oldWeight,true,oldPos,link2ID);
             connections.add(con1);
             connections.add(con2);
         }
@@ -385,11 +406,11 @@ public class Genome
             else if(rand.nextDouble()<mutationRate)
             {
                 double mutationValue = rand.nextGaussian()*maxPerturb/3;
-                n.setActivationResponse(n.getActivationResponse()+mutationValue);   
-
+                n.setActivationResponse(n.getActivationResponse()+mutationValue);
             }
         }
     }
+    
     public boolean duplicateConnection(Connection c){return duplicateConnection(c.getInput().getID(), c.getOutput().getID());}
     public boolean duplicateConnection(int in, int out)
     {

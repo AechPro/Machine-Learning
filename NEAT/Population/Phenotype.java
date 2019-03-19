@@ -113,8 +113,15 @@ public class Phenotype extends DisplayObject
                     if(inp instanceof FeatureFilter)
                     {
                         FeatureFilter f = (FeatureFilter)inp;
-
-                        sum+=c.getWeight()*f.produceGlobalAverage(f.getOutput(),false);
+                        double[][][] outputVolume = f.getOutput();
+                        if(outputVolume != null)
+                        {
+                            int[] coordinates = c.cloneFeatureFilterPos();
+                            //System.out.println("("+outputVolume.length+","+outputVolume[0].length+","+outputVolume[0][0].length+")");
+                            //System.out.println("vs: ("+coordinates[0]+","+coordinates[1]+")");
+                            
+                            sum+=c.getWeight()*outputVolume[0][coordinates[0]][coordinates[1]];
+                        } 
                     }
                     else
                     {
@@ -132,7 +139,14 @@ public class Phenotype extends DisplayObject
                 n = node;
                 if(n.getType() != Node.INPUT_NODE && n.getType() != Node.BIAS_NEURON && n.isActive())
                 {
-                    n.setActiveOutput(sigmoid(n.getInactiveOutput(),n.getActivationResponse()));
+                    if(n.getType() != Node.OUTPUT_NODE)
+                    {
+                        n.setActiveOutput(sigmoid(n.getInactiveOutput(),n.getActivationResponse()));
+                    }
+                    else
+                    {
+                        n.setActiveOutput(n.getInactiveOutput());
+                    }
                     n.setActivationCount(n.getActivationCount()+1);
                     if(debugging) {System.out.println("Activated node "+n);}
                 }
@@ -151,7 +165,7 @@ public class Phenotype extends DisplayObject
         {
             outputVector[i] = ((Neuron)outputNodes.get(i)).getActiveOutput();
         }
-        return outputVector;
+        return sigmoid(outputVector);
     }
     public void loadInputs(double[][][] inp)
     {
@@ -286,7 +300,7 @@ public class Phenotype extends DisplayObject
     {
     }
     @Override
-    public void render(Graphics2D g) 
+    public void render(Graphics2D g, double frameDelta) 
     {
         int r = 15;
         g.setColor(Color.WHITE);
@@ -348,18 +362,43 @@ public class Phenotype extends DisplayObject
         int oldY = y;
         x = 100;
         y = 100+h/2;
-        render(graphics);
+        render(graphics, 1.0);
         graphics.dispose();
         try{ImageIO.write(im, "png", new File(dir));}
         catch(Exception e){e.printStackTrace();}
         x = oldX;
         y = oldY;
     }
+    public double[] sigmoid(double[] vec)
+    {
+        for(int i=0;i<vec.length;i++)
+        {
+            vec[i] = sigmoid(vec[i],0);
+        }
+        return vec;
+    }
     public double sigmoid(double x, double response)
     {
         //System.out.println("CALCULATING SIGMOID OF "+x+" OUTPUT = "+1.0d/(1.0d+(double)(Math.exp(-x/response))));
         //return 1.0d/(1.0d+(double)(Math.exp(-x/response)));
         return (1 / (1 + Math.exp(-x/1)));
+    }
+    public double[] softmax(double[] inp)
+    {
+        double sum = 0;
+        for(int i=0;i<inp.length;i++)
+        {
+            sum+=Math.exp(inp[i]);
+            
+        }
+        //System.out.println("SOFTMAX:");
+        for(int i=0;i<inp.length;i++)
+        {
+            inp[i] = Math.exp(inp[i])/sum;
+            //System.out.print(" "+inp[i]);
+        }
+        //System.out.println();
+        return inp;
     }
     public void setX(int i) {x=i;}
     public void setY(int i) {y=i;}

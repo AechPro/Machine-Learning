@@ -81,7 +81,7 @@ public class GameBoard extends DisplayObject
 		
 	}
 	@Override
-	public void render(Graphics2D g)
+	public void render(Graphics2D g, double frameDelta)
 	{
 		for(int i=0,stop=tiles.size();i<stop;i++)
 		{

@@ -6,6 +6,8 @@ public class Connection
     public final double WEIGHT_MIN = - WEIGHT_MAX;
     private Node input;
     private Node output;
+    
+    private int[] featureFilterPosition;
 
     private double weight;
     private boolean enable;
@@ -17,6 +19,22 @@ public class Connection
         weight = w;
         enable = en;
         innovID = innov;
+        //System.out.println("!!!!SHITTY CONNECTION!!!!");
+        featureFilterPosition = new int[2];
+        try
+        {
+            setOutput(out);
+            setInput(in);
+        }
+        catch(Exception e){e.printStackTrace();}
+        recursive = in.equals(out);
+    }
+    public Connection(Node in, Node out, double w, boolean en, int[] featureFilterPos, int innov)
+    {
+        weight = w;
+        enable = en;
+        innovID = innov;
+        featureFilterPosition = new int[] {featureFilterPos[0], featureFilterPos[1]};
         try
         {
             setOutput(out);
@@ -31,6 +49,7 @@ public class Connection
         enable = other.isEnabled();
         innovID = other.getInnovation();
         recursive = other.isRecursive();
+        featureFilterPosition = other.cloneFeatureFilterPos();
         try
         {
             if(other.getOutput() instanceof Neuron)
@@ -107,6 +126,10 @@ public class Connection
         {recursive = this.input.equals(output);}
     }
     public void setRecursive(boolean i) {recursive=i;}
+    public int[] cloneFeatureFilterPos()
+    {
+        return new int[] {featureFilterPosition[0], featureFilterPosition[1]};
+    }
     public String toString()
     {
         String repr = "---Connection Gene---\nInnovation: "+getInnovation()+"\nEnabled: "+enable;

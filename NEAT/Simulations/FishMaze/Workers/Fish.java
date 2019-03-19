@@ -2,9 +2,13 @@ package NEAT.Simulations.FishMaze.Workers;
 
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+
+import NEAT.Population.Organism;
 import NEAT.Simulations.FishMaze.*;
 
 
@@ -157,6 +161,8 @@ public class Fish extends Worker
 	{
 		return getDistance(board.getDest())<31;
 	}
+	
+	
 	
 	public double getDistance(Tile t)
 	{

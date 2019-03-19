@@ -52,22 +52,35 @@ public class Species
 		//size of our member list
 		int poolSize = members.size()-1;
 		Organism child = null;
-		int spawned = 0;
-		if(numToSpawn>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING)
+		Organism best = new Organism(getBestMember());
+		if(getBestMember().isPopChamp())
 		{
-			child = new Organism(getBestMember());
-			child.setSpeciesID(-1);
-			speciationUnit.speciateOrganism(child, false);
-			numToSpawn--;
-			spawned++;
-			
-			child = new Organism(getBestMember());
-			child.mutateGenotypeNonStructural(table);
-			child.setSpeciesID(-1);
-			speciationUnit.speciateOrganism(child, false);
-			numToSpawn--;
-			spawned++;
+		    best.setPopChamp(true);
+		    getBestMember().setPopChamp(false);
 		}
+		int spawned = 0;
+		if(numToSpawn>=Config.SPECIES_SIZE_FOR_CHAMP_CLONING || best.isPopChamp())
+        {
+            
+            child = new Organism(best);
+            child.setSpeciesID(-1);
+            if(best.isPopChamp())
+            {
+                System.out.println("Population champion clone created!");
+                child.setPopChamp(true);
+                best.setPopChamp(false);
+            }
+            speciationUnit.speciateOrganism(child, false);
+            numToSpawn--;
+            spawned++;
+            
+            child = new Organism(best);
+            child.mutateGenotypeNonStructural(table);
+            child.setSpeciesID(-1);
+            speciationUnit.speciateOrganism(child, false);
+            numToSpawn--;
+            spawned++;
+        }
 		/*if(getBestMember().isPopChamp())
 		{
 			Organism best = getBestMember();
@@ -87,7 +100,7 @@ public class Species
 		{
 			child = null;
 			//Note that poolSize = members.size()-1 so if poolSize == 0 then members.size() == 1
-			if(poolSize==0 || Math.random()>Config.CROSSOVER_RATE)
+			if(poolSize==0 || rand.nextDouble()>Config.CROSSOVER_RATE)
 			{
 
 				Organism selection = selector.randomSelectFromPool(1,poolSize,members).get(0);
@@ -97,14 +110,14 @@ public class Species
 			else
 			{
 				Species s = speciationUnit.getRandomSpecies();
-				if(Math.random()<Config.INTERSPECIES_MATE_RATE && s != null)
+				if(rand.nextDouble()<Config.INTERSPECIES_MATE_RATE && s != null)
 				{
 					Organism p1 = selector.randomSelectFromPool(1, poolSize, members).get(0);
 					int maxAttempts = Config.MAX_ATTEMPTS_FIND_PARENT;
 					while(maxAttempts-->0 && (s = speciationUnit.getRandomSpecies()) == this);
 					Organism p2 = s.getBestMember();
 					child = crossover(p1,p2,table);
-					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || p1 == p2)
+					if(rand.nextDouble()>Config.MATE_NO_MUTATION_CHANCE || p1 == p2)
 					{
 						child.mutateGenotype(table);
 					}
@@ -113,7 +126,7 @@ public class Species
 				{
 					ArrayList<Organism> parents = selector.randomSelectFromPool(2, poolSize, members);
 					child = crossover(parents.get(0),parents.get(1),table);
-					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+					if(rand.nextDouble()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 					{
 						child.mutateGenotype(table);
 					}
@@ -124,6 +137,7 @@ public class Species
 			speciationUnit.speciateOrganism(child,false);
 			//System.out.println(members.size());
 		}
+		
 
 		//System.out.println("SPECIES "+ID+" SPAWNED "+spawned+" OF "+spawnAmount+" CHILDREN");
 	}
@@ -144,7 +158,7 @@ public class Species
 		if(p1.getAdjustedFitness() == p2.getAdjustedFitness())
 		{
 			if(p1.getGenotype().getConnections().size() == p2.getGenotype().getConnections().size())
-			{p1Best = Math.random()>=0.5;}
+			{p1Best = rand.nextDouble()>=0.5;}
 			else
 			{
 				p1Best = p1.getGenotype().getConnections().size() < p2.getGenotype().getConnections().size();
@@ -163,7 +177,7 @@ public class Species
 			if(recessive.contains(dominant.get(i)))
 			{
 				if(debugging) {System.out.println("FOUND SHARED GENE");}
-				if(Math.random()>=0.5)
+				if(rand.nextDouble()>=0.5)
 				{
 					selection = dominant.get(i);
 				}
@@ -183,7 +197,7 @@ public class Species
 		{
 			if(!c.isEnabled())
 			{
-				if(Math.random() < Config.INHERITED_CONNECTION_ENABLE_RATE)
+				if(rand.nextDouble() < Config.INHERITED_CONNECTION_ENABLE_RATE)
 				{
 					c.setEnable(true);
 				}
@@ -222,12 +236,19 @@ public class Species
 		{
 			if(champs)
 			{
-				child = new Organism(best);
-				child.mutateGenotype(table);
+			    child = new Organism(best);
+			    if(rand.nextDouble() > 0.25)
+			    {
+			        child.mutateGenotype(table);   
+			    }
+			    else if(rand.nextDouble() > 0.5)
+			    {
+			        child.mutateGenotypeNonStructural(table);
+			    }
 			}
 			else
 			{
-				if(poolSize==0 || Math.random()>Config.CROSSOVER_RATE)
+				if(poolSize==0 || rand.nextDouble()>Config.CROSSOVER_RATE)
 				{
 					Organism selection = selector.randomSelectFromPool(1,poolSize,members).get(0);
 					child = new Organism(selection);
@@ -237,7 +258,7 @@ public class Species
 				{
 					parents = selector.randomSelectFromPool(2, poolSize, members);
 					child = crossover(parents.get(0),parents.get(1),table);
-					if(Math.random()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
+					if(rand.nextDouble()>Config.MATE_NO_MUTATION_CHANCE || parents.get(0) == parents.get(1))
 					{
 						child.mutateGenotype(table);
 					}
@@ -252,7 +273,7 @@ public class Species
 	{
 		members.add(mem);
 		mem.setSpeciesID(ID);
-		//Organism org = members.get((int)(Math.round(Math.random()*(members.size()-1))));
+		//Organism org = members.get((int)(Math.round(rand.nextDouble()*(members.size()-1))));
 		//representative = new Organism(org);
 	}
 	public void removeOldGeneration()
@@ -260,7 +281,10 @@ public class Species
 		ArrayList<Organism> newMembers = new ArrayList<Organism>();
 		for(int i=0,stop=members.size();i<stop;i++)
 		{
-			if(!members.get(i).markedForDeath()) {newMembers.add(members.get(i));}
+			if(!members.get(i).markedForDeath()) 
+			{
+			    newMembers.add(members.get(i));
+			}
 		}
 		//System.out.println(newMembers.size());
 		members = newMembers;

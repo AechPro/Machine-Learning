@@ -93,7 +93,7 @@ public class NotABird extends DisplayObject
 	}
 
 	@Override
-	public void render(Graphics2D g) 
+	public void render(Graphics2D g, double frameDelta) 
 	{
 		if(colliding) {return;}
 		//g.drawImage(texture,(int)x,(int)y,null);

@@ -23,6 +23,7 @@ public class Main
 	private double bestFitness;
 	private ArrayList<Species> species;
 	private ArrayList<Organism> population;
+	private Organism champion;
 	private SortingUnit sorter;
 	private TestUnit testUnit;
 	private Genome minimalStructure;
@@ -51,7 +52,7 @@ public class Main
 
 		//This is the test unit that will be used to evaluate phenotypes and build the
 		//initial structure.
-		testUnit = new FishTester(rng,width,height);
+		testUnit = new SnakeTester(rng,width,height);
 
 		sorter = new SortingUnit();
 		minimalStructure = testUnit.buildMinimalStructure(table);
@@ -88,7 +89,7 @@ public class Main
 			init();
 
 			//This is the loop for a single test.
-			while(running && generation < 100)
+			while(running && generation < 10000)
 			{
 				epoch();
 				generation++;
@@ -118,7 +119,7 @@ public class Main
 		tick();
 		repopulate();
 		reset();
-		testPhenotypes(false);
+		testPhenotypes(generation%1000 == 0 && generation > 1);
 		printOutput();
 	}
 
@@ -145,7 +146,7 @@ public class Main
 	public void repopulate()
 	{
 		double totalExpected = 0.0;
-
+		
 		//Mark one old species for obliteration every 30 generations.
 		if(generation%30==0 && generation > 0)
 		{
@@ -168,7 +169,7 @@ public class Main
 				org.markForDeath();
 			}
 		}
-
+		
 		/*if(timeSinceLastImprovement >= Config.MAX_TIME_POPULATION_STAGNATION)
 		{
 			deltaCoding();
@@ -188,6 +189,8 @@ public class Main
 		//weighted by their predicted spawn amount until we have met the config population size.
 		//We will be off by some spawns because we round each species' spawn amounts per reproduction
 		//cycle.
+        
+        
 		if(totalExpected!=Config.POPULATION_SIZE)
 		{
 			double coeff = (Config.POPULATION_SIZE - totalExpected)/totalExpected;
@@ -196,6 +199,7 @@ public class Main
 				s.setSpawnAmount(s.getSpawnAmount() + s.getSpawnAmount()*coeff);
 			}
 		}
+		
 
 		//Perform reproduction inside each species. Note that this uses the stop integer instead of species.size()
 		//each loop because children get speciated every reproduction loop, so new species may be created during
@@ -205,6 +209,7 @@ public class Main
 			//System.out.println(species.get(i));
 			species.get(i).reproduce(table);
 		}
+		
 
 		//Remove old generation of organisms from population.
 		for(Species s : species)
@@ -212,8 +217,21 @@ public class Main
 			s.removeOldGeneration();
 			//numSpawned+=s.getMembers().size();
 		}
+		
+		
 		//System.out.println("REPRODUCTION SPAWNED "+numSpawned+" NEW MEMBERS\nEXPECTED TO SPAWN "+totalExpected+" MEMBERS");
 		//System.out.println("REPRODUCTION SPAWNED "+(species.size()-s1)+" NEW SPECIES");
+		
+//		for(Organism org : population)
+//		{
+//		    org.setPopChamp(false);
+//		}
+//		
+//		Organism champClone = new Organism(champion);
+//        champClone.setPopChamp(true);
+//        champClone.setSpeciesID(-1);
+//        speciationUnit.speciateOrganism(champClone, true);
+//        population.add(champClone);
 	}
 
 	//Function to track population champion and global stagnation.
@@ -236,10 +254,13 @@ public class Main
 
 		//Find population champion.
 		int champIndex = -1;
+		bestFitness = 0;
 		for(int i=0,stop=population.size();i<stop;i++)
 		{
+		    population.get(i).setPopChamp(false);
 			if(population.get(i).getFitness() >= bestFitness) 
 			{
+			    
 				bestFitness=population.get(i).getFitness();
 				timeSinceLastImprovement = 0;
 				champIndex=i;
@@ -249,11 +270,9 @@ public class Main
 		//Label the population champion as such.
 		if(champIndex>-1)
 		{
-			for(int i=0,stop=population.size();i<stop;i++)
-			{
-				population.get(i).setPopChamp(false);
-			}
 			population.get(champIndex).setPopChamp(true);
+			//champion = new Organism(population.get(champIndex));
+			//champion.setPopChamp(true);
 		}
 	}
 
@@ -275,6 +294,10 @@ public class Main
 			for(Organism org : s.getMembers())
 			{
 				population.add(org);
+				if(org.isPopChamp())
+				{
+				    System.out.println("Champion survived! For sure! Definitely!");
+				}
 			}
 
 			//Add surviving species to the species list.
@@ -335,6 +358,8 @@ public class Main
 	public void deltaCoding()
 	{
 		if(species.size()==0) {return;}
+		bestFitness = 0;
+		sorter.sortSpecies(species, 0, species.size()-1);
 		System.out.println("PERFORMING DELTA CODING");
 		timeSinceLastImprovement = 0;
 		Species survivor1 = species.get(species.size()-1);
@@ -364,6 +389,24 @@ public class Main
 				population.add(org);
 			}
 		}
+	}
+	
+	public void checkForPopChamp()
+	{
+	    boolean alive = false;
+	    int count = 0;
+	    for(Species s : species)
+	    {
+	        for(Organism org : s.getMembers())
+	        {
+	            if(org.isPopChamp())
+	            {
+	                alive = true;
+	                count++;
+	            }
+	        }
+	    }
+	    System.out.println("CHAMPION ALIVE: "+alive+" NUMBER OF CHAMPS FOUND: "+count);
 	}
 
 	//Basic average calculation functions.
