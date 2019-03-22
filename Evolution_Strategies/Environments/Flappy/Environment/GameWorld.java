@@ -39,7 +39,7 @@ public class GameWorld extends Environment
 	public void init()
 	{
 		windowWidth = 1280;
-		windowHeight = 720;
+		windowHeight = 512;
 		
 		poleWidth = 75;
 		distBetweenPoles = 270;
@@ -84,6 +84,7 @@ public class GameWorld extends Environment
     @Override
     public void takeStep()
     {
+    	//System.out.println("ENVIRONMENT UPDATING");
         update();
     }
 	
@@ -103,6 +104,7 @@ public class GameWorld extends Environment
 	@Override
     public void initEnv()
     {
+		loadEntities();
 	    reset();
 	    /*window.buildWindow();
 	    while(!isDone());
@@ -113,8 +115,23 @@ public class GameWorld extends Environment
     @Override
     public ArrayList<EnvironmentAgent> buildAgents(int numAgents)
     {
+        
+        double[] startPos = new double[] {0,0};
+        if(popSize < numAgents)
+        {
+        	for(int i=0;i<numAgents-popSize;i++)
+            {
+                startPos = new double[] {birdX,birdY};
+                NotABird bird = new NotABird(startPos,0,camera,windowWidth,windowHeight,poles);
+                birds.add(bird);
+                agents.add(bird);
+                entities.add(bird);
+            }
+        	initCollisionHandler();
+        }
         popSize = numAgents;
-        loadEntities();
+        //System.out.println("building agents");
+        //loadEntities();
         reset();
         return agents;
     }
@@ -127,6 +144,7 @@ public class GameWorld extends Environment
 			b.setY(birdY);
 			b.setFitness(0);
 			b.setColliding(false);
+			b.init();
 		}
 		for(int i=0;i<poles.size();i++)
 		{

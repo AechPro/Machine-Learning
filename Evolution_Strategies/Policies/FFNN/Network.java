@@ -15,7 +15,7 @@ public class Network
     private double weightDecay;
     public Network(int inputSize, int[] layerSizes, int outputSize)
     {
-        Layer inp = new Layer(inputSize,true,null);
+        Layer inp = new Layer(inputSize,false,null);
         layers = new Layer[1+layerSizes.length+1];
         layers[0] = inp;
 
@@ -24,7 +24,7 @@ public class Network
             Layer layer = new Layer(layerSizes[i],false,layers[i]);
             layers[i+1] = layer;
         }
-        Layer out = new Layer(outputSize,false,layers[layers.length-2]);
+        Layer out = new Layer(outputSize,true,layers[layers.length-2]);
         layers[layers.length-1] = out;
         opt = new Adam(getNumParams(),Config.ADAM_STEP_SIZE_DEFAULT);
         //opt = new SGD(Config.SGD_STEP_SIZE_DEFAULT, Config.SGD_MOMENTUM_DEFAULT);
@@ -53,7 +53,7 @@ public class Network
     public double[] readOutputVector()
     {
         double[] out = layers[layers.length-1].getNonActivatedNodes();
-        Activations.softmax(out);
+        //Activations.softmax(out);
         return out;
     }
 

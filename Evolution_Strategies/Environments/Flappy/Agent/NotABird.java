@@ -18,8 +18,8 @@ public class NotABird extends EnvironmentAgent
 	private boolean colliding;
 	private double gravity = 2;
 	private double jumpSpeed = 3;
-	private double fitness = 0;
-	private double rewardPerFrame = 0.01;
+	private double fitness = 0, prevFitness = 0;
+	private double rewardPerFrame = 1;
 	private int windowHeight, windowWidth;
 	private double[] inputVector;
 	
@@ -30,6 +30,10 @@ public class NotABird extends EnvironmentAgent
         windowHeight = winHeight;
         knownPoles = poles;
         nearestPole = knownPoles.get(0);
+        colliding = false;
+        collidable = false;
+        width = 20;
+        height = 20;
         setTexture(buildImage(),scale);
     }
 	
@@ -45,6 +49,9 @@ public class NotABird extends EnvironmentAgent
         acceleration[1] = gravity;
         width = 20;
         height = 20;
+        colliding = false;
+        fitness = 0;
+        prevFitness = 0;
         inputVector = new double[Config.POLICY_INPUT_NODES];
         
     }
@@ -52,17 +59,18 @@ public class NotABird extends EnvironmentAgent
 	@Override
     public void eUpdate()
     {
+		prevFitness = fitness;
+		//System.out.println("BIRD UPDATING");
 	    //System.out.println(position[0]+","+position[1]);
 	    if(colliding || checkVictoryCondition()) {return;}
-	    fitness+=rewardPerFrame;
+	    //fitness+=rewardPerFrame;
 	    clamp();
-        
     }
 	
 	@Override
     public double takeAction(int actionNum)
     {
-	    //System.out.println(getX()+","+getY()+" | "+nearestPole.getX()+" | "+nearestPole.getGapStart());
+	    //System.out.println(getX()+","+getY()+" | "+nearestPole.getX()+" | "+nearestPole.getGapStart()+" "+fitness);
         if(actionNum == 0)
         {
             //System.out.println("JUMP");
@@ -71,15 +79,15 @@ public class NotABird extends EnvironmentAgent
         
         if(colliding)
         {
-            return -1;
+            return -rewardPerFrame;
         }
         
         if(checkVictoryCondition())
         {
-            return 1;
+            return rewardPerFrame;
         }
         
-        return rewardPerFrame;
+        return fitness - prevFitness;
     }
 
     @Override
@@ -89,10 +97,22 @@ public class NotABird extends EnvironmentAgent
         {
             return null;
         }
+        /*
+         *  player y position.
+			players velocity.
+			next pipe distance to player
+			next pipe top y position
+			next pipe bottom y position
+			next next pipe distance to player
+			next next pipe top y position
+			next next pipe bottom y position
+         */
         
-        inputVector[0] = (double)nearestPole.getX()/(double)windowWidth;
-        inputVector[1] = (double)nearestPole.getGapStart()/(double)windowHeight;
-        inputVector[2] = position[0]/(double)windowHeight;
+        inputVector[0] = position[1];
+        inputVector[1] = velocity[1];
+        inputVector[2] = nearestPole.getX() - getX();
+        inputVector[3] = nearestPole.getGapStart();
+        inputVector[4] = nearestPole.getGapStart() + nearestPole.getGapSize();
         return inputVector;
     }
     @Override
@@ -108,14 +128,14 @@ public class NotABird extends EnvironmentAgent
 	
 	private boolean checkVictoryCondition()
 	{
-		if(fitness >= 2000) {colliding = true; return true;}
+		if(fitness >= 2000) {return true;}
 		NotAPole temp = knownPoles.get(0);
 		for(NotAPole p : knownPoles)
 		{
 			if(p.collides(this))
 			{
 				colliding = true;
-				return true;
+				return false;
 			}
 			
 			if(p.getX()+p.getWidth() >= position[0])
@@ -127,6 +147,10 @@ public class NotABird extends EnvironmentAgent
 			}
 		}
 		//temp.setColor(Color.GREEN);
+		if(nearestPole != temp)
+		{
+			fitness += rewardPerFrame;
+		}
 		nearestPole = temp;
 		return false;
 	}

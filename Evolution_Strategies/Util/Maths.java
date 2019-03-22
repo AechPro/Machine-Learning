@@ -99,7 +99,6 @@ public class Maths
             indexes[i] = i;
         }
         Arrays.sort(indexes, new Comparator<Integer>() {
-            @Override
             public int compare(final Integer i1, final Integer i2) {
                 return (ascending ? 1 : -1) * Double.compare(a.get(i1), a.get(i2));
             }

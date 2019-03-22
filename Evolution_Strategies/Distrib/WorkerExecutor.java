@@ -29,12 +29,13 @@ public class WorkerExecutor
     public void run(Worker worker, Environment environment)
     {
         executorService.schedule(() -> worker.playEpisode(environment), 1, 
-                                 TimeUnit.MILLISECONDS);
+                                 TimeUnit.MICROSECONDS);
+        //executorService.shutdown();
     }
     
     public void start()
     {
-        executorService.schedule(() -> tick(), 1, TimeUnit.MILLISECONDS);
+        executorService.schedule(() -> tick(), 1, TimeUnit.NANOSECONDS);
     }
     public void stop()
     {
@@ -43,5 +44,9 @@ public class WorkerExecutor
     public void tick()
     {
         w.playEpisode(env);
+    }
+    public boolean isDone()
+    {
+    	return executorService.isShutdown();
     }
 }

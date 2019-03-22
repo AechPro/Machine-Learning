@@ -89,8 +89,8 @@ public class Snake extends EnvironmentAgent
     {
         if(collider instanceof Tile)
         {
-            //kill();
-            //fitness-=20;
+            kill();
+            fitness-=20;
         }
     }
 
@@ -190,10 +190,10 @@ public class Snake extends EnvironmentAgent
     
     public void loadInputs()
     {
-        inputVector[0][0][0] = velocity[0]/3.0;
-        inputVector[1][0][0] = velocity[1]/3.0;
-        inputVector[2][0][0] = ((pellet.getX()) - (position[0]))/level.getMap().getPixelWidth();
-        inputVector[3][0][0] = ((pellet.getY()) - (position[1]))/level.getMap().getPixelHeight();
+        inputVector[0][0][0] = velocity[0];
+        inputVector[1][0][0] = velocity[1];
+        inputVector[2][0][0] = ((pellet.getX()) - (position[0]));
+        inputVector[3][0][0] = ((pellet.getY()) - (position[1]));
         inputVector[4][0][0] = checkFront()[0];
     }
     
@@ -336,7 +336,7 @@ public class Snake extends EnvironmentAgent
             }
         }
         
-        out[0] = trigger/(double)lookAhead;
+        out[0] = trigger;
         return out;
     }
 

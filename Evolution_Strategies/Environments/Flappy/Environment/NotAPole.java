@@ -21,6 +21,7 @@ public class NotAPole extends Entity
         gap = g;
         screenHeight = scrh;
         gapStart = minHeight + (int)(Math.round(Math.random()*(screenHeight-minHeight*2)));
+        
     }
 
     @Override
@@ -30,10 +31,14 @@ public class NotAPole extends Entity
         needsReset = false;
         minHeight = 30;
         width = 75;
+        collidable = false;
     }
     @Override
     public void eUpdate()
     {
+    	//System.out.println("POLE UPDATE "+position[0]+" "+velocity[0]);
+    	velocity[0] = -3;
+    	
         if(position[0]+width<0) {needsReset = true;}
     }
     @Override
