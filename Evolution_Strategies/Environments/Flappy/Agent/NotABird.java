@@ -16,8 +16,8 @@ public class NotABird extends EnvironmentAgent
     private ArrayList<NotAPole> knownPoles;
 	private NotAPole nearestPole;
 	private boolean colliding;
-	private double gravity = 2;
-	private double jumpSpeed = 3;
+	private double gravity = 0.5;
+	private double jumpSpeed = 10;
 	private double fitness = 0, prevFitness = 0;
 	private double rewardPerFrame = 1;
 	private int windowHeight, windowWidth;
@@ -39,8 +39,7 @@ public class NotABird extends EnvironmentAgent
 	
 	public void jump()
 	{
-		velocity[1] = -jumpSpeed;
-		
+		velocity[1] = -jumpSpeed;		
 	}
 	@Override
     public void init()
@@ -52,18 +51,13 @@ public class NotABird extends EnvironmentAgent
         colliding = false;
         fitness = 0;
         prevFitness = 0;
-        inputVector = new double[Config.POLICY_INPUT_NODES];
-        
+        inputVector = new double[Config.POLICY_LAYER_INFO[0]];
     }
 	
 	@Override
     public void eUpdate()
     {
-		prevFitness = fitness;
-		//System.out.println("BIRD UPDATING");
-	    //System.out.println(position[0]+","+position[1]);
 	    if(colliding || checkVictoryCondition()) {return;}
-	    //fitness+=rewardPerFrame;
 	    clamp();
     }
 	
@@ -76,37 +70,16 @@ public class NotABird extends EnvironmentAgent
             //System.out.println("JUMP");
             jump();
         }
-        
-        if(colliding)
-        {
-            return -rewardPerFrame;
-        }
-        
-        if(checkVictoryCondition())
-        {
-            return rewardPerFrame;
-        }
-        
-        return fitness - prevFitness;
+        return fitness;
     }
 
     @Override
     public double[] getState()
     {
-        if(colliding || checkVictoryCondition())
+        if(dead)
         {
             return null;
         }
-        /*
-         *  player y position.
-			players velocity.
-			next pipe distance to player
-			next pipe top y position
-			next pipe bottom y position
-			next next pipe distance to player
-			next next pipe top y position
-			next next pipe bottom y position
-         */
         
         inputVector[0] = position[1];
         inputVector[1] = velocity[1];
@@ -122,8 +95,8 @@ public class NotABird extends EnvironmentAgent
     }
 	private void clamp()
 	{
-		if(position[1] < 0) {position[1] = 0;}
-		else if(position[1]+height > windowHeight) {position[1] = windowHeight - height;}
+		if(position[1] < 0) {kill();}
+		else if(position[1]+height > windowHeight) {kill();}
 	}
 	
 	private boolean checkVictoryCondition()
@@ -134,11 +107,12 @@ public class NotABird extends EnvironmentAgent
 		{
 			if(p.collides(this))
 			{
+			    kill();
 				colliding = true;
 				return false;
 			}
 			
-			if(p.getX()+p.getWidth() >= position[0])
+			if(p.getX() > position[0]+width)
 			{
 				if(p.getX() < temp.getX())
 				{
@@ -149,18 +123,25 @@ public class NotABird extends EnvironmentAgent
 		//temp.setColor(Color.GREEN);
 		if(nearestPole != temp)
 		{
+		    System.out.println("GOT A REWARD");
 			fitness += rewardPerFrame;
 		}
 		nearestPole = temp;
 		return false;
 	}
+	
+	@Override
+	public void kill()
+	{
+        fitness-=rewardPerFrame;
+        dead = true;
+	}
+	
 	public double getFitness() {return fitness;}
 	public boolean isColliding() {return colliding;}
 	
 	public void setColliding(boolean i) {colliding=i;}
 	public void setFitness(double i) {fitness=i;}
-
-    
 
 	private BufferedImage buildImage()
     {

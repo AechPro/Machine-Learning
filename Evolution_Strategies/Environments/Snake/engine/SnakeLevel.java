@@ -55,10 +55,10 @@ public class SnakeLevel extends Environment
     }
     private void fillPop()
     {
-        int spawnIdx = freeSpawnPoints.size()/2;
+        //int spawnIdx = freeSpawnPoints.size()/2;
         for(int i=0;i<popSize;i++)
         {
-            //int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
+            int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
             double[] spawn = freeSpawnPoints.get(spawnIdx);
             Snake snake = new Snake(spawn,0,camera, this);
             
@@ -118,8 +118,8 @@ public class SnakeLevel extends Environment
         {
             pelletSpawnIndex = 0;
         }
-        double[] spawn = freeSpawnPoints.get(pelletSpawnIndex++);
-        //double[] spawn = freeSpawnPoints.get(spawnIdx);
+        //double[] spawn = freeSpawnPoints.get(pelletSpawnIndex++);
+        double[] spawn = freeSpawnPoints.get(spawnIdx);
         //freeSpawnPoints.remove(spawnIdx);
         Pellet p = new Pellet(spawn,0,camera);
         return p;
@@ -143,7 +143,7 @@ public class SnakeLevel extends Environment
     }
     public void setWorker(Worker w)
     {
-        int spawnIdx = freeSpawnPoints.size()/2;       
+        int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
         double[] spawn = freeSpawnPoints.get(spawnIdx);
         Snake snake = new Snake(spawn,0,camera, this);
         snake.setPolicy(w.getPolicy());

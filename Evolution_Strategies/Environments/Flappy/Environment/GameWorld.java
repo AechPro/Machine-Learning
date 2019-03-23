@@ -41,7 +41,7 @@ public class GameWorld extends Environment
 		windowWidth = 1280;
 		windowHeight = 512;
 		
-		poleWidth = 75;
+		poleWidth = 50;
 		distBetweenPoles = 270;
 		gapSize = 100;
 		
@@ -67,7 +67,7 @@ public class GameWorld extends Environment
         {
             startPos = new double[] {windowWidth/4 + (poleWidth+distBetweenPoles)*i,0};
 
-            NotAPole pole = new NotAPole(startPos, 0, camera, gapSize, windowHeight);
+            NotAPole pole = new NotAPole(startPos, 0, camera, gapSize, windowHeight - 60);
             entities.add(pole);
             poles.add(pole);
         }
@@ -115,7 +115,6 @@ public class GameWorld extends Environment
     @Override
     public ArrayList<EnvironmentAgent> buildAgents(int numAgents)
     {
-        
         double[] startPos = new double[] {0,0};
         if(popSize < numAgents)
         {
@@ -152,7 +151,6 @@ public class GameWorld extends Environment
 		}
 	}
 	
-	
 	public double[] getTestResults()
 	{
 		double[] results = new double[popSize];
@@ -188,7 +186,10 @@ public class GameWorld extends Environment
     @Override
     public void keyPressed(KeyEvent e)
     {
-        // TODO Auto-generated method stub
+        for(NotABird b : birds)
+        {
+            b.jump();
+        }
         
     }
     @Override

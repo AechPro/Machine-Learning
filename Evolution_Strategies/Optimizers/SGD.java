@@ -22,9 +22,17 @@ public class SGD extends Optimizer
         {
             flat[i] = flat[i]*momentum + (1.0 - momentum)*gradient[i];
             step[i] = -stepSize*flat[i];
-            //step[i] = gradient[i]*stepSize;
         }
-        //stepSize/=1.02;
         return step;
+    }
+    @Override
+    public double[] computeUpdate(double[] flat, double[] gradient)
+    {
+        double[] update = getUpdateStep(gradient);
+        for(int i=0;i<update.length;i++)
+        {
+            update[i] += flat[i];
+        }
+        return update;
     }
 }

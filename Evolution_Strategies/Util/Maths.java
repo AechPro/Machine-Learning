@@ -93,14 +93,15 @@ public class Maths
      * got this off stackoverflow at https://stackoverflow.com/questions/31448608/is-there-an-argsort-function-in-java
      * modified for use with array list and doubles
      */
-    public static int[] argsort(final ArrayList<Double> a, final boolean ascending) {
-        Integer[] indexes = new Integer[a.size()];
+    public static int[] argsort(final double[] a, final boolean ascending) {
+        Integer[] indexes = new Integer[a.length];
         for (int i = 0; i < indexes.length; i++) {
             indexes[i] = i;
         }
         Arrays.sort(indexes, new Comparator<Integer>() {
+            @Override
             public int compare(final Integer i1, final Integer i2) {
-                return (ascending ? 1 : -1) * Double.compare(a.get(i1), a.get(i2));
+                return (ascending ? 1 : -1) * Double.compare(a[i1], a[i2]);
             }
         });
         return asArray(indexes);

@@ -52,7 +52,7 @@ public class Snake extends EnvironmentAgent
     @Override
     public void init()
     {
-        numInputs = Config.POLICY_INPUT_NODES;
+        numInputs = Config.POLICY_LAYER_INFO[0];
         dead = false;
         champ = false;
         direction = new int[2];
@@ -80,7 +80,6 @@ public class Snake extends EnvironmentAgent
         double[] pos = new double[] {position[0], position[1]};
         
         net = null;
-        
         positions.add(pos);
     }
 
@@ -90,33 +89,13 @@ public class Snake extends EnvironmentAgent
         if(collider instanceof Tile)
         {
             kill();
-            fitness-=20;
         }
     }
 
     @Override
     public void eUpdate()
     {
-        prevFitness = fitness;
-        if(dead){return;}     
-        if(net != null)
-        {
-            double[] inp = getState();
-            if(inp == null){kill();}
-            net.activate(inp);
-            double[] action = net.readOutputVector();
-            int arg = 0;
-            double max = 0;
-            for(int i=0;i<action.length;i++)
-            {
-                if(action[i] > max)
-                {
-                    max = action[i];
-                    arg = i;
-                }
-            }
-            takeAction(arg);
-        }
+        if(dead){return;}
         checkProgress();
         move();
         updateSegments();
@@ -131,13 +110,13 @@ public class Snake extends EnvironmentAgent
             if(dist < prevDist)
             {
                 prevDist = dist;
-                fitness+=0.1;
+                //fitness+=0.1;
             }
             else
             {
                 if(fitness > 0)
                 {
-                    fitness-=0.1;
+                    //fitness-=0.1;
                 }
 
             }
@@ -161,15 +140,13 @@ public class Snake extends EnvironmentAgent
     public double takeAction(int actionNum)
     {
         //System.out.println(fitness+" | "+prevFitness);
-        double reward = fitness - prevFitness;
-        /*
-        if(currentDirection == UP && actionNum == DOWN){return -0.1;}
-        if(currentDirection == DOWN && actionNum == UP){return -0.1;}
-        if(currentDirection == LEFT && actionNum == RIGHT){return -0.1;}
-        if(currentDirection == RIGHT && actionNum == LEFT){return -0.1;}*/
-        
+        /*if(currentDirection == UP && actionNum == DOWN){return 0;}
+        if(currentDirection == DOWN && actionNum == UP){return 0;}
+        if(currentDirection == LEFT && actionNum == RIGHT){return 0;}
+        if(currentDirection == RIGHT && actionNum == LEFT){return 0;}
+        */
         currentDirection = actionNum;
-        return reward;
+        return fitness;
     }
 
     @Override
@@ -197,101 +174,7 @@ public class Snake extends EnvironmentAgent
         inputVector[4][0][0] = checkFront()[0];
     }
     
-    public void loadSensors()
-    {
-        angle-=Math.PI/2;
-        double FOV = Math.PI/2;
-        int itr = 0;
-
-        //center sensor
-        double o1 = Math.cos(angle);
-        double o2 = Math.sin(angle);
-        loadSensor(o1,o2,itr++);
-
-        //up sensor
-        o1 = Math.cos(angle - FOV/2);
-        o2 = Math.sin(angle - FOV/2);
-        loadSensor(o1,o2,itr++);
-
-        //down sensor
-        o1 = Math.cos(angle + FOV/2);
-        o2 = Math.sin(angle + FOV/2);
-        loadSensor(o1,o2,itr++);
-        angle+=Math.PI/2;
-
-    }
-
-    public void loadSensor(double o1, double o2,int itr)
-    {
-        int x = 0;
-        int y = 0;
-        int r = 32;
-        Tile t = null;
-        int sensorRange = 3;
-        double sx = (position[0]+width/2);
-        double sy = (position[1]+height/2);
-        double sw = o1*sensorRange*r;
-        double sh = o2*sensorRange*r;
-        Line2D sensorLine = new Line2D.Double(sx,sy,sw+sx,sh+sy);    
-        double tileDist = 100;
-        double segDist = 100;
-        double pelletDist = 100;
-        double checkDist = 0;
-        synchronized(map)
-        {
-            for(double i=0;i<sensorRange;i+=0.5)
-            {
-                x = (int)(o1*r*(i) + position[0] + width/2);
-                y = (int)(o2*r*(i) + position[1] + height/2);
-                t = map.findTile(x,y);
-                if(t == null) {continue;}
-                if(t.isCollidable())
-                {
-                    Rectangle rect = new Rectangle((int)t.getPos()[0],(int)t.getPos()[1],(int)t.getWidth(),(int)t.getHeight());
-                    if(sensorLine.intersects(rect))
-                    {
-                        checkDist = getDist(t.getPos(),position)/(r*sensorRange);
-                        if(checkDist < tileDist)
-                        {
-                            tileDist = checkDist;
-                        }
-                    }   
-                }
-            }
-
-            for(SnakeSegment s : segments)
-            {
-                if(sensorLine.intersects(s.getbbox()))
-                {
-                    checkDist = getDist(s.getPos(),position);
-                    if(checkDist < segDist)
-                    {
-                        segDist = checkDist;
-                    }
-                }
-            }
-            if(pellet != null)
-            {
-                if(sensorLine.intersects(pellet.getbbox()))
-                {
-                    checkDist = getDist(pellet.getPos(),position);
-                    if(checkDist < pelletDist)
-                    {
-                        pelletDist = checkDist;
-                    }
-                }
-            }
-        }
-        
-        double val = Math.min(tileDist, Math.min(segDist, pelletDist));
-        if(val == tileDist || val == segDist)
-        {
-            val = -val;
-        }
-        
-        inputVector[itr][0][0] = val;
-    }
-
+    
     public double[] checkFront()
     {
         double trigger = 100;
@@ -419,8 +302,7 @@ public class Snake extends EnvironmentAgent
             if(segments.get(i).getbbox().intersects(bbox))
             {
                 //System.out.println("\nINTERSECTION!\nBBOX: "+bbox+"\nSEGMENT: "+segments.get(i).getbbox());
-                fitness-=20;
-                dead = true;
+                kill();
             }
         }
     }
@@ -459,7 +341,7 @@ public class Snake extends EnvironmentAgent
         //level.freeSpawnPoint(pellet.getPos());
         pellet.kill();
 
-        fitness+=10;
+        fitness++;
         dist = Double.MAX_VALUE;
         prevDist = Double.MAX_VALUE;
 
@@ -475,6 +357,13 @@ public class Snake extends EnvironmentAgent
             segments.add(new SnakeSegment(pos,0,camera,head));
         }
         pellet = level.spawnPellet();
+    }
+    
+    @Override
+    public void kill()
+    {
+        dead = true;
+        fitness -= 1;
     }
 
     public void keyPressed(KeyEvent e)

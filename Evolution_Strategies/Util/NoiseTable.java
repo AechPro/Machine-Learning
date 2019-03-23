@@ -1,5 +1,6 @@
 package Evolution_Strategies.Util;
 
+import Evolution_Strategies.Configs.Config;
 
 public class NoiseTable
 {

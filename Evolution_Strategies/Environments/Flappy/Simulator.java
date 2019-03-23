@@ -35,9 +35,10 @@ public class Simulator
     }
     public void runVisible(int numFrames)
     {
+        level.buildAgents(1);
         window.buildWindow();
 
-        while(!level.isDone());
+        while(!level.isDone() || window.getFramesSinceStart() < numFrames);
         
         window.setRunning(false);
         window.destroy();
@@ -55,8 +56,6 @@ public class Simulator
         double secondsPassed = t2/1000000000d;
         double fps = numFrames/secondsPassed;
         System.out.println("Sim fps: "+fps);
-        
-        
     }
     public Environment getEnv()
     {
@@ -67,11 +66,11 @@ public class Simulator
         return level.getTestResults();
     }
     
-    /*public static void main(String[] args)
+    public static void main(String[] args)
     {
-        Simulator sim = new Simulator(100);
+        Simulator sim = new Simulator();
         sim.runVisible(10000);
-    }*/
+    }
     
 }
 

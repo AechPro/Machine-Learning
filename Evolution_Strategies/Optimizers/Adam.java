@@ -23,6 +23,17 @@ public class Adam extends Optimizer
         timeStep = 0;
     }
     
+    public double[] computeUpdate(double[] theta, double[] gradient)
+    {
+        double[] step = getUpdateStep(gradient);
+        
+        for(int i=0;i<theta.length;i++)
+        {
+            step[i]+=theta[i];
+        }
+        return step;
+    }
+    
     @Override
     public double[] getUpdateStep(double[] gradient)
     {

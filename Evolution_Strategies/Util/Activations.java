@@ -2,18 +2,6 @@ package Evolution_Strategies.Util;
 
 public class Activations
 {
-	public static double tanh(double x)
-	{
-		return Math.tanh(x);
-	}
-	public static void tanh(double[] x)
-	{
-		for(int i=0;i<x.length;i++)
-		{
-			x[i] = tanh(x[i]);
-		}
-	}
-	
     public static double sigmoid(double x)
     {
         return (1d / (1d + Math.exp(-x)));
