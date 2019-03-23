@@ -9,10 +9,9 @@ public interface Config
     public static final double ADAM_BETA2_DEFAULT = 0.999;
     public static final double ADAM_EPSILON_DEFAULT = 1e-08;
     public static final double ADAM_STEP_SIZE_DEFAULT = 0.001;
-    public static final double WEIGHT_DECAY_RATE = 0.999d;
+    public static final double WEIGHT_DECAY_RATE = 0.9999d;
     public static final double NOISE_STD_DEV = 0.02;
     public static final double WEIGHT_INIT_STD = 1.0;
-    
     public static final int POPULATION_SIZE = 200;
     public static final int NUM_EPOCHS = 10000;
 }

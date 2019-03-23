@@ -1,6 +1,7 @@
 package Evolution_Strategies.Policies.FFNN;
 
 import Evolution_Strategies.Configs.Config;
+import java.io.*;
 
 public class Network
 {
@@ -107,6 +108,22 @@ public class Network
     }
     public void saveParameters(String filePath)
     {
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
+            double[] flat = getFlat();
+            String out = "";
+            for(int i=0;i<flat.length;i++)
+            {
+                out+=flat[i]+",";
+            }
+            writer.write(out);
+            writer.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     public void loadParameters(String filePath)
     {

@@ -55,6 +55,11 @@ public class Main
             double max = 0;
             double mean = 0;
             
+            if(i % 100 == 0)
+            {
+                policy.saveParameters("resources/ES/models/snake/weights.txt");
+            }
+            
             runEpochDist();
             for(int j=0;j<pop.size();j++)
             {
