@@ -67,7 +67,13 @@ public class Layer
        }
        else
        {
-           Activations.sigmoid(activated);
+           Activations.tanh(activated);
+       }
+       
+       //Activations.tanh(activated);
+       for(int i=0;i<numNodes;i++)
+       {
+    	   activated[i] += Rand.getRandNorm(0, Config.ACTION_NOISE_STD);
        }
        
        return activated;

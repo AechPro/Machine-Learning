@@ -36,9 +36,9 @@ public class Simulator
         window = new Window(windowWidth, windowHeight, 60, level);
     }
     
-    public void renderEpisode(Worker worker)
+    public void renderEpisode(Network policy)
     {
-        level.setWorker(worker);
+        level.setPolicy(policy);
         window.buildWindow();
         
         while(!level.isDone());
@@ -71,10 +71,10 @@ public class Simulator
         return level;
     }
     
-    /*public static void main(String[] args)
+    public static void main(String[] args)
     {
-        Simulator sim = new Simulator(100);
-        sim.runVisible(10000);
-    }*/
+        Simulator sim = new Simulator();
+        sim.renderEpisode(null);
+    }
     
 }

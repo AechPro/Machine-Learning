@@ -46,6 +46,7 @@ public class Worker
         {
             e.takeStep();
         }
+        //System.out.println("WORKER STOPPED RUNNING");
         running = false;
     }
 
@@ -120,6 +121,7 @@ public class Worker
     }
     public synchronized boolean isRunning()
     {
+    	//System.out.println(running);
         return running;
     }
 }

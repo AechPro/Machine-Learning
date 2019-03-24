@@ -28,6 +28,19 @@ public class Activations
         }
     }
     
+    public static double tanh(double x)
+    {
+    	return Math.tanh(x);
+    }
+    
+    public static void tanh(double[] x)
+    {
+    	for(int i=0;i<x.length;i++)
+        {
+            x[i] = tanh(x[i]);
+        }
+    }
+    
     public static void softmax(double[] inp)
     {
         double sum = 0;

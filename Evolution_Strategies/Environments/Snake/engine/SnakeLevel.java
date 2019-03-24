@@ -8,6 +8,7 @@ import Evolution_Strategies.Environments.Environment;
 import Evolution_Strategies.Environments.EnvironmentAgent;
 import Evolution_Strategies.Environments.Snake.Workers.Pellet;
 import Evolution_Strategies.Environments.Snake.Workers.Snake;
+import Evolution_Strategies.Policies.FFNN.Network;
 import Evolution_Strategies.Population.Worker;
 import core.camera.Camera;
 import core.entities.Entity;
@@ -141,12 +142,12 @@ public class SnakeLevel extends Environment
             }
         }
     }
-    public void setWorker(Worker w)
+    public void setPolicy(Network policy)
     {
         int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
         double[] spawn = freeSpawnPoints.get(spawnIdx);
         Snake snake = new Snake(spawn,0,camera, this);
-        snake.setPolicy(w.getPolicy());
+        snake.setPolicy(policy);
         popSize = 0;
         
         loadEntities();

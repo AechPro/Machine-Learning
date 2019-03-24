@@ -125,8 +125,25 @@ public class Network
             e.printStackTrace();
         }
     }
+    
     public void loadParameters(String filePath)
     {
-       
+    	try
+        {
+            BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
+            double[] flat = new double[getNumParams()];
+            String line = reader.readLine();
+            String[] params = line.split(",");
+            for(int i=0;i<flat.length;i++)
+            {
+            	flat[i] = Double.parseDouble(params[i]);
+            }
+            setFlat(flat);
+            reader.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

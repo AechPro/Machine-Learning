@@ -12,6 +12,7 @@ public class NoiseTable
         {
             noise[i] = Rand.getRandNorm(0,1.0);
         }
+        System.out.println("noise generated");
         return noise;
     }
 }

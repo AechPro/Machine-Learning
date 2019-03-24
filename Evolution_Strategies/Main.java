@@ -36,8 +36,8 @@ public class Main
        env = sim.getEnv();
        policy = new Network(Config.POLICY_LAYER_INFO);
       
-       //opt = new Adam(policy.getNumParams(), Config.ADAM_STEP_SIZE_DEFAULT);
-       opt = new BasicOpt();
+       opt = new Adam(policy.getNumParams(), Config.ADAM_STEP_SIZE_DEFAULT);
+       //opt = new BasicOpt();
        statsLogger = new MetricLogger("resources/ES/stats.txt");
        distHandler = new WorkerExecutionHandler();
        
@@ -45,13 +45,16 @@ public class Main
        {
            pop.add(new Worker(policy, i*20));
        }
-       
     }
     public void run()
     {
+    	//policy.loadParameters("resources/ES/models/snake/weights.txt");
+    	//sim.renderEpisode(policy);
+    	//System.exit(0);
         double[] fitnesses = new double[pop.size()];
         for(int i=0;i<Config.NUM_EPOCHS;i++)
         {
+        	//System.out.println("epoch start");
             double max = 0;
             double mean = 0;
             
@@ -61,6 +64,7 @@ public class Main
             }
             
             runEpochDist();
+            //System.out.println("test done");
             for(int j=0;j<pop.size();j++)
             {
                 //pop.get(j).playEpisode(env);
@@ -98,7 +102,7 @@ public class Main
             rewards[i] = pop.get(i).getFitness();
         }
         
-        double[] gradient = computeGradient(noiseFlats, rewards);
+        double[] gradient = computeAdamGradient(noiseFlats, rewards);
         if(gradient == null){return null;}
         
         double[] update = opt.computeUpdate(policy.getFlat(),gradient);

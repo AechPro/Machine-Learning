@@ -1,5 +1,6 @@
 package Evolution_Strategies.Environments.Snake.Workers;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -11,6 +12,7 @@ import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Environments.EnvironmentAgent;
 import Evolution_Strategies.Environments.Snake.engine.SnakeLevel;
 import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Util.Rand;
 import core.camera.Camera;
 import core.map.TileMap;
 import core.map.tiles.Tile;
@@ -26,6 +28,7 @@ public class Snake extends EnvironmentAgent
     private int moveCounter = 0;
     private boolean movingToCell;
     private double[] nextCell;
+    private double[] prevCell;
     private Pellet pellet;
     private int[] direction;
     private SnakeLevel level;
@@ -52,6 +55,8 @@ public class Snake extends EnvironmentAgent
     @Override
     public void init()
     {
+    	collidable = true;
+    	
         numInputs = Config.POLICY_LAYER_INFO[0];
         dead = false;
         champ = false;
@@ -59,8 +64,9 @@ public class Snake extends EnvironmentAgent
         inputVector = new double[numInputs][1][1];
         hasSelectiveCollisions = true;
         movingToCell = false;
-        fitness = 0;
+        fitness = -3;
         nextCell = new double[2];
+        prevCell = new double[2];
         acceleration[0] = 0;
         acceleration[1] = 0;
         velocity[0] = 0;
@@ -95,13 +101,39 @@ public class Snake extends EnvironmentAgent
     @Override
     public void eUpdate()
     {
+    	//System.out.println(fitness+" "+getState());
         if(dead){return;}
+        
+        checkSegmentCollisions();
         checkProgress();
         move();
         updateSegments();
         checkPellet();
         
     }
+    public void takeNetAction()
+    {
+    	double[] state = getState();
+    	double[] noise = new double[net.getNumParams()];
+    	if(state == null){return;}
+    	
+    	double[] action = net.activateNoisy(state, noise);
+    	
+    	double max = action[0];
+    	int choice = 0;
+    	
+    	for(int i=0;i<action.length;i++)
+    	{
+    		if(action[i] > max)
+    		{
+    			max = action[i];
+    			choice = i;
+    		}
+    	}
+    	
+    	takeAction(choice);
+    }
+    
     public void checkProgress()
     {
         if(pellet != null)
@@ -130,7 +162,7 @@ public class Snake extends EnvironmentAgent
         {
             moveCounter = 0;
         }
-        if(moveCounter > 50 || stepsSincePellet > 1500)
+        if(moveCounter > 50 || stepsSincePellet > 500)
         {
             kill();
         }
@@ -140,11 +172,11 @@ public class Snake extends EnvironmentAgent
     public double takeAction(int actionNum)
     {
         //System.out.println(fitness+" | "+prevFitness);
-        /*if(currentDirection == UP && actionNum == DOWN){return 0;}
-        if(currentDirection == DOWN && actionNum == UP){return 0;}
-        if(currentDirection == LEFT && actionNum == RIGHT){return 0;}
-        if(currentDirection == RIGHT && actionNum == LEFT){return 0;}
-        */
+        if(currentDirection == UP && actionNum == DOWN){return -0.01;}
+        if(currentDirection == DOWN && actionNum == UP){return -0.01;}
+        if(currentDirection == LEFT && actionNum == RIGHT){return -0.01;}
+        if(currentDirection == RIGHT && actionNum == LEFT){return -0.01;}
+        
         currentDirection = actionNum;
         return fitness;
     }
@@ -152,35 +184,73 @@ public class Snake extends EnvironmentAgent
     @Override
     public double[] getState()
     {
-        if(dead)
-        {
-            return null;
-        }
+        if(dead){return null;}
+        
         loadInputs();
         double[] state = new double[numInputs];
+        
         for(int i=0;i<inputVector.length;i++)
         {
             state[i] = inputVector[i][0][0];
         }
+
         return state;
     }
     
     public void loadInputs()
     {
-        inputVector[0][0][0] = velocity[0];
-        inputVector[1][0][0] = velocity[1];
-        inputVector[2][0][0] = ((pellet.getX()) - (position[0]));
-        inputVector[3][0][0] = ((pellet.getY()) - (position[1]));
-        inputVector[4][0][0] = checkFront()[0];
+    	inputVector[0][0][0] = velocity[0]/3d;
+        inputVector[1][0][0] = velocity[1]/3d;
+        
+        inputVector[2][0][0] = (pellet.getX() - position[0]);
+        inputVector[3][0][0] = (pellet.getY() - position[1]);
+        
+        inputVector[4][0][0] = position[0]/map.getPixelWidth();
+        inputVector[5][0][0] = position[1]/map.getPixelHeight();
+        inputVector[6][0][0] = checkNearestSegment();
+        
+        /*double[] nearest = checkNearestSegment();
+        //System.out.println(nearest);
+        inputVector[6][0][0] = (nearest[0])/map.getPixelWidth();
+        inputVector[7][0][0] = (nearest[1])/map.getPixelHeight();
+        inputVector[8][0][0] = (nearest[2]);*/
     }
     
-    
+    public double checkNearestSegment()
+    {
+    	if(segments.size() == 0)
+    	{
+    		return -1;
+    	}
+    	double[] center = new double[]{position[0]+width/2,position[1]+height/2};
+    	double[] otherCenter = new double[]{segments.get(0).getPos()[0]+segments.get(0).getWidth()/2,
+    										segments.get(0).getPos()[1]+segments.get(0).getHeight()/2};
+    	double minDist = getDist(otherCenter, center);
+    	double[] loc = new double[3];
+    	loc[0] = segments.get(0).getPos()[0];
+    	loc[1] = segments.get(0).getPos()[1];
+    	for(int i=1;i<segments.size();i++)
+    	{
+    		otherCenter = new double[]{segments.get(i).getPos()[0]+segments.get(i).getWidth()/2,
+						               segments.get(i).getPos()[1]+segments.get(i).getHeight()/2};
+
+    		double dist = getDist(otherCenter, center);
+    		if(dist < minDist)
+    		{
+    			loc[0] = segments.get(i).getPos()[0];
+    	    	loc[1] = segments.get(i).getPos()[1];
+    			minDist = dist;
+    		}
+    	}
+    	loc[2] = minDist;
+    	return minDist;
+    }
     public double[] checkFront()
     {
-        double trigger = 100;
+        double trigger = -1;
         double[] out = new double[2];
 
-        double lookAhead = 32;
+        double lookAhead = 5;
         double x1 = (position[0]+width/2);
         double y1 = (position[1]+height/2);
         double x2 = (position[0]+width/2+direction[0]*SEGMENT_SIZE*lookAhead);
@@ -191,7 +261,6 @@ public class Snake extends EnvironmentAgent
                 (position[0]+direction[0]*SEGMENT_SIZE*lookAhead),
                 (position[1]+direction[1]*SEGMENT_SIZE*lookAhead));
 
-
         for(Tile t : level.getMap().getTiles())
         {
             if(!t.isCollidable())
@@ -201,24 +270,12 @@ public class Snake extends EnvironmentAgent
             if(line2.intersects(t.getbbox()) || line1.intersects(t.getbbox()))
             {
                 double dist = getDist(position,t.getPos());
-                trigger = dist;
-                break;
-            }
-        }
-
-        for(int i=0;i<segments.size()-1;i++)
-        {
-            if(line2.intersects(segments.get(i).getbbox()) || line1.intersects(segments.get(i).getbbox()))
-            {
-                double dist = getDist(position,segments.get(i).getPos());
-                if(dist < trigger)
+                if(dist < trigger || trigger == -1)
                 {
-                    trigger = dist;
+                	trigger = dist;
                 }
-                break;
             }
         }
-        
         out[0] = trigger;
         return out;
     }
@@ -275,8 +332,11 @@ public class Snake extends EnvironmentAgent
         if(!movingToCell)
         {
             movingToCell = true;         
-            nextCell[0] = position[0]+direction[0]*SEGMENT_SIZE;
-            nextCell[1] = position[1]+direction[1]*SEGMENT_SIZE;
+            nextCell[0] = position[0]+direction[0]*(SEGMENT_SIZE);
+            nextCell[1] = position[1]+direction[1]*(SEGMENT_SIZE);
+            
+            prevCell[0] = position[0];
+            prevCell[1] = position[1];
         }
         else
         {
@@ -285,10 +345,13 @@ public class Snake extends EnvironmentAgent
                 if(nextCell[1] <= position[1] && 3+nextCell[1]>position[1])
                 {
                     movingToCell = false;
-                    positions.add(new double[] {position[0], position[1]});
-                    checkSegmentCollisions();
+                    positions.add(new double[] {prevCell[0], prevCell[1]});
                     stepsSincePellet++;
-                    //fitness+=0.001;
+                    
+                    if(net != null)
+                    {
+                    	takeNetAction();
+                    }
                 }
             }
         }
@@ -313,15 +376,28 @@ public class Snake extends EnvironmentAgent
         {
             positions.remove(0);
         }
+        head.setPos(new double[] {position[0], position[1]});
         for(int i=0,stop=segments.size();i<stop;i++)
         {
             if(positions.size() <= i)
             {
                 break;
             }
+            double[] prev = segments.get(i).getPos().clone();
+            segments.get(i).setPos(positions.get(i));
+            
+            Rectangle2D r1 = head.getbbox();
+            Rectangle2D r2 = segments.get(i).getbbox();
+            if(r2.intersects(r1))
+            {
+            	segments.get(i).setPos(prev);
+            	continue;
+            }
+            
+            //System.out.println("SET SEGMENT TO POS: "+positions.get(i)[0]+","+positions.get(i)[1]);
+            //System.out.println("HEAD POS: "+head.getPos()[0]+","+head.getPos()[1]);
             segments.get(i).setPos(positions.get(i));
         }
-        head.setPos(new double[] {position[0], position[1]});
     }
 
     private void checkPellet()
@@ -333,21 +409,22 @@ public class Snake extends EnvironmentAgent
         if(pellet.getbbox().intersects(head.getbbox()))
         {            
             handlePelletCollision();
-
         }
     }
     private void handlePelletCollision()
     {
         //level.freeSpawnPoint(pellet.getPos());
         pellet.kill();
-
+        if(fitness < 0)
+        {
+        	fitness=0;
+        }
         fitness++;
         dist = Double.MAX_VALUE;
         prevDist = Double.MAX_VALUE;
 
         stepsSincePellet = 0;
-
-        double[] pos = new double[] {0,0};
+        double[] pos = new double[]{0,0};
         if(segments.size() > 0)
         {
             segments.add(new SnakeSegment(pos,0,camera,segments.get(segments.size()-1)));
@@ -369,7 +446,7 @@ public class Snake extends EnvironmentAgent
     public void keyPressed(KeyEvent e)
     {
 
-        /*if(e.getKeyChar() == 'w')
+        if(e.getKeyChar() == 'w')
         {
             currentDirection = UP;
         }
@@ -384,7 +461,7 @@ public class Snake extends EnvironmentAgent
         else if(e.getKeyChar() == 'd')
         {
             currentDirection = RIGHT;
-        }*/
+        }
     }
 
     @Override
