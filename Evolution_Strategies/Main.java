@@ -48,7 +48,8 @@ public class Main
     }
     public void run()
     {
-    	//policy.loadParameters("resources/ES/models/snake/weights.txt");
+    	double best = 18.0;
+    	policy.loadParameters("resources/ES/models/snake/weights.txt");
     	//sim.renderEpisode(policy);
     	//System.exit(0);
         double[] fitnesses = new double[pop.size()];
@@ -60,6 +61,7 @@ public class Main
             
             if(i % 100 == 0)
             {
+            	System.out.println("SAVING PARAMS");
                 policy.saveParameters("resources/ES/models/snake/weights.txt");
             }
             
@@ -73,6 +75,11 @@ public class Main
                 if(fitnesses[j] > max)
                 {
                     max = fitnesses[j];
+                }
+                if(fitnesses[j] > best)
+                {
+                	best = fitnesses[j];
+                    policy.saveParameters("resources/ES/models/snake/weights.txt");
                 }
             }
             mean/=pop.size();
