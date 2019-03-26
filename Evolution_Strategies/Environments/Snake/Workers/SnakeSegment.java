@@ -13,9 +13,12 @@ public class SnakeSegment extends Entity
 {
     private SnakeSegment parent;
     private int currentDirection;
-    public SnakeSegment(double[] startPos, double startAngle, Camera cam, SnakeSegment p)
+    private boolean head;
+    public SnakeSegment(double[] startPos, double startAngle, Camera cam, SnakeSegment p, boolean isHead)
     {
         super(startPos, startAngle, cam);
+        head = isHead;
+        setTexture(buildImage(),scale);
         parent = p;
     }
 
@@ -34,8 +37,6 @@ public class SnakeSegment extends Entity
         lowerExtension = -1;
         leftExtension = -1;
         rightExtension = -1;
-
-        setTexture(buildImage(),scale);
     }
 
     @Override
@@ -81,6 +82,7 @@ public class SnakeSegment extends Entity
         }
         return pos;
     }
+    
     public int getDirection()
     {
         return currentDirection;
@@ -95,7 +97,13 @@ public class SnakeSegment extends Entity
         BufferedImage image = new BufferedImage((int)width,(int)height,BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D)image.getGraphics();
         g.setColor(Color.WHITE);
+        
         g.fillRect(0, 0, (int)width, (int)height);
+        if(head)
+        {
+            BufferedImage tempImg = TextureHandler.loadTexture("resources/textures/NPCs/Friendlies/snake/snakeEye.png",scale);
+            g.drawImage(tempImg,0,0,image.getWidth(), image.getHeight(),null);        
+        }
         g.dispose();
         return TextureHandler.scaleTexture(image, scale);
     }

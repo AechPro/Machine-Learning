@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Environments.EnvironmentAgent;
 import Evolution_Strategies.Environments.Snake.engine.SnakeLevel;
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Util.Rand;
 import core.camera.Camera;
 import core.map.TileMap;
@@ -38,7 +38,7 @@ public class Snake extends EnvironmentAgent
 	private SnakeSegment head;
 	private TileMap map;
 	private int stepsSincePellet;
-	private Network net;
+	private FFNetwork net;
 
 	private double prevDist, dist;
 	private double prevFitness;
@@ -59,7 +59,7 @@ public class Snake extends EnvironmentAgent
 	{
 		collidable = true;
 		sensors = new Rectangle2D[3];
-		numInputs = Config.POLICY_LAYER_INFO[0];
+		numInputs = Config.FFNN_LAYER_INFO[0];
 		dead = false;
 		champ = false;
 		direction = new int[2];
@@ -84,7 +84,7 @@ public class Snake extends EnvironmentAgent
 
 		segments = new ArrayList<SnakeSegment>();
 		positions = new ArrayList<double[]>();
-		head = new SnakeSegment(new double[] {position[0], position[1]}, 0, camera, null);
+		head = new SnakeSegment(new double[] {position[0], position[1]}, 0, camera, null, true);
 		double[] pos = new double[] {position[0], position[1]};
 
 		net = null;
@@ -115,11 +115,16 @@ public class Snake extends EnvironmentAgent
 	}
 	public void takeNetAction()
 	{
-		double[] state = getState();
+		double[][][] state = getState();
+		double[] obs = new double[state.length];
+		for(int i=0;i<state.length;i++)
+		{
+		    obs[i] = state[i][0][0];
+		}
 		double[] noise = new double[net.getNumParams()];
 		if(state == null){return;}
 
-		double[] action = net.activateNoisy(state, noise);
+		double[] action = net.activateNoisy(obs, noise);
 
 		double max = action[0];
 		int choice = 0;
@@ -144,13 +149,13 @@ public class Snake extends EnvironmentAgent
 			if(dist < prevDist)
 			{
 				prevDist = dist;
-				fitness+=0.1;
+				//fitness+=0.1;
 			}
 			else
 			{
 				if(fitness > 0)
 				{
-					fitness-=0.1;
+					//fitness-=0.1;
 				}
 
 			}
@@ -184,29 +189,20 @@ public class Snake extends EnvironmentAgent
 	}
 
 	@Override
-	public double[] getState()
+	public double[][][] getState()
 	{
 		if(dead){return null;}
 
 		loadInputs();
-		double[] state = new double[numInputs];
-
-		for(int i=0;i<inputVector.length;i++)
-		{
-			state[i] = inputVector[i][0][0];
-		}
-
-		return state;
+		return inputVector;
 	}
 
 	public void loadInputs()
 	{
 		/*inputVector[0][0][0] = velocity[0]/3d;
         inputVector[1][0][0] = velocity[1]/3d;
-
         inputVector[2][0][0] = (pellet.getX() - position[0]);
         inputVector[3][0][0] = (pellet.getY() - position[1]);
-
         inputVector[4][0][0] = position[0]/map.getPixelWidth();
         inputVector[5][0][0] = position[1]/map.getPixelHeight();
         inputVector[6][0][0] = checkNearestSegment();*/
@@ -229,6 +225,7 @@ public class Snake extends EnvironmentAgent
 
 	public double[] checkSensors()
 	{
+	    updateSensors();
 		double[] sensorOutputs = new double[]{1.1,1.1,1.1};
 		int idx = 0;
 		for(Rectangle2D sensor : sensors)
@@ -370,7 +367,7 @@ public class Snake extends EnvironmentAgent
 					movingToCell = false;
 					positions.add(new double[] {prevCell[0], prevCell[1]});
 					stepsSincePellet++;
-					updateSensors();
+					//updateSensors();
 
 					if(net != null)
 					{
@@ -451,11 +448,11 @@ public class Snake extends EnvironmentAgent
 		double[] pos = new double[]{0,0};
 		if(segments.size() > 0)
 		{
-			segments.add(new SnakeSegment(pos,0,camera,segments.get(segments.size()-1)));
+			segments.add(new SnakeSegment(pos,0,camera,segments.get(segments.size()-1), false));
 		}
 		else
 		{
-			segments.add(new SnakeSegment(pos,0,camera,head));
+			segments.add(new SnakeSegment(pos,0,camera,head, false));
 		}
 		pellet = level.spawnPellet();
 	}
@@ -463,6 +460,7 @@ public class Snake extends EnvironmentAgent
 	@Override
 	public void kill()
 	{
+	    //System.out.println("agent died!");
 		dead = true;
 		fitness -= 1;
 	}
@@ -551,10 +549,11 @@ public class Snake extends EnvironmentAgent
 			}
 		}
 		head.render(g, interp);
+		updateSensors();
 		checkSensors();
 		
 		
-		/*
+		
 		for(Rectangle2D sensor : sensors)
 		{
 			if(sensor == null)
@@ -573,13 +572,12 @@ public class Snake extends EnvironmentAgent
 					break;
 				}
 			}
-
 			Rectangle2D scaled = new Rectangle2D.Double(sensor.getX()*scale[0], sensor.getY()*scale[1], sensor.getWidth()*scale[0], sensor.getHeight()*scale[1]);
 			g.draw(scaled);
-		}*/
+		}
 
 	}
-	public void setPolicy(Network n)
+	public void setPolicy(FFNetwork n)
 	{
 		net = n;
 	}

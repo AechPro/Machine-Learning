@@ -11,5 +11,5 @@ public abstract class EnvironmentAgent extends Entity
     }
     protected Environment env;
     public abstract double takeAction(int actionNum);
-    public abstract double[] getState();
+    public abstract double[][][] getState();
 }

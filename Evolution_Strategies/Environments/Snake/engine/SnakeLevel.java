@@ -2,13 +2,18 @@ package Evolution_Strategies.Environments.Snake.engine;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import Evolution_Strategies.Environments.Environment;
 import Evolution_Strategies.Environments.EnvironmentAgent;
 import Evolution_Strategies.Environments.Snake.Workers.Pellet;
 import Evolution_Strategies.Environments.Snake.Workers.Snake;
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.CNN.CNetwork;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Population.Worker;
 import core.camera.Camera;
 import core.entities.Entity;
@@ -26,11 +31,18 @@ public class SnakeLevel extends Environment
     private Snake best;
     private int pelletSpawnIndex;
     private boolean done;
+    private int testCounter;
+    
+    private BufferedImage frame;
+    private Graphics2D frameGfx;
 
     public SnakeLevel(int populationSize, PhysicsObject p, Camera cam, double[] resScale)
     {
         super(p, cam, resScale);
         popSize = populationSize;
+        frame = new BufferedImage((int)camera.getViewPort().getWidth(), (int)camera.getViewPort().getHeight(),BufferedImage.TYPE_INT_ARGB);
+        frameGfx = (Graphics2D) frame.getGraphics();
+        testCounter = 0;
         //fillPop();
         //locateSpawnPoints();
     }
@@ -56,11 +68,13 @@ public class SnakeLevel extends Environment
     }
     private void fillPop()
     {
-        //int spawnIdx = freeSpawnPoints.size()/2;
+        int spawnIdx = freeSpawnPoints.size()/2;
         for(int i=0;i<popSize;i++)
         {
-            int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
-            double[] spawn = freeSpawnPoints.get(spawnIdx);
+            //int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
+            //double[] spawn = freeSpawnPoints.get(spawnIdx);
+            double[] spawn = new double[] {map.getPixelWidth()/2, map.getPixelHeight()/2};
+
             Snake snake = new Snake(spawn,0,camera, this);
             
             orgs.add(snake);
@@ -89,6 +103,20 @@ public class SnakeLevel extends Environment
     public void takeStep()
     {
         update();
+        //render(frameGfx, 1.0);
+        //saveBuffer();
+    }
+    private void saveBuffer()
+    {
+        testCounter++;
+        try
+        {
+            ImageIO.write(frame, "png", new File("resources/ES/frame_"+testCounter+".png"));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     public double[] getTestResults()
     {
@@ -142,10 +170,10 @@ public class SnakeLevel extends Environment
             }
         }
     }
-    public void setPolicy(Network policy)
+    public void setPolicy(FFNetwork policy)
     {
-        int spawnIdx = (int)(Math.random()*freeSpawnPoints.size());
-        double[] spawn = freeSpawnPoints.get(spawnIdx);
+        int spawnIdx = (int)(freeSpawnPoints.size()/2);
+        double[] spawn = new double[] {map.getPixelWidth()/2, map.getPixelHeight()/2};
         Snake snake = new Snake(spawn,0,camera, this);
         snake.setPolicy(policy);
         popSize = 0;
@@ -157,6 +185,11 @@ public class SnakeLevel extends Environment
         collidableObjects.add(snake);
         orgs.add(snake);
         initCollisionHandler();
+    }
+    
+    public BufferedImage getFrame()
+    {
+        return frame;
     }
     
     public void addEntity(Entity ent)

@@ -2,7 +2,7 @@ package Evolution_Strategies.testing;
 
 import java.util.ArrayList;
 
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Util.Maths;
 import Evolution_Strategies.Util.Rand;
 
@@ -124,7 +124,7 @@ public class Main
         int inputs = 4;
         int[] hidden = new int[]{2,4,10};
         int outputs = 3;
-        Network n = new Network(inputs,hidden,outputs);
+        FFNetwork n = new FFNetwork(inputs,hidden,outputs);
 
         double[] input = new double[]{1,1,1,1};
         double[] output = new double[]{1,1,1};
@@ -151,7 +151,7 @@ public class Main
         int inputs = 2;
         int[] hidden = new int[]{3};
         int outputs = 2;
-        Network net = new Network(inputs,hidden,outputs);
+        FFNetwork net = new FFNetwork(inputs,hidden,outputs);
         System.out.println("FIRST:");
         testNetworkAccuracy(net);
         ArrayList<double[][]> weightGrad = new ArrayList<double[][]>();
@@ -211,7 +211,7 @@ public class Main
         
     }
     
-    private void testNetworkAccuracy(Network n)
+    private void testNetworkAccuracy(FFNetwork n)
     {
         double[][] inputSet = new double[][]
                 {{0,0},

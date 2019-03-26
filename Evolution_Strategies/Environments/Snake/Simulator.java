@@ -1,8 +1,10 @@
 package Evolution_Strategies.Environments.Snake;
 
+import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Environments.Environment;
 import Evolution_Strategies.Environments.Snake.engine.SnakeLevel;
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.CNN.CNetwork;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Population.Worker;
 import NEAT.Display.Window;
 import core.camera.Camera;
@@ -25,18 +27,18 @@ public class Simulator
     }
     public void init()
     {
-        windowWidth = 1280;
-        windowHeight = 720;
+        windowWidth = 1280;//Config.IMAGE_DIMS[0];
+        windowHeight = 720;//Config.IMAGE_DIMS[1];
         
         subject = new CameraFocus(new double[] {0,0});
-        double[] scale = new double[] {1.5,1.5};
+        double[] scale = new double[] {2.4, 2.4};
         camera = new Camera(windowWidth,windowHeight,scale,1000,subject);
         level = new SnakeLevel(popSize,subject,camera,scale);
         
         window = new Window(windowWidth, windowHeight, 60, level);
     }
     
-    public void renderEpisode(Network policy)
+    public void renderEpisode(FFNetwork policy)
     {
         level.setPolicy(policy);
         window.buildWindow();
@@ -71,10 +73,10 @@ public class Simulator
         return level;
     }
     
-    public static void main(String[] args)
+    /*public static void main(String[] args)
     {
         Simulator sim = new Simulator();
         sim.renderEpisode(null);
-    }
+    }*/
     
 }

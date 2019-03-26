@@ -22,16 +22,20 @@ public class Pellet extends Entity
     {
         width = height = 8;
         angle = Math.random()*Math.PI;
-
+        
+        leftExtension = 2;
+        rightExtension = 2;
+        upperExtension = 2;
+        lowerExtension = 2;
         collidable=true;
         projectionPriority = 1;
         maxVelocity = new double[] {0,0};
     }
     private BufferedImage buildImage()
     {
-        BufferedImage image = new BufferedImage((int)width,(int)height,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage((int)width,(int)height,BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D)image.getGraphics();
-        g.setColor(Color.GREEN);
+        g.setColor(Color.RED);
         g.fillOval(0, 0, (int)width, (int)height);
         g.dispose();
         return TextureHandler.scaleTexture(image, scale);

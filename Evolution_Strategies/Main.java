@@ -9,7 +9,8 @@ import Evolution_Strategies.Environments.Snake.Simulator;
 import Evolution_Strategies.Optimizers.Adam;
 import Evolution_Strategies.Optimizers.BasicOpt;
 import Evolution_Strategies.Optimizers.Optimizer;
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.CNN.CNetwork;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Population.Worker;
 import Evolution_Strategies.Util.Maths;
 import Evolution_Strategies.Util.MetricLogger;
@@ -19,7 +20,7 @@ public class Main
     private ArrayList<Worker> pop;
     private Environment env;
     private Simulator sim;
-    private Network policy;
+    private FFNetwork policy;
     private Optimizer opt;
     private MetricLogger statsLogger;
     private WorkerExecutionHandler distHandler;
@@ -34,7 +35,7 @@ public class Main
        pop = new ArrayList<Worker>();
        sim = new Simulator();
        env = sim.getEnv();
-       policy = new Network(Config.POLICY_LAYER_INFO);
+       policy = new FFNetwork(Config.FFNN_LAYER_INFO);
       
        opt = new Adam(policy.getNumParams(), Config.ADAM_STEP_SIZE_DEFAULT);
        //opt = new BasicOpt();
@@ -48,9 +49,9 @@ public class Main
     }
     public void run()
     {
-    	double best = 18.0;
+    	double best = 0.0;
     	policy.loadParameters("resources/ES/models/snake/weights.txt");
-    	//sim.renderEpisode(policy);
+        //sim.renderEpisode(policy);
     	//System.exit(0);
         double[] fitnesses = new double[pop.size()];
         for(int i=0;i<Config.NUM_EPOCHS;i++)
@@ -66,7 +67,6 @@ public class Main
             }
             
             runEpochDist();
-            //System.out.println("test done");
             for(int j=0;j<pop.size();j++)
             {
                 //pop.get(j).playEpisode(env);
@@ -87,6 +87,7 @@ public class Main
             System.out.println("\n***EPOCH "+i+"***");
             System.out.println("MEAN: "+mean);
             System.out.println("MAX: "+max);
+            System.out.println("BEST SO FAR: "+best);
             
             double[] gradient = updateWorkers();
             if(gradient != null)

@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Environments.Environment;
 import Evolution_Strategies.Environments.EnvironmentAgent;
-import Evolution_Strategies.Policies.FFNN.Network;
+import Evolution_Strategies.Policies.CNN.CNetwork;
+import Evolution_Strategies.Policies.FFNN.FFNetwork;
 import Evolution_Strategies.Util.Maths;
 import Evolution_Strategies.Util.NoiseTable;
 import Evolution_Strategies.Util.Rand;
@@ -13,7 +14,7 @@ import Evolution_Strategies.Util.Rand;
 public class Worker
 {
     private int timeSteps;
-    private Network policy;
+    private FFNetwork policy;
     
     private double fitness, fitnessNeg;
     private double prevFit;
@@ -22,7 +23,7 @@ public class Worker
     private int currentNoiseIdx;
     private boolean running;
 
-    public Worker(Network p, int startNoiseIdx)
+    public Worker(FFNetwork p, int startNoiseIdx)
     {
         timeSteps = 0;
         policy = p;
@@ -52,11 +53,17 @@ public class Worker
 
     public boolean playTimeStep(EnvironmentAgent e)
     {
-        double[] state = e.getState();
-
+        double[][][] state = e.getState();
         if(state == null || policy == null){return false;}
 
-        double[] decision = policy.activateNoisy(state,noiseFlat);
+        double[] obs = new double[state.length];
+        for(int i=0;i<state.length;i++)
+        {
+            obs[i] = state[i][0][0];
+        }
+
+
+        double[] decision = policy.activateNoisy(obs,noiseFlat);
         int action = decodeAction(decision);
         
         double fit =  e.takeAction(action);
@@ -80,7 +87,7 @@ public class Worker
     
     private void computeNoiseFlat()
     {
-        if(currentNoiseIdx >= NoiseTable.noise.length)
+        if(currentNoiseIdx+noiseFlat.length >= NoiseTable.noise.length)
         {
             currentNoiseIdx = 0;
         }
@@ -92,10 +99,6 @@ public class Worker
         
         currentNoiseIdx++;
         
-    }
-    public Network getPolicy()
-    {
-        return policy;
     }
 
     private int decodeAction(double[] policyDist)
