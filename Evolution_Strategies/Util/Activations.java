@@ -1,5 +1,7 @@
 package Evolution_Strategies.Util;
 
+import Evolution_Strategies.Configs.Config;
+
 public class Activations
 {
     public static double sigmoid(double x)
@@ -37,21 +39,24 @@ public class Activations
     {
     	for(int i=0;i<x.length;i++)
         {
+    		
             x[i] = tanh(x[i]);
         }
     }
     
     public static void softmax(double[] inp)
     {
-        double sum = 0;
+        double sum = Config.ADAM_EPSILON_DEFAULT;
         for(int i=0;i<inp.length;i++)
         {
+        	
             sum+=Math.exp(inp[i]);
             
         }
         for(int i=0;i<inp.length;i++)
         {
-            inp[i] = Math.exp(inp[i])/sum;
+        	
+            inp[i] = Math.exp(inp[i])/(sum);
         }
     }
     

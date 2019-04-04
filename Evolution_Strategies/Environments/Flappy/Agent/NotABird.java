@@ -21,7 +21,7 @@ public class NotABird extends EnvironmentAgent
 	private double fitness = 0, prevFitness = 0;
 	private double rewardPerFrame = 1;
 	private int windowHeight, windowWidth;
-	private double[] inputVector;
+	private double[][][] inputVector;
 	
 	public NotABird(double[] startPos, double startAngle, Camera cam, int winWidth, int winHeight, ArrayList<NotAPole> poles)
     {
@@ -49,22 +49,47 @@ public class NotABird extends EnvironmentAgent
         width = 20;
         height = 20;
         colliding = false;
-        fitness = 0;
+        fitness = -3;
         prevFitness = 0;
-        inputVector = new double[Config.POLICY_LAYER_INFO[0]];
+        inputVector = new double[Config.FFNN_LAYER_INFO[0]][1][1];
     }
 	
 	@Override
     public void eUpdate()
     {
-	    if(colliding || checkVictoryCondition()) {return;}
+	    if(colliding || dead) {return;}
+	    NotAPole temp = knownPoles.get(0);
+		for(NotAPole p : knownPoles)
+		{
+			if(p.collides(this))
+			{
+			    kill();
+				colliding = true;
+			}
+			
+			if(p.getX() > position[0]+width)
+			{
+				if(p.getX() < temp.getX())
+				{
+					temp = p;
+				}
+			}
+		}
+		
+		if(nearestPole != temp)
+		{
+		    //System.out.println("GOT A REWARD");
+		    if(fitness < 0){fitness=0;}
+			fitness += rewardPerFrame;
+		}
+		nearestPole = temp;
 	    clamp();
     }
 	
 	@Override
     public double takeAction(int actionNum)
     {
-	    //System.out.println(getX()+","+getY()+" | "+nearestPole.getX()+" | "+nearestPole.getGapStart()+" "+fitness);
+	    //System.out.println(velocity[1]+" | "+getY()+" | "+nearestPole.getX()+" | "+nearestPole.getGapStart()+" | "+fitness+" | "+actionNum);
         if(actionNum == 0)
         {
             //System.out.println("JUMP");
@@ -74,18 +99,18 @@ public class NotABird extends EnvironmentAgent
     }
 
     @Override
-    public double[] getState()
+    public double[][][] getState()
     {
-        if(dead)
+        if(dead || colliding)
         {
             return null;
         }
         
-        inputVector[0] = position[1];
-        inputVector[1] = velocity[1];
-        inputVector[2] = nearestPole.getX() - getX();
-        inputVector[3] = nearestPole.getGapStart();
-        inputVector[4] = nearestPole.getGapStart() + nearestPole.getGapSize();
+        inputVector[0][0][0] = position[1]/camera.getViewPort().getHeight();
+        inputVector[1][0][0] = velocity[1]/maxVelocity[1];
+        inputVector[2][0][0] = nearestPole.getX()/camera.getViewPort().getWidth();
+        inputVector[3][0][0] = nearestPole.getGapStart()/camera.getViewPort().getHeight();
+        inputVector[4][0][0] = (nearestPole.getGapStart() + nearestPole.getGapSize())/camera.getViewPort().getHeight();
         return inputVector;
     }
     @Override
@@ -99,42 +124,13 @@ public class NotABird extends EnvironmentAgent
 		else if(position[1]+height > windowHeight) {kill();}
 	}
 	
-	private boolean checkVictoryCondition()
-	{
-		if(fitness >= 2000) {return true;}
-		NotAPole temp = knownPoles.get(0);
-		for(NotAPole p : knownPoles)
-		{
-			if(p.collides(this))
-			{
-			    kill();
-				colliding = true;
-				return false;
-			}
-			
-			if(p.getX() > position[0]+width)
-			{
-				if(p.getX() < temp.getX())
-				{
-					temp = p;
-				}
-			}
-		}
-		//temp.setColor(Color.GREEN);
-		if(nearestPole != temp)
-		{
-		    System.out.println("GOT A REWARD");
-			fitness += rewardPerFrame;
-		}
-		nearestPole = temp;
-		return false;
-	}
 	
 	@Override
 	public void kill()
 	{
         fitness-=rewardPerFrame;
         dead = true;
+        colliding = true;
 	}
 	
 	public double getFitness() {return fitness;}

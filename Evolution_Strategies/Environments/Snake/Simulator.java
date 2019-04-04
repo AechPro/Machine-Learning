@@ -31,7 +31,7 @@ public class Simulator
         windowHeight = 720;//Config.IMAGE_DIMS[1];
         
         subject = new CameraFocus(new double[] {0,0});
-        double[] scale = new double[] {2.4, 2.4};
+        double[] scale = new double[] {2.5, 2.05};
         camera = new Camera(windowWidth,windowHeight,scale,1000,subject);
         level = new SnakeLevel(popSize,subject,camera,scale);
         

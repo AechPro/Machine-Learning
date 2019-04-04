@@ -179,10 +179,10 @@ public class Snake extends EnvironmentAgent
 	public double takeAction(int actionNum)
 	{
 		//System.out.println(fitness+" | "+prevFitness);
-		if(currentDirection == UP && actionNum == DOWN){return fitness-0.05;}
-        if(currentDirection == DOWN && actionNum == UP){return fitness-0.05;}
-        if(currentDirection == LEFT && actionNum == RIGHT){return fitness-0.05;}
-        if(currentDirection == RIGHT && actionNum == LEFT){return fitness-0.05;}
+		if(currentDirection == UP && actionNum == DOWN){return fitness-0.01;}
+        if(currentDirection == DOWN && actionNum == UP){return fitness-0.01;}
+        if(currentDirection == LEFT && actionNum == RIGHT){return fitness-0.01;}
+        if(currentDirection == RIGHT && actionNum == LEFT){return fitness-0.01;}
 
 		currentDirection = actionNum;
 		return fitness;
@@ -226,7 +226,7 @@ public class Snake extends EnvironmentAgent
 	public double[] checkSensors()
 	{
 	    updateSensors();
-		double[] sensorOutputs = new double[]{1.1,1.1,1.1};
+		double[] sensorOutputs = new double[]{1.5,1.5,1.5};
 		int idx = 0;
 		for(Rectangle2D sensor : sensors)
 		{
@@ -253,7 +253,7 @@ public class Snake extends EnvironmentAgent
 				{
 					double[] c1 = new double[]{position[0]+width/2, position[1]+height/2};
 					double[] c2 = new double[]{t.getX()+t.getWidth()/2, t.getY()+t.getHeight()/2};
-					double dist = getDist(c2,c1)/86.0;
+					double dist = getDist(c2,c1)/77.0;
 					if(dist < sensorOutputs[idx])
 					{
 						sensorOutputs[idx] = dist;
@@ -549,11 +549,10 @@ public class Snake extends EnvironmentAgent
 			}
 		}
 		head.render(g, interp);
-		updateSensors();
+		
+		
+		/*updateSensors();
 		checkSensors();
-		
-		
-		
 		for(Rectangle2D sensor : sensors)
 		{
 			if(sensor == null)
@@ -574,7 +573,7 @@ public class Snake extends EnvironmentAgent
 			}
 			Rectangle2D scaled = new Rectangle2D.Double(sensor.getX()*scale[0], sensor.getY()*scale[1], sensor.getWidth()*scale[0], sensor.getHeight()*scale[1]);
 			g.draw(scaled);
-		}
+		}*/
 
 	}
 	public void setPolicy(FFNetwork n)

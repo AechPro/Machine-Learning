@@ -2,6 +2,7 @@ package Evolution_Strategies.Policies.FFNN;
 
 import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Util.Activations;
+import Evolution_Strategies.Util.Initializers;
 import Evolution_Strategies.Util.Rand;
 
 public class Layer
@@ -27,6 +28,7 @@ public class Layer
         int prevNodes = prevLayer.getNumNodes();
         weights = new double[prevNodes][numNodes];
         biases = new double[numNodes];
+        numParams = prevNodes*numNodes + numNodes;
         for(int i=0;i<prevNodes;i++)
         {
             for(int j=0;j<numNodes;j++)
@@ -39,14 +41,13 @@ public class Layer
             biases[i] = Rand.getRandNorm(0, Config.WEIGHT_INIT_STD);
         }
         
-        numParams = prevNodes*numNodes + numNodes;
+        
     }
 
     public double[] activateNoisy(double[] input, double[] noiseFlat, boolean softmax)
     {
        int noiseIdx = 0;
        double[] activated = new double[numNodes];
-       
        //prev nodes
        for(int i=0;i<weights.length;i++)
        {
@@ -56,10 +57,12 @@ public class Layer
                activated[j] += (weights[i][j] + noiseFlat[noiseIdx++])*input[i];
            }
        }
+       
        for(int i=0;i<numNodes;i++)
        {
            activated[i] = activated[i] + biases[i] + noiseFlat[noiseIdx++];
        }
+       
        
        if(softmax)
        {

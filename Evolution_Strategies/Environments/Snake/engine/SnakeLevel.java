@@ -132,9 +132,10 @@ public class SnakeLevel extends Environment
     @Override
     public void levelUpdate()
     {
-        //double[] pos = best.getPos();
-        //player.setPos((int)(scale.getScaleX()*pos[0]),(int)(scale.getScaleY()*pos[1]));
-        
+    	/*best = orgs.get(0);
+        double[] pos = best.getPos();
+        player.setPos((int)(scale.getScaleX()*pos[0]),(int)(scale.getScaleY()*pos[1]));
+        */
     }
     public void freeSpawnPoint(double[] pt)
     {

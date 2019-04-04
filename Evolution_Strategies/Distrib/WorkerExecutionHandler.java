@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import Evolution_Strategies.Environments.Environment;
 import Evolution_Strategies.Environments.CartPole.CartPoleEnvironment;
-import Evolution_Strategies.Environments.Snake.Simulator;
+import Evolution_Strategies.Environments.Flappy.Simulator;
 import Evolution_Strategies.Population.Worker;
 import core.camera.Camera;
 import editor.CameraFocus;

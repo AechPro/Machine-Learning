@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import Evolution_Strategies.Configs.Config;
 import Evolution_Strategies.Distrib.WorkerExecutionHandler;
 import Evolution_Strategies.Environments.Environment;
-import Evolution_Strategies.Environments.Snake.Simulator;
+import Evolution_Strategies.Environments.Flappy.Simulator;
 import Evolution_Strategies.Optimizers.Adam;
 import Evolution_Strategies.Optimizers.BasicOpt;
 import Evolution_Strategies.Optimizers.Optimizer;
@@ -50,7 +50,7 @@ public class Main
     public void run()
     {
     	double best = 0.0;
-    	policy.loadParameters("resources/ES/models/snake/weights.txt");
+    	//policy.loadParameters("resources/ES/models/snake/weights.txt");
         //sim.renderEpisode(policy);
     	//System.exit(0);
         double[] fitnesses = new double[pop.size()];
@@ -62,8 +62,8 @@ public class Main
             
             if(i % 100 == 0)
             {
-            	System.out.println("SAVING PARAMS");
-                policy.saveParameters("resources/ES/models/snake/weights.txt");
+            	//System.out.println("SAVING PARAMS");
+               // policy.saveParameters("resources/ES/models/flappy/weights.txt");
             }
             
             runEpochDist();
@@ -79,7 +79,7 @@ public class Main
                 if(fitnesses[j] > best)
                 {
                 	best = fitnesses[j];
-                    policy.saveParameters("resources/ES/models/snake/weights.txt");
+                    policy.saveParameters("resources/ES/models/flappy/weights.txt");
                 }
             }
             mean/=pop.size();
@@ -111,6 +111,8 @@ public class Main
         }
         
         double[] gradient = computeAdamGradient(noiseFlats, rewards);
+        
+        
         if(gradient == null){return null;}
         
         double[] update = opt.computeUpdate(policy.getFlat(),gradient);

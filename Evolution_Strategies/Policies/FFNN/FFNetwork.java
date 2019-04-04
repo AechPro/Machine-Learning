@@ -38,6 +38,7 @@ public class FFNetwork
         int offset = 0;
         double[] inp = input.clone();
         double[] out = null;
+        
         for(int i=1;i<layers.length;i++)
         {
             int size = layers[i].getNumParams();

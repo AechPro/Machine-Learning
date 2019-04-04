@@ -98,7 +98,6 @@ public class Worker
         }
         
         currentNoiseIdx++;
-        
     }
 
     private int decodeAction(double[] policyDist)
